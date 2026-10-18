@@ -3,23 +3,131 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-gray-950 text-gray-100 antialiased;
+  :root {
+    --accent: 239 68 68;        /* red-500 */
+    --accent-glow: 239 68 68;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-black text-gray-100 antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Custom scrollbar — thin & minimal */
   ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-gray-900;
+    @apply bg-transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-700 rounded-full;
+    @apply bg-white/10 rounded-full;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-600;
+    @apply bg-white/20;
   }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255 255 255 / 0.1) transparent;
+  }
+
+  ::selection {
+    @apply bg-red-500/30 text-white;
+  }
+}
+
+@layer components {
+  /* Glass card */
+  .glass {
+    @apply bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl;
+  }
+
+  .glass-hover {
+    @apply glass transition-all duration-300;
+  }
+
+  .glass-hover:hover {
+    @apply bg-white/[0.06] border-white/[0.1];
+  }
+
+  /* Glow effect on focus/active */
+  .glow-red {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.15),
+                0 0 60px rgba(239, 68, 68, 0.05);
+  }
+
+  /* Animated gradient background blob */
+  .gradient-blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: 0;
+    animation: blobFloat 20s ease-in-out infinite alternate;
+  }
+
+  /* Shimmer loading effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255 255 255 / 0.03) 25%,
+      rgba(255 255 255 / 0.08) 50%,
+      rgba(255 255 255 / 0.03) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-red-400 via-rose-400 to-orange-400;
+  }
+
+  .border-glow {
+    border-image: linear-gradient(
+      135deg,
+      rgba(239, 68, 68, 0.3),
+      rgba(249, 115, 22, 0.1),
+      rgba(239, 68, 68, 0.3)
+    ) 1;
+  }
+}
+
+@keyframes blobFloat {
+  0% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(10px, -30px) scale(1.05); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
 }

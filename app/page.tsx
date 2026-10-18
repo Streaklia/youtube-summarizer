@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Header } from '@/components/Header';
 import { URLInput } from '@/components/URLInput';
 import { VideoInfo } from '@/components/VideoInfo';
@@ -46,6 +46,11 @@ export default function Home() {
   const [chatLoading, setChatLoading] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<AISettings>(DEFAULT_SETTINGS);
+  const [activeSection, setActiveSection] = useState('home');
+
+  // Section refs for scroll-to
+  const summaryRef = useRef<HTMLDivElement>(null);
+  const chatRef = useRef<HTMLDivElement>(null);
 
   // Load settings from localStorage on mount
   useEffect(() => {
@@ -55,6 +60,17 @@ export default function Home() {
   const handleSettingsSave = (newSettings: AISettings) => {
     setSettings(newSettings);
     localStorage.setItem('yt-summarizer-settings', JSON.stringify(newSettings));
+  };
+
+  const handleNavigate = (section: string) => {
+    setActiveSection(section);
+    if (section === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (section === 'summary' && summaryRef.current) {
+      summaryRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else if (section === 'chat' && chatRef.current) {
+      chatRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   /** Build the provider fields to include in API request bodies */
@@ -68,6 +84,8 @@ export default function Home() {
     }
     return { provider: 'gemini' as const };
   };
+
+  const hasResults = !!(metadata || summary || transcript.length > 0);
 
   const handleSubmit = async () => {
     if (!url.trim()) return;
@@ -123,6 +141,7 @@ export default function Home() {
       }
 
       setSummary(summaryData);
+      setActiveSection('summary');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -172,106 +191,147 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-950 text-gray-100">
-      <Header
-        onOpenSettings={() => setSettingsOpen(true)}
-        activeProvider={settings.provider}
-        activeModel={settings.openrouterModel}
-      />
+    <main className="min-h-screen bg-black text-gray-100 relative overflow-hidden">
+      {/* Ambient gradient blobs */}
+      <div className="gradient-blob w-[600px] h-[600px] bg-red-600 -top-48 -right-48" />
+      <div className="gradient-blob w-[500px] h-[500px] bg-rose-700 top-[60%] -left-64" style={{ animationDelay: '-8s' }} />
+      <div className="gradient-blob w-[400px] h-[400px] bg-orange-600 top-[30%] right-[20%]" style={{ animationDelay: '-15s' }} />
 
-      <SettingsModal
-        isOpen={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        settings={settings}
-        onSave={handleSettingsSave}
-      />
-
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <URLInput
-          url={url}
-          onUrlChange={setUrl}
-          onSubmit={handleSubmit}
-          loading={loading}
+      {/* Content */}
+      <div className="relative z-10">
+        <Header
+          onOpenSettings={() => setSettingsOpen(true)}
+          activeProvider={settings.provider}
+          activeModel={settings.openrouterModel}
+          activeSection={activeSection}
+          onNavigate={handleNavigate}
+          hasResults={hasResults}
         />
 
-        {/* Error display */}
-        {error && (
-          <div className="mt-6 p-4 bg-red-900/30 border border-red-700 rounded-xl text-red-300 text-sm">
-            <p className="font-medium">Something went wrong</p>
-            <p className="mt-1 text-red-400">{error}</p>
-          </div>
-        )}
+        <SettingsModal
+          isOpen={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+          settings={settings}
+          onSave={handleSettingsSave}
+        />
 
-        {/* Informative Warning Banner */}
-        {warning && (
-          <div className="mt-6 p-4 bg-amber-900/20 border border-amber-600/40 rounded-xl text-amber-200 text-sm flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-medium text-amber-300">Direct Video Analysis</p>
-              <p className="mt-0.5 text-xs text-amber-300/80">{warning}</p>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+          {/* URL Input / Hero */}
+          <URLInput
+            url={url}
+            onUrlChange={setUrl}
+            onSubmit={handleSubmit}
+            loading={loading}
+          />
+
+          {/* Error display */}
+          {error && (
+            <div className="mt-8 p-4 glass border-red-500/20 animate-fade-in-up">
+              <div className="flex items-start gap-3">
+                <div className="p-1 rounded-lg bg-red-500/10">
+                  <AlertCircle className="w-4 h-4 text-red-400" />
+                </div>
+                <div>
+                  <p className="font-medium text-red-300 text-sm">Something went wrong</p>
+                  <p className="mt-1 text-red-400/80 text-xs">{error}</p>
+                </div>
+              </div>
             </div>
+          )}
+
+          {/* Informative Warning Banner */}
+          {warning && (
+            <div className="mt-6 p-4 glass border-amber-500/10 animate-fade-in-up">
+              <div className="flex items-start gap-3">
+                <div className="p-1 rounded-lg bg-amber-500/10">
+                  <AlertCircle className="w-4 h-4 text-amber-400" />
+                </div>
+                <div>
+                  <p className="font-medium text-amber-300 text-sm">Direct Video Analysis</p>
+                  <p className="mt-0.5 text-xs text-amber-300/60">{warning}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Loading: fetching video info */}
+          {loading && (
+            <div className="mt-12">
+              <LoadingSpinner label="Processing video details..." />
+            </div>
+          )}
+
+          {/* Video metadata */}
+          {metadata && !loading && (
+            <div className="mt-8">
+              <VideoInfo metadata={metadata} />
+            </div>
+          )}
+
+          {/* Loading: generating summary */}
+          {summarizing && (
+            <div className="mt-8">
+              <LoadingSpinner
+                label={
+                  settings.provider === 'openrouter'
+                    ? `Generating summary with ${settings.openrouterModel.split('/').pop()}...`
+                    : 'Generating AI summary with Gemini...'
+                }
+              />
+            </div>
+          )}
+
+          {/* Summary tabs */}
+          <div ref={summaryRef}>
+            {(summarizing || summary) && (
+              <div className="mt-8">
+                <SummaryTabs
+                  summary={summary}
+                  transcript={transcript}
+                  metadata={metadata}
+                  loading={summarizing}
+                />
+              </div>
+            )}
+
+            {/* Show transcript tab even before summarization if transcript is available */}
+            {!summarizing && !summary && transcript.length > 0 && !loading && (
+              <div className="mt-8">
+                <SummaryTabs
+                  summary={null}
+                  transcript={transcript}
+                  metadata={metadata}
+                  loading={false}
+                />
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Loading: fetching video info */}
-        {loading && (
-          <div className="mt-10 flex flex-col items-center gap-3">
-            <LoadingSpinner />
-            <p className="text-gray-400 text-sm">Processing video details...</p>
+          {/* Chat with video */}
+          <div ref={chatRef}>
+            {(summary || formattedTranscript) && !loading && !summarizing && (
+              <div className="mt-8">
+                <ChatWithVideo
+                  messages={chatMessages}
+                  onSendMessage={handleChat}
+                  loading={chatLoading}
+                />
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Video metadata */}
-        {metadata && !loading && <VideoInfo metadata={metadata} />}
-
-        {/* Loading: generating summary */}
-        {summarizing && (
-          <div className="mt-8 flex flex-col items-center gap-3">
-            <LoadingSpinner />
-            <p className="text-gray-400 text-sm">
-              Generating AI summary
-              {settings.provider === 'openrouter'
-                ? ` with ${settings.openrouterModel.split('/').pop()}...`
-                : ' with Gemini AI...'}
-            </p>
-          </div>
-        )}
-
-        {/* Summary tabs (shown during loading with skeletons, and after completion) */}
-        {(summarizing || summary) && (
-          <SummaryTabs
-            summary={summary}
-            transcript={transcript}
-            metadata={metadata}
-            loading={summarizing}
-          />
-        )}
-
-        {/* Show transcript tab even before summarization if transcript is available */}
-        {!summarizing && !summary && transcript.length > 0 && !loading && (
-          <SummaryTabs
-            summary={null}
-            transcript={transcript}
-            metadata={metadata}
-            loading={false}
-          />
-        )}
-
-        {/* Chat with video */}
-        {(summary || formattedTranscript) && !loading && !summarizing && (
-          <ChatWithVideo
-            messages={chatMessages}
-            onSendMessage={handleChat}
-            loading={chatLoading}
-          />
-        )}
-
-        {/* Footer */}
-        <footer className="mt-16 pb-8 text-center text-xs text-gray-600">
-          Powered by{' '}
-          {settings.provider === 'openrouter' ? 'OpenRouter' : 'Google Gemini AI'}{' '}
-          · Built with Next.js &amp; Tailwind CSS
-        </footer>
+          {/* Footer */}
+          <footer className="mt-20 pb-8 text-center">
+            <div className="flex items-center justify-center gap-2 text-xs text-gray-700">
+              <span>Powered by</span>
+              <span className="text-gray-500">
+                {settings.provider === 'openrouter' ? 'OpenRouter' : 'Google Gemini AI'}
+              </span>
+              <span className="text-gray-800">·</span>
+              <span>Built with Next.js & Tailwind CSS</span>
+            </div>
+          </footer>
+        </div>
       </div>
     </main>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, Send, Loader2, Bot, User } from 'lucide-react';
+import { Send, Loader2, Bot, User, MessageSquare } from 'lucide-react';
 import { ChatMessage } from '@/lib/types';
 
 interface ChatWithVideoProps {
@@ -9,6 +9,12 @@ interface ChatWithVideoProps {
   onSendMessage: (message: string) => void;
   loading: boolean;
 }
+
+const SUGGESTIONS = [
+  'What are the main topics discussed?',
+  'Summarize the key argument in 2 sentences',
+  'What actionable advice is given?',
+];
 
 export function ChatWithVideo({
   messages,
@@ -30,21 +36,40 @@ export function ChatWithVideo({
   };
 
   return (
-    <div className="mt-8 bg-gray-900 border border-gray-800 rounded-xl overflow-hidden">
+    <div className="glass overflow-hidden animate-fade-in-up">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-800 flex items-center gap-2">
-        <MessageCircle className="w-5 h-5 text-red-400" />
-        <h3 className="font-semibold text-white">💬 Chat with Video</h3>
-        <span className="text-sm text-gray-400 ml-2">
-          Ask questions about the video content
-        </span>
+      <div className="px-5 py-4 border-b border-white/[0.06] flex items-center gap-3">
+        <div className="p-1.5 rounded-lg bg-red-500/10">
+          <MessageSquare className="w-4 h-4 text-red-400" />
+        </div>
+        <div>
+          <h3 className="font-semibold text-white text-sm">Chat with Video</h3>
+          <p className="text-xs text-gray-500">Ask anything about the content</p>
+        </div>
       </div>
 
       {/* Messages */}
       <div className="h-80 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
-          <div className="h-full flex items-center justify-center text-gray-500 text-sm">
-            Ask a question about the video to get started...
+          <div className="h-full flex flex-col items-center justify-center gap-4">
+            <div className="p-3 rounded-2xl bg-white/[0.03]">
+              <Bot className="w-8 h-8 text-gray-600" />
+            </div>
+            <p className="text-gray-600 text-sm text-center">
+              Ask a question about the video to get started
+            </p>
+            {/* Suggestion chips */}
+            <div className="flex flex-wrap gap-2 justify-center max-w-md">
+              {SUGGESTIONS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => onSendMessage(s)}
+                  className="px-3 py-1.5 text-xs text-gray-400 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.1] rounded-full transition-all duration-200"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -56,34 +81,38 @@ export function ChatWithVideo({
             }`}
           >
             {msg.role === 'assistant' && (
-              <div className="w-8 h-8 bg-red-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Bot className="w-4 h-4 text-red-400" />
+              <div className="w-7 h-7 rounded-lg bg-red-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Bot className="w-3.5 h-3.5 text-red-400" />
               </div>
             )}
             <div
-              className={`max-w-[80%] px-4 py-2.5 rounded-xl text-sm leading-relaxed ${
+              className={`max-w-[80%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                 msg.role === 'user'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-gray-800 text-gray-200'
+                  ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-br-md'
+                  : 'bg-white/[0.04] text-gray-200 border border-white/[0.06] rounded-bl-md'
               }`}
             >
               {msg.content}
             </div>
             {msg.role === 'user' && (
-              <div className="w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center flex-shrink-0">
-                <User className="w-4 h-4 text-gray-300" />
+              <div className="w-7 h-7 rounded-lg bg-white/[0.06] flex items-center justify-center flex-shrink-0 mt-0.5">
+                <User className="w-3.5 h-3.5 text-gray-400" />
               </div>
             )}
           </div>
         ))}
 
         {loading && (
-          <div className="flex gap-3 items-center">
-            <div className="w-8 h-8 bg-red-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Bot className="w-4 h-4 text-red-400" />
+          <div className="flex gap-3 items-start">
+            <div className="w-7 h-7 rounded-lg bg-red-500/10 flex items-center justify-center flex-shrink-0">
+              <Bot className="w-3.5 h-3.5 text-red-400" />
             </div>
-            <div className="bg-gray-800 px-4 py-2.5 rounded-xl">
-              <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+            <div className="bg-white/[0.04] border border-white/[0.06] px-4 py-3 rounded-2xl rounded-bl-md">
+              <div className="flex gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-gray-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-gray-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-gray-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
             </div>
           </div>
         )}
@@ -92,20 +121,20 @@ export function ChatWithVideo({
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} className="p-4 border-t border-gray-800">
-        <div className="flex gap-3">
+      <form onSubmit={handleSubmit} className="p-3 border-t border-white/[0.06]">
+        <div className="flex gap-2">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask about the video..."
-            className="flex-1 px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+            className="flex-1 px-4 py-3 bg-white/[0.04] border border-white/[0.06] rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-500/40 focus:bg-white/[0.06] text-sm transition-all duration-200"
             disabled={loading}
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="px-4 py-2.5 bg-red-600 hover:bg-red-500 disabled:bg-gray-700 disabled:cursor-not-allowed text-white rounded-xl transition-all"
+            className="p-3 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 disabled:from-gray-800 disabled:to-gray-800 disabled:text-gray-600 text-white rounded-xl transition-all duration-200 shadow-lg shadow-red-500/10 disabled:shadow-none"
           >
             <Send className="w-4 h-4" />
           </button>

@@ -24,7 +24,7 @@ const tabs = [
 function Skeleton({ className = '', style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <div
-      className={`animate-pulse bg-gray-800 rounded-lg ${className}`}
+      className={`shimmer rounded-lg ${className}`}
       style={style}
     />
   );
@@ -196,9 +196,9 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
   const showTranscript = !loading && transcript.length > 0;
 
   return (
-    <div className="mt-8">
+    <div className="animate-fade-in-up">
       {/* Tab buttons */}
-      <div className="flex gap-1 bg-gray-900 p-1 rounded-xl border border-gray-800 overflow-x-auto">
+      <div className="flex gap-0.5 p-1 rounded-2xl bg-white/[0.03] border border-white/[0.06] overflow-x-auto">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -206,35 +206,35 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
               setActiveTab(tab.id);
               setCopied(false);
             }}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap min-w-0 ${
+            className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap min-w-0 ${
               activeTab === tab.id
-                ? 'bg-gray-800 text-white shadow-sm'
-                : 'text-gray-400 hover:text-gray-300'
+                ? 'bg-white/[0.08] text-white shadow-sm'
+                : 'text-gray-500 hover:text-gray-300 hover:bg-white/[0.03]'
             }`}
           >
-            <span>{tab.emoji}</span>
+            <span className="text-base">{tab.emoji}</span>
             <span className="hidden sm:inline">{tab.label}</span>
           </button>
         ))}
       </div>
 
       {/* Tab content */}
-      <div className="mt-4 bg-gray-900 border border-gray-800 rounded-xl">
+      <div className="mt-3 glass">
         {/* Copy bar */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-gray-800">
-          <h3 className="text-sm font-medium text-gray-400">
-            {tabs.find((t) => t.id === activeTab)?.emoji}{' '}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06]">
+          <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2">
+            <span>{tabs.find((t) => t.id === activeTab)?.emoji}</span>
             {tabs.find((t) => t.id === activeTab)?.label}
           </h3>
           <button
             onClick={handleCopy}
             disabled={loading || (!summary && activeTab !== 'transcript')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed bg-gray-800 border border-gray-700 hover:border-gray-600 text-gray-300 hover:text-white"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.1] text-gray-400 hover:text-white"
           >
             {copied ? (
               <>
-                <Check className="w-3.5 h-3.5 text-green-400" />
-                <span className="text-green-400">Copied!</span>
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-emerald-400">Copied!</span>
               </>
             ) : (
               <>
@@ -245,7 +245,7 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-5 sm:p-6">
           {/* ─── Loading skeleton ─── */}
           {loading && (
             <div className="space-y-4">
@@ -257,9 +257,9 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
           {activeTab === 'takeaways' && showContent && (
             <ul className="space-y-3">
               {summary.keyTakeaways.map((takeaway, i) => (
-                <li key={i} className="flex gap-3 items-start">
-                  <span className="mt-1.5 w-2 h-2 bg-red-500 rounded-full flex-shrink-0" />
-                  <span className="text-gray-200 leading-relaxed">
+                <li key={i} className="flex gap-3 items-start group">
+                  <span className="mt-2 w-1.5 h-1.5 bg-red-500 rounded-full flex-shrink-0 group-hover:shadow-lg group-hover:shadow-red-500/50 transition-all" />
+                  <span className="text-gray-300 leading-relaxed text-sm">
                     {takeaway}
                   </span>
                 </li>
@@ -269,25 +269,25 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
 
           {/* ─── Chapters ─── */}
           {activeTab === 'chapters' && showContent && (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {summary.chapterSummaries.length > 0 ? (
                 summary.chapterSummaries.map((chapter, i) => (
-                  <div key={i} className="flex gap-4 items-start">
-                    <span className="px-2.5 py-1 bg-gray-800 text-red-400 text-sm font-mono rounded-lg flex-shrink-0">
+                  <div key={i} className="flex gap-4 items-start p-3 rounded-xl hover:bg-white/[0.02] transition-all duration-200 -mx-3">
+                    <span className="px-2.5 py-1 bg-white/[0.06] text-red-400 text-xs font-mono rounded-lg flex-shrink-0 border border-white/[0.04]">
                       {chapter.timestamp}
                     </span>
                     <div>
-                      <h4 className="font-semibold text-white">
+                      <h4 className="font-semibold text-white text-sm">
                         {chapter.title}
                       </h4>
-                      <p className="text-gray-400 text-sm mt-1 leading-relaxed">
+                      <p className="text-gray-500 text-sm mt-1 leading-relaxed">
                         {chapter.summary}
                       </p>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-gray-400">
+                <p className="text-gray-600 text-center py-4">
                   No chapter summaries available.
                 </p>
               )}
@@ -296,7 +296,7 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
 
           {/* ─── Full Summary ─── */}
           {activeTab === 'summary' && showContent && (
-            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-gray-300 prose-strong:text-white prose-a:text-red-400">
+            <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-gray-400 prose-strong:text-gray-200 prose-a:text-red-400 prose-li:text-gray-400">
               <ReactMarkdown>{summary.fullSummary}</ReactMarkdown>
             </div>
           )}
@@ -311,7 +311,7 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
                     <h3 className="text-xl font-bold text-white">
                       {summary.infographic.title}
                     </h3>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <p className="text-sm text-gray-500 mt-1">
                       {summary.infographic.subtitle}
                     </p>
                   </div>
@@ -321,20 +321,20 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
                     <div>
                       <div className="flex items-center gap-2 mb-3">
                         <TrendingUp className="w-4 h-4 text-red-400" />
-                        <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
                           Key Stats
                         </h4>
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                         {summary.infographic.keyStats.map((stat, i) => (
                           <div
                             key={i}
-                            className="p-3 bg-gray-800 border border-gray-700 rounded-xl text-center"
+                            className="p-3 bg-white/[0.03] border border-white/[0.06] rounded-xl text-center hover:bg-white/[0.05] transition-all duration-200"
                           >
                             <div className="text-lg font-bold text-white">
                               {stat.value}
                             </div>
-                            <div className="text-xs text-gray-400 mt-1">
+                            <div className="text-xs text-gray-500 mt-1">
                               {stat.label}
                             </div>
                           </div>
@@ -348,7 +348,7 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
                     <div>
                       <div className="flex items-center gap-2 mb-3">
                         <Hash className="w-4 h-4 text-red-400" />
-                        <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
                           Main Points
                         </h4>
                       </div>
@@ -356,16 +356,16 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
                         {summary.infographic.mainPoints.map((point, i) => (
                           <div
                             key={i}
-                            className="flex gap-3 items-start p-3 bg-gray-800/50 border border-gray-700/50 rounded-xl"
+                            className="flex gap-3 items-start p-3 bg-white/[0.02] border border-white/[0.04] rounded-xl hover:bg-white/[0.04] transition-all duration-200"
                           >
-                            <span className="w-7 h-7 flex items-center justify-center bg-red-600 text-white text-sm font-bold rounded-lg flex-shrink-0">
+                            <span className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-red-500 to-rose-600 text-white text-xs font-bold rounded-lg flex-shrink-0 shadow-sm">
                               {point.number}
                             </span>
                             <div>
                               <div className="font-semibold text-white text-sm">
                                 {point.title}
                               </div>
-                              <div className="text-gray-400 text-sm mt-0.5">
+                              <div className="text-gray-500 text-sm mt-0.5">
                                 {point.detail}
                               </div>
                             </div>
@@ -380,7 +380,7 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
                     <div>
                       <div className="flex items-center gap-2 mb-3">
                         <Quote className="w-4 h-4 text-red-400" />
-                        <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-widest">
                           Notable Quotes
                         </h4>
                       </div>
@@ -388,7 +388,7 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
                         {summary.infographic.quotes.map((quote, i) => (
                           <blockquote
                             key={i}
-                            className="border-l-3 border-red-500 pl-4 py-2 text-gray-300 italic text-sm bg-gray-800/30 rounded-r-lg pr-4"
+                            className="border-l-2 border-red-500/50 pl-4 py-2 text-gray-400 italic text-sm bg-white/[0.02] rounded-r-xl pr-4"
                           >
                             &ldquo;{quote}&rdquo;
                           </blockquote>
@@ -399,15 +399,15 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
 
                   {/* Conclusion */}
                   {summary.infographic.conclusion && (
-                    <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-center">
-                      <p className="text-sm font-medium text-red-300">
+                    <div className="p-4 bg-gradient-to-r from-red-500/5 to-rose-500/5 border border-red-500/10 rounded-xl text-center">
+                      <p className="text-sm font-medium text-red-300/80">
                         {summary.infographic.conclusion}
                       </p>
                     </div>
                   )}
                 </div>
               ) : (
-                <p className="text-gray-400 text-center py-4">
+                <p className="text-gray-600 text-center py-4">
                   Infographic data is not available for this summary.
                 </p>
               )}
@@ -418,18 +418,18 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
           {activeTab === 'transcript' && (
             <>
               {showTranscript ? (
-                <div className="max-h-[500px] overflow-y-auto space-y-1 font-mono text-sm pr-2">
+                <div className="max-h-[500px] overflow-y-auto space-y-0.5 font-mono text-sm pr-2">
                   {transcript.map((entry, i) => (
-                    <div key={i} className="flex gap-3 py-1 hover:bg-gray-800/50 rounded px-2 -mx-2">
-                      <span className="text-red-400/70 flex-shrink-0 select-none">
+                    <div key={i} className="flex gap-3 py-1.5 hover:bg-white/[0.02] rounded-lg px-2 -mx-2 transition-colors">
+                      <span className="text-red-500/50 flex-shrink-0 select-none text-xs mt-0.5">
                         {formatTimestamp(entry.offset)}
                       </span>
-                      <span className="text-gray-300">{entry.text}</span>
+                      <span className="text-gray-400">{entry.text}</span>
                     </div>
                   ))}
                 </div>
               ) : loading ? null : (
-                <p className="text-gray-400 text-center py-4">
+                <p className="text-gray-600 text-center py-4">
                   No transcript available.
                 </p>
               )}
@@ -442,13 +442,13 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
               {showContent ? (
                 <div className="space-y-4">
                   {/* Description */}
-                  <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-purple-500/10 to-red-500/10 border border-purple-500/20 rounded-xl">
+                  <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-purple-500/5 to-red-500/5 border border-purple-500/10 rounded-xl">
                     <Sparkles className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm font-medium text-white">
                         ChatGPT Infographic Prompt
                       </p>
-                      <p className="text-xs text-gray-400 mt-1">
+                      <p className="text-xs text-gray-500 mt-1">
                         Copy this prompt and paste it into ChatGPT (with DALL·E) or any AI image generator to create a professional infographic about this video.
                       </p>
                     </div>
@@ -456,8 +456,8 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
 
                   {/* Prompt preview */}
                   <div className="relative">
-                    <div className="max-h-[400px] overflow-y-auto rounded-xl bg-gray-950 border border-gray-700 p-5">
-                      <pre className="text-sm text-gray-300 whitespace-pre-wrap font-mono leading-relaxed">
+                    <div className="max-h-[400px] overflow-y-auto rounded-xl bg-black border border-white/[0.06] p-5">
+                      <pre className="text-sm text-gray-400 whitespace-pre-wrap font-mono leading-relaxed">
                         {generateInfographicPrompt()}
                       </pre>
                     </div>
@@ -466,7 +466,7 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
                   {/* Big copy button */}
                   <button
                     onClick={handleCopy}
-                    className="w-full py-3 bg-gradient-to-r from-purple-600 to-red-600 hover:from-purple-500 hover:to-red-500 text-white font-medium rounded-xl transition-all flex items-center justify-center gap-2 text-sm"
+                    className="w-full py-3 bg-gradient-to-r from-purple-600 to-red-600 hover:from-purple-500 hover:to-red-500 text-white font-medium rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-sm shadow-lg shadow-purple-500/10"
                   >
                     {copied ? (
                       <>
@@ -482,7 +482,7 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
                   </button>
                 </div>
               ) : (
-                <p className="text-gray-400 text-center py-4">
+                <p className="text-gray-600 text-center py-4">
                   Generate a summary first to create the infographic prompt.
                 </p>
               )}
