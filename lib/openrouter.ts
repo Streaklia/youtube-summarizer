@@ -1,5 +1,5 @@
 import { SummaryResult, ChatMessage } from './types';
-import { getSummaryPrompt, parseSummaryResponse } from './gemini';
+import { getSummaryPrompt, parseSummaryResponse, getSectionPrompt, parseSectionResponse } from './gemini';
 
 async function callOpenRouter(
   apiKey: string,
@@ -45,6 +45,24 @@ export async function generateSummaryOpenRouter(
   ]);
 
   return parseSummaryResponse(text);
+}
+
+/** Regenerate only one section via OpenRouter */
+export async function regenerateSectionOpenRouter(
+  section: string,
+  transcript: string,
+  apiKey: string,
+  model: string,
+  videoUrl?: string,
+  title?: string
+): Promise<Partial<SummaryResult>> {
+  const prompt = getSectionPrompt(section, transcript, videoUrl, title);
+
+  const text = await callOpenRouter(apiKey, model, [
+    { role: 'user', content: prompt },
+  ]);
+
+  return parseSectionResponse(section, text);
 }
 
 export async function chatWithTranscriptOpenRouter(

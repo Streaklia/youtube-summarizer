@@ -47,6 +47,7 @@ export default function Home() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<AISettings>(DEFAULT_SETTINGS);
   const [activeSection, setActiveSection] = useState('home');
+  const [regeneratingSection, setRegeneratingSection] = useState<string | null>(null);
 
   // Section refs for scroll-to
   const summaryRef = useRef<HTMLDivElement>(null);
@@ -147,6 +148,65 @@ export default function Home() {
     } finally {
       setLoading(false);
       setSummarizing(false);
+    }
+  };
+
+  const handleRegenerateSection = async (section: string) => {
+    if (!summary && section !== 'transcript') return;
+
+    // If user clicked regenerate on transcript, refetch transcript
+    if (section === 'transcript') {
+      if (!url.trim()) return;
+      setRegeneratingSection('transcript');
+      try {
+        const transcriptRes = await fetch('/api/transcript', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        });
+        const transcriptData = await transcriptRes.json();
+        if (transcriptRes.ok) {
+          setTranscript(transcriptData.transcript || []);
+          setFormattedTranscript(transcriptData.formattedTranscript || '');
+        }
+      } catch (err: any) {
+        console.error('Transcript re-fetch failed:', err);
+      } finally {
+        setRegeneratingSection(null);
+      }
+      return;
+    }
+
+    setRegeneratingSection(section);
+    try {
+      const res = await fetch('/api/regenerate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          section,
+          transcript: formattedTranscript,
+          videoUrl: url,
+          title: metadata?.title || '',
+          ...getProviderPayload(),
+        }),
+      });
+
+      const updatedPart = await res.json();
+      if (!res.ok) {
+        throw new Error(updatedPart.error || `Failed to regenerate ${section}`);
+      }
+
+      setSummary((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          ...updatedPart,
+        };
+      });
+    } catch (err: any) {
+      console.error('Regenerate section error:', err);
+    } finally {
+      setRegeneratingSection(null);
     }
   };
 
@@ -290,6 +350,8 @@ export default function Home() {
                   transcript={transcript}
                   metadata={metadata}
                   loading={summarizing}
+                  onRegenerateSection={handleRegenerateSection}
+                  regeneratingSection={regeneratingSection}
                 />
               </div>
             )}
@@ -302,6 +364,8 @@ export default function Home() {
                   transcript={transcript}
                   metadata={metadata}
                   loading={false}
+                  onRegenerateSection={handleRegenerateSection}
+                  regeneratingSection={regeneratingSection}
                 />
               </div>
             )}

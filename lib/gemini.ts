@@ -50,6 +50,64 @@ Guidelines:
 - Infographic: Extract 3-6 key stats/numbers, 3-5 main points suitable for a visual layout, 1-3 memorable quotes, and a punchy conclusion`;
 }
 
+/** Generate a prompt that targets only one section for regeneration */
+export function getSectionPrompt(
+  section: string,
+  content: string,
+  videoUrl?: string,
+  title?: string
+): string {
+  const sourceBlock = content && content.trim().length > 0
+    ? `VIDEO TRANSCRIPT:\n${content}`
+    : `YOUTUBE VIDEO URL: ${videoUrl || ''}\nTITLE: ${title || 'YouTube Video'}\n(Analyze the video content directly from the URL and title)`;
+
+  const sectionInstructions: Record<string, string> = {
+    takeaways: `Respond with ONLY valid JSON (no markdown code fences):
+{
+  "keyTakeaways": ["takeaway 1", "takeaway 2", ...]
+}
+Generate 5-10 concise, actionable bullet points capturing the most important insights. Make them different and fresh — do not repeat the previous version.`,
+
+    chapters: `Respond with ONLY valid JSON (no markdown code fences):
+{
+  "chapterSummaries": [
+    { "timestamp": "MM:SS", "title": "Chapter Title", "summary": "Brief summary" }
+  ]
+}
+Break the video into logical sections with estimated timestamps. Provide a fresh perspective with different chapter titles.`,
+
+    summary: `Respond with ONLY valid JSON (no markdown code fences):
+{
+  "fullSummary": "markdown content here"
+}
+Write a comprehensive, SEO-friendly article (500-1000 words) with ## headers, paragraphs, bold, and emphasis. Make it fresh and different from any previous summary.`,
+
+    infographic: `Respond with ONLY valid JSON (no markdown code fences):
+{
+  "infographic": {
+    "title": "A short, catchy title",
+    "subtitle": "A one-line hook",
+    "keyStats": [{ "label": "Stat Name", "value": "Value" }],
+    "mainPoints": [{ "number": 1, "title": "Point", "detail": "Detail" }],
+    "quotes": ["A notable quote"],
+    "conclusion": "A concluding takeaway"
+  }
+}
+Extract 3-6 key stats, 3-5 main points, 1-3 quotes, and a punchy conclusion. Be creative — generate a fresh perspective.`,
+  };
+
+  const instruction = sectionInstructions[section];
+  if (!instruction) {
+    throw new Error(`Unknown section: ${section}`);
+  }
+
+  return `You are an expert content analyst. Analyze the following YouTube video and regenerate the requested section with a fresh perspective.
+
+${sourceBlock}
+
+${instruction}`;
+}
+
 export function parseSummaryResponse(text: string): SummaryResult {
   try {
     let jsonStr = text.trim();
@@ -76,6 +134,37 @@ export function parseSummaryResponse(text: string): SummaryResult {
   }
 }
 
+/** Parse a response that contains only a single section */
+export function parseSectionResponse(section: string, text: string): Partial<SummaryResult> {
+  try {
+    let jsonStr = text.trim();
+    const jsonMatch = jsonStr.match(/```(?:json)?\s*([\s\S]*?)```/);
+    if (jsonMatch) {
+      jsonStr = jsonMatch[1].trim();
+    }
+
+    const parsed = JSON.parse(jsonStr);
+    const result: Partial<SummaryResult> = {};
+
+    if (section === 'takeaways' && parsed.keyTakeaways) {
+      result.keyTakeaways = parsed.keyTakeaways;
+    }
+    if (section === 'chapters' && parsed.chapterSummaries) {
+      result.chapterSummaries = parsed.chapterSummaries;
+    }
+    if (section === 'summary' && parsed.fullSummary) {
+      result.fullSummary = parsed.fullSummary;
+    }
+    if (section === 'infographic' && parsed.infographic) {
+      result.infographic = parsed.infographic;
+    }
+
+    return result;
+  } catch {
+    return {};
+  }
+}
+
 export async function generateSummary(
   transcript: string,
   videoUrl?: string,
@@ -91,6 +180,25 @@ export async function generateSummary(
 
   const text = response.text?.trim() || '';
   return parseSummaryResponse(text);
+}
+
+/** Regenerate only one section */
+export async function regenerateSection(
+  section: string,
+  transcript: string,
+  videoUrl?: string,
+  title?: string
+): Promise<Partial<SummaryResult>> {
+  const ai = getClient();
+  const prompt = getSectionPrompt(section, transcript, videoUrl, title);
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: prompt,
+  });
+
+  const text = response.text?.trim() || '';
+  return parseSectionResponse(section, text);
 }
 
 export async function chatWithTranscript(

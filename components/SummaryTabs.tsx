@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Copy, Check, Quote, Hash, TrendingUp, Sparkles } from 'lucide-react';
+import { Copy, Check, Quote, Hash, TrendingUp, Sparkles, RefreshCw, ExternalLink } from 'lucide-react';
 import { SummaryResult, TranscriptEntry, VideoMetadata } from '@/lib/types';
 
 interface SummaryTabsProps {
@@ -10,6 +10,8 @@ interface SummaryTabsProps {
   transcript: TranscriptEntry[];
   metadata?: VideoMetadata | null;
   loading?: boolean;
+  onRegenerateSection?: (section: string) => Promise<void>;
+  regeneratingSection?: string | null;
 }
 
 const tabs = [
@@ -53,9 +55,63 @@ function formatTimestamp(offsetMs: number): string {
     .padStart(2, '0')}`;
 }
 
-export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryTabsProps) {
+export function SummaryTabs({
+  summary,
+  transcript,
+  metadata,
+  loading,
+  onRegenerateSection,
+  regeneratingSection,
+}: SummaryTabsProps) {
   const [activeTab, setActiveTab] = useState<string>('takeaways');
   const [copied, setCopied] = useState(false);
+  const [promptFormat, setPromptFormat] = useState<'infographic' | 'comic'>('infographic');
+  const [promptSeed, setPromptSeed] = useState(0);
+
+  const generateComicPrompt = (): string => {
+    if (!summary) return '';
+
+    const videoTitle = metadata?.title || 'YouTube Video';
+    const channelName = metadata?.channelName || '';
+    const points = summary.chapterSummaries.length > 0
+      ? summary.chapterSummaries.slice(0, 4)
+      : summary.keyTakeaways.slice(0, 4).map((t, idx) => ({ title: `Panel ${idx + 1}`, summary: t }));
+
+    const lines: string[] = [
+      `Create a modern, clean 4-panel visual comic strip summarizing the key storyline of this YouTube video.`,
+      ``,
+      `VIDEO TITLE: "${videoTitle}"${channelName ? `\nCHANNEL: ${channelName}` : ''}`,
+      ``,
+      `COMIC STRIP SPECIFICATIONS:`,
+      `- Format: 4-panel vertical webcomic or 2x2 grid layout`,
+      `- Art Style: Modern digital cartoon / graphic novel with clean line-art, vibrant highlights, and moody dark-mode friendly framing`,
+      `- Character & Atmosphere: Professional storyteller or expressive avatar navigating the core ideas and conflict`,
+      `- Include speech bubbles or narrator caption boxes with punchy, readable dialogue`,
+      ``,
+      `STORYBOARD PANELS:`,
+    ];
+
+    points.forEach((item, idx) => {
+      lines.push(`PANEL ${idx + 1}:`);
+      lines.push(`  - Scene: Visual representation of "${item.title}"`);
+      lines.push(`  - Dialogue / Caption: "${item.summary}"`);
+    });
+
+    lines.push(``);
+    lines.push(`FINAL PUNCHLINE / OUTCOME:`);
+    if (summary.keyTakeaways.length > 0) {
+      lines.push(`  "${summary.keyTakeaways[0]}"`);
+    } else {
+      lines.push(`  Key lesson concluded with a witty insight.`);
+    }
+
+    lines.push(``);
+    lines.push(`ADDITIONAL INSTRUCTIONS:`);
+    lines.push(`- High contrast, expressive emotions, no blurry text`);
+    lines.push(`- Make every frame distinct with dynamic camera angles`);
+
+    return lines.join('\n');
+  };
 
   const generateInfographicPrompt = (): string => {
     if (!summary) return '';
@@ -142,7 +198,7 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
         .join('\n');
     }
     if (activeTab === 'prompt') {
-      return generateInfographicPrompt();
+      return promptFormat === 'comic' ? generateComicPrompt() : generateInfographicPrompt();
     }
     if (!summary) return '';
 
@@ -192,6 +248,17 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleRegenerateCurrentTab = () => {
+    if (activeTab === 'prompt') {
+      setPromptSeed((prev) => prev + 1);
+      return;
+    }
+    if (onRegenerateSection) {
+      onRegenerateSection(activeTab);
+    }
+  };
+
+  const isCurrentSectionRegenerating = regeneratingSection === activeTab;
   const showContent = !loading && summary;
   const showTranscript = !loading && transcript.length > 0;
 
@@ -220,41 +287,64 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
 
       {/* Tab content */}
       <div className="mt-3 glass">
-        {/* Copy bar */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-white/[0.06]">
+        {/* Top Control Bar with Tab Name, Regenerate, and Copy */}
+        <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-b border-white/[0.06]">
           <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2">
             <span>{tabs.find((t) => t.id === activeTab)?.emoji}</span>
-            {tabs.find((t) => t.id === activeTab)?.label}
+            <span>{tabs.find((t) => t.id === activeTab)?.label}</span>
           </h3>
-          <button
-            onClick={handleCopy}
-            disabled={loading || (!summary && activeTab !== 'transcript')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.1] text-gray-400 hover:text-white"
-          >
-            {copied ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-emerald-400">Copied!</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3.5 h-3.5" />
-                Copy
-              </>
-            )}
-          </button>
+
+          <div className="flex items-center gap-2">
+            {/* Regenerate Tab Button */}
+            <button
+              onClick={handleRegenerateCurrentTab}
+              disabled={
+                loading ||
+                isCurrentSectionRegenerating ||
+                (!summary && activeTab !== 'transcript')
+              }
+              title={`Regenerate ${tabs.find((t) => t.id === activeTab)?.label}`}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.1] text-gray-400 hover:text-white"
+            >
+              <RefreshCw
+                className={`w-3.5 h-3.5 ${
+                  isCurrentSectionRegenerating ? 'animate-spin text-red-400' : ''
+                }`}
+              />
+              <span>{isCurrentSectionRegenerating ? 'Regenerating...' : 'Regenerate'}</span>
+            </button>
+
+            {/* Copy Button */}
+            <button
+              onClick={handleCopy}
+              disabled={loading || isCurrentSectionRegenerating || (!summary && activeTab !== 'transcript')}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.1] text-gray-400 hover:text-white"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-emerald-400">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         <div className="p-5 sm:p-6">
-          {/* ─── Loading skeleton ─── */}
-          {loading && (
+          {/* ─── Loading skeleton or per-section regenerating skeleton ─── */}
+          {(loading || isCurrentSectionRegenerating) && (
             <div className="space-y-4">
               <SkeletonLines count={6} />
             </div>
           )}
 
           {/* ─── Key Takeaways ─── */}
-          {activeTab === 'takeaways' && showContent && (
+          {activeTab === 'takeaways' && !isCurrentSectionRegenerating && showContent && (
             <ul className="space-y-3">
               {summary.keyTakeaways.map((takeaway, i) => (
                 <li key={i} className="flex gap-3 items-start group">
@@ -268,7 +358,7 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
           )}
 
           {/* ─── Chapters ─── */}
-          {activeTab === 'chapters' && showContent && (
+          {activeTab === 'chapters' && !isCurrentSectionRegenerating && showContent && (
             <div className="space-y-3">
               {summary.chapterSummaries.length > 0 ? (
                 summary.chapterSummaries.map((chapter, i) => (
@@ -295,14 +385,14 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
           )}
 
           {/* ─── Full Summary ─── */}
-          {activeTab === 'summary' && showContent && (
+          {activeTab === 'summary' && !isCurrentSectionRegenerating && showContent && (
             <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-gray-400 prose-strong:text-gray-200 prose-a:text-red-400 prose-li:text-gray-400">
               <ReactMarkdown>{summary.fullSummary}</ReactMarkdown>
             </div>
           )}
 
           {/* ─── Infographic Data ─── */}
-          {activeTab === 'infographic' && showContent && (
+          {activeTab === 'infographic' && !isCurrentSectionRegenerating && showContent && (
             <>
               {summary.infographic ? (
                 <div className="space-y-6">
@@ -415,7 +505,7 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
           )}
 
           {/* ─── Transcript ─── */}
-          {activeTab === 'transcript' && (
+          {activeTab === 'transcript' && !isCurrentSectionRegenerating && (
             <>
               {showTranscript ? (
                 <div className="max-h-[500px] overflow-y-auto space-y-0.5 font-mono text-sm pr-2">
@@ -437,19 +527,58 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
           )}
 
           {/* ─── Prompt ─── */}
-          {activeTab === 'prompt' && (
+          {activeTab === 'prompt' && !isCurrentSectionRegenerating && (
             <>
               {showContent ? (
                 <div className="space-y-4">
+                  {/* Style selector + Duck.ai quick button */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-gray-500 font-medium">Prompt Style:</span>
+                      <div className="flex gap-1 bg-white/[0.04] p-0.5 rounded-lg border border-white/[0.06]">
+                        <button
+                          onClick={() => setPromptFormat('infographic')}
+                          className={`px-3 py-1 text-xs rounded-md font-medium transition-all ${
+                            promptFormat === 'infographic'
+                              ? 'bg-red-500/20 text-white border border-red-500/30'
+                              : 'text-gray-400 hover:text-white'
+                          }`}
+                        >
+                          📊 Infographic
+                        </button>
+                        <button
+                          onClick={() => setPromptFormat('comic')}
+                          className={`px-3 py-1 text-xs rounded-md font-medium transition-all ${
+                            promptFormat === 'comic'
+                              ? 'bg-purple-500/20 text-white border border-purple-500/30'
+                              : 'text-gray-400 hover:text-white'
+                          }`}
+                        >
+                          🎨 Comic Strip
+                        </button>
+                      </div>
+                    </div>
+
+                    <a
+                      href="https://duck.ai/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-orange-400 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/20 transition-all"
+                    >
+                      <span>🦆 Open Duck.ai</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+
                   {/* Description */}
                   <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-purple-500/5 to-red-500/5 border border-purple-500/10 rounded-xl">
                     <Sparkles className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm font-medium text-white">
-                        ChatGPT Infographic Prompt
+                        {promptFormat === 'comic' ? 'Comic Strip Prompt' : 'ChatGPT Infographic Prompt'}
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        Copy this prompt and paste it into ChatGPT (with DALL·E) or any AI image generator to create a professional infographic about this video.
+                        Copy this ready-to-paste prompt into ChatGPT, Midjourney, DALL·E or Duck.ai to render visual stories from this video.
                       </p>
                     </div>
                   </div>
@@ -458,7 +587,7 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
                   <div className="relative">
                     <div className="max-h-[400px] overflow-y-auto rounded-xl bg-black border border-white/[0.06] p-5">
                       <pre className="text-sm text-gray-400 whitespace-pre-wrap font-mono leading-relaxed">
-                        {generateInfographicPrompt()}
+                        {promptFormat === 'comic' ? generateComicPrompt() : generateInfographicPrompt()}
                       </pre>
                     </div>
                   </div>
@@ -476,14 +605,14 @@ export function SummaryTabs({ summary, transcript, metadata, loading }: SummaryT
                     ) : (
                       <>
                         <Copy className="w-4 h-4" />
-                        Copy Prompt to Clipboard
+                        Copy {promptFormat === 'comic' ? 'Comic' : 'Infographic'} Prompt
                       </>
                     )}
                   </button>
                 </div>
               ) : (
                 <p className="text-gray-600 text-center py-4">
-                  Generate a summary first to create the infographic prompt.
+                  Generate a summary first to create visual prompts.
                 </p>
               )}
             </>
