@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateSummary } from '@/lib/gemini';
 import { generateSummaryOpenRouter } from '@/lib/openrouter';
 
+export const maxDuration = 60; // Allow up to 60s for Vercel functions
+
 export async function POST(req: NextRequest) {
   try {
     const { transcript, provider, openrouterApiKey, openrouterModel } =

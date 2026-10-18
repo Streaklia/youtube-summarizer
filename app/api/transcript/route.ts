@@ -6,6 +6,8 @@ import {
   formatTranscriptForAI,
 } from '@/lib/youtube';
 
+export const maxDuration = 60; // Allow up to 60s for Vercel functions
+
 export async function POST(req: NextRequest) {
   try {
     const { url } = await req.json();
