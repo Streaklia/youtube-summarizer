@@ -34,9 +34,11 @@ async function callOpenRouter(
 export async function generateSummaryOpenRouter(
   transcript: string,
   apiKey: string,
-  model: string
+  model: string,
+  videoUrl?: string,
+  title?: string
 ): Promise<SummaryResult> {
-  const prompt = getSummaryPrompt(transcript);
+  const prompt = getSummaryPrompt(transcript, videoUrl, title);
 
   const text = await callOpenRouter(apiKey, model, [
     { role: 'user', content: prompt },
@@ -49,12 +51,16 @@ export async function chatWithTranscriptOpenRouter(
   transcript: string,
   messages: ChatMessage[],
   apiKey: string,
-  model: string
+  model: string,
+  videoUrl?: string
 ): Promise<string> {
-  const systemPrompt = `You are a helpful AI assistant that answers questions about a YouTube video based on its transcript. Be concise, accurate, and reference specific parts of the video with timestamps when relevant.
+  const contextIntro = transcript && transcript.trim().length > 0
+    ? `VIDEO TRANSCRIPT:\n${transcript}`
+    : `YOUTUBE VIDEO: ${videoUrl || ''}\n(Answer questions using your knowledge of this video)`;
 
-VIDEO TRANSCRIPT:
-${transcript}`;
+  const systemPrompt = `You are a helpful AI assistant that answers questions about a YouTube video. Be concise, accurate, and reference specific parts of the video with timestamps when relevant.
+
+${contextIntro}`;
 
   const apiMessages = [
     { role: 'system', content: systemPrompt },

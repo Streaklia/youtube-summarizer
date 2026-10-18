@@ -27,17 +27,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const [metadata, transcript] = await Promise.all([
-      getVideoMetadata(videoId),
-      getTranscript(videoId),
-    ]);
+    // Always fetch metadata first
+    const metadata = await getVideoMetadata(videoId);
 
-    const formattedTranscript = formatTranscriptForAI(transcript);
+    // Try fetching transcript with fallback handling
+    let transcript: any[] = [];
+    let formattedTranscript = '';
+    let transcriptWarning: string | null = null;
+
+    try {
+      transcript = await getTranscript(videoId);
+      formattedTranscript = formatTranscriptForAI(transcript);
+    } catch (err: any) {
+      // Don't fail the request! Set fallback notice so Gemini analyzes video directly
+      transcriptWarning = 'Subtitles are disabled or restricted for this video. Summarizing directly using AI video analysis.';
+    }
 
     return NextResponse.json({
       metadata,
       transcript,
       formattedTranscript,
+      transcriptWarning,
     });
   } catch (error: any) {
     return NextResponse.json(

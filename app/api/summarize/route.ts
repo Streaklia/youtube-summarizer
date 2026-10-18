@@ -6,12 +6,18 @@ export const maxDuration = 60; // Allow up to 60s for Vercel functions
 
 export async function POST(req: NextRequest) {
   try {
-    const { transcript, provider, openrouterApiKey, openrouterModel } =
-      await req.json();
+    const {
+      transcript,
+      provider,
+      openrouterApiKey,
+      openrouterModel,
+      videoUrl,
+      title,
+    } = await req.json();
 
-    if (!transcript) {
+    if (!transcript && !videoUrl) {
       return NextResponse.json(
-        { error: 'Transcript is required' },
+        { error: 'Transcript or Video URL is required' },
         { status: 400 }
       );
     }
@@ -24,9 +30,11 @@ export async function POST(req: NextRequest) {
         );
       }
       const summary = await generateSummaryOpenRouter(
-        transcript,
+        transcript || '',
         openrouterApiKey,
-        openrouterModel
+        openrouterModel,
+        videoUrl,
+        title
       );
       return NextResponse.json(summary);
     }
@@ -34,12 +42,12 @@ export async function POST(req: NextRequest) {
     // Default: Gemini
     if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
-        { error: 'GEMINI_API_KEY is not configured. Please add it to .env.local' },
+        { error: 'GEMINI_API_KEY is not configured. Please add it in project settings.' },
         { status: 500 }
       );
     }
 
-    const summary = await generateSummary(transcript);
+    const summary = await generateSummary(transcript || '', videoUrl, title);
     return NextResponse.json(summary);
   } catch (error: any) {
     console.error('Summarization error:', error);

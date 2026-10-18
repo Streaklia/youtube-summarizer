@@ -9,10 +9,14 @@ function getClient() {
   return new GoogleGenAI({ apiKey });
 }
 
-const SUMMARY_PROMPT_TEMPLATE = `You are an expert content analyst. Analyze the following YouTube video transcript and provide a comprehensive summary.
+export function getSummaryPrompt(content: string, videoUrl?: string, title?: string): string {
+  const sourceBlock = content && content.trim().length > 0
+    ? `VIDEO TRANSCRIPT:\n${content}`
+    : `YOUTUBE VIDEO URL: ${videoUrl || ''}\nTITLE: ${title || 'YouTube Video'}\n(Analyze the video content directly from the URL and title)`;
 
-TRANSCRIPT:
-{{TRANSCRIPT}}
+  return `You are an expert content analyst. Analyze the following YouTube video and provide a comprehensive summary.
+
+${sourceBlock}
 
 Respond with ONLY valid JSON (no markdown code fences, no extra text) in this exact format:
 {
@@ -41,12 +45,9 @@ Respond with ONLY valid JSON (no markdown code fences, no extra text) in this ex
 
 Guidelines:
 - Key Takeaways: 5-10 concise, actionable bullet points capturing the most important insights
-- Chapter Summaries: Break the video into logical sections with accurate timestamps from the transcript
+- Chapter Summaries: Break the video into logical sections with estimated or extracted timestamps
 - Full Summary: A comprehensive, SEO-friendly article (500-1000 words) that captures all important information with proper markdown structure
-- Infographic: Extract 3-6 key stats/numbers mentioned (or derived from) the video, 3-5 main points suitable for a visual layout, 1-3 memorable quotes, and a punchy conclusion`;
-
-export function getSummaryPrompt(transcript: string): string {
-  return SUMMARY_PROMPT_TEMPLATE.replace('{{TRANSCRIPT}}', transcript);
+- Infographic: Extract 3-6 key stats/numbers, 3-5 main points suitable for a visual layout, 1-3 memorable quotes, and a punchy conclusion`;
 }
 
 export function parseSummaryResponse(text: string): SummaryResult {
@@ -76,10 +77,12 @@ export function parseSummaryResponse(text: string): SummaryResult {
 }
 
 export async function generateSummary(
-  transcript: string
+  transcript: string,
+  videoUrl?: string,
+  title?: string
 ): Promise<SummaryResult> {
   const ai = getClient();
-  const prompt = getSummaryPrompt(transcript);
+  const prompt = getSummaryPrompt(transcript, videoUrl, title);
 
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash',
@@ -92,14 +95,18 @@ export async function generateSummary(
 
 export async function chatWithTranscript(
   transcript: string,
-  messages: ChatMessage[]
+  messages: ChatMessage[],
+  videoUrl?: string
 ): Promise<string> {
   const ai = getClient();
 
-  const systemPrompt = `You are a helpful AI assistant that answers questions about a YouTube video based on its transcript. Be concise, accurate, and reference specific parts of the video with timestamps when relevant.
+  const contextIntro = transcript && transcript.trim().length > 0
+    ? `VIDEO TRANSCRIPT:\n${transcript}`
+    : `YOUTUBE VIDEO: ${videoUrl || ''}\n(Answer questions using your knowledge of this video)`;
 
-VIDEO TRANSCRIPT:
-${transcript}`;
+  const systemPrompt = `You are a helpful AI assistant that answers questions about a YouTube video. Be concise, accurate, and reference specific parts of the video with timestamps when relevant.
+
+${contextIntro}`;
 
   const chatContents = [
     { role: 'user' as const, parts: [{ text: systemPrompt }] },
@@ -107,7 +114,7 @@ ${transcript}`;
       role: 'model' as const,
       parts: [
         {
-          text: "I have read the transcript. I'm ready to answer your questions about this video.",
+          text: "I have reviewed the video details. I'm ready to answer your questions about this video.",
         },
       ],
     },

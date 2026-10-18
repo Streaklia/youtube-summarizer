@@ -8,6 +8,7 @@ import { SummaryTabs } from '@/components/SummaryTabs';
 import { ChatWithVideo } from '@/components/ChatWithVideo';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { SettingsModal } from '@/components/SettingsModal';
+import { AlertCircle } from 'lucide-react';
 import {
   VideoMetadata,
   SummaryResult,
@@ -36,6 +37,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [summarizing, setSummarizing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [warning, setWarning] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<VideoMetadata | null>(null);
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
   const [formattedTranscript, setFormattedTranscript] = useState('');
@@ -72,6 +74,7 @@ export default function Home() {
 
     setLoading(true);
     setError(null);
+    setWarning(null);
     setMetadata(null);
     setTranscript([]);
     setFormattedTranscript('');
@@ -93,17 +96,22 @@ export default function Home() {
       }
 
       setMetadata(transcriptData.metadata);
-      setTranscript(transcriptData.transcript);
-      setFormattedTranscript(transcriptData.formattedTranscript);
+      setTranscript(transcriptData.transcript || []);
+      setFormattedTranscript(transcriptData.formattedTranscript || '');
+      if (transcriptData.transcriptWarning) {
+        setWarning(transcriptData.transcriptWarning);
+      }
       setLoading(false);
 
-      // Step 2: Generate AI summary
+      // Step 2: Generate AI summary (with videoUrl fallback)
       setSummarizing(true);
       const summaryRes = await fetch('/api/summarize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          transcript: transcriptData.formattedTranscript,
+          transcript: transcriptData.formattedTranscript || '',
+          videoUrl: url,
+          title: transcriptData.metadata?.title || '',
           ...getProviderPayload(),
         }),
       });
@@ -138,6 +146,7 @@ export default function Home() {
         body: JSON.stringify({
           transcript: formattedTranscript,
           messages: newMessages,
+          videoUrl: url,
           ...getProviderPayload(),
         }),
       });
@@ -193,16 +202,40 @@ export default function Home() {
           </div>
         )}
 
-        {/* Loading: fetching transcript */}
+        {/* Informative Warning Banner */}
+        {warning && (
+          <div className="mt-6 p-4 bg-amber-900/20 border border-amber-600/40 rounded-xl text-amber-200 text-sm flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-amber-300">Direct Video Analysis</p>
+              <p className="mt-0.5 text-xs text-amber-300/80">{warning}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Loading: fetching video info */}
         {loading && (
           <div className="mt-10 flex flex-col items-center gap-3">
             <LoadingSpinner />
-            <p className="text-gray-400 text-sm">Fetching transcript...</p>
+            <p className="text-gray-400 text-sm">Processing video details...</p>
           </div>
         )}
 
         {/* Video metadata */}
         {metadata && !loading && <VideoInfo metadata={metadata} />}
+
+        {/* Loading: generating summary */}
+        {summarizing && (
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <LoadingSpinner />
+            <p className="text-gray-400 text-sm">
+              Generating AI summary
+              {settings.provider === 'openrouter'
+                ? ` with ${settings.openrouterModel.split('/').pop()}...`
+                : ' with Gemini AI...'}
+            </p>
+          </div>
+        )}
 
         {/* Summary tabs (shown during loading with skeletons, and after completion) */}
         {(summarizing || summary) && (
@@ -225,7 +258,7 @@ export default function Home() {
         )}
 
         {/* Chat with video */}
-        {formattedTranscript && !loading && (
+        {(summary || formattedTranscript) && !loading && !summarizing && (
           <ChatWithVideo
             messages={chatMessages}
             onSendMessage={handleChat}

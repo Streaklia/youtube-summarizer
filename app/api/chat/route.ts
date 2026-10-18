@@ -12,11 +12,12 @@ export async function POST(req: NextRequest) {
       provider,
       openrouterApiKey,
       openrouterModel,
+      videoUrl,
     } = await req.json();
 
-    if (!transcript || !messages) {
+    if (!messages) {
       return NextResponse.json(
-        { error: 'Transcript and messages are required' },
+        { error: 'Messages are required' },
         { status: 400 }
       );
     }
@@ -29,10 +30,11 @@ export async function POST(req: NextRequest) {
         );
       }
       const response = await chatWithTranscriptOpenRouter(
-        transcript,
+        transcript || '',
         messages,
         openrouterApiKey,
-        openrouterModel
+        openrouterModel,
+        videoUrl
       );
       return NextResponse.json({ response });
     }
@@ -45,7 +47,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const response = await chatWithTranscript(transcript, messages);
+    const response = await chatWithTranscript(transcript || '', messages, videoUrl);
     return NextResponse.json({ response });
   } catch (error: any) {
     console.error('Chat error:', error);
