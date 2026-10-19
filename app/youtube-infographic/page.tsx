@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: 'YouTube Infographic & Comic Generator — Create Visual Video Breakdowns',
     description:
       'Extract stats, quotes, and storylines to generate ready-to-paste prompts for AI image models and infographics.',
-    url: 'https://youtube-summarizer.vercel.app/youtube-infographic',
+    url: 'https://www.mytranscript.pro/youtube-infographic',
     siteName: 'YouTube Summarizer',
   },
 };

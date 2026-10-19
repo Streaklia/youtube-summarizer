@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: post.title,
       description: post.excerpt,
       type: 'article',
-      url: `https://youtube-summarizer.vercel.app/blog/${post.slug}`,
+      url: `https://www.mytranscript.pro/blog/${post.slug}`,
     },
   };
 }

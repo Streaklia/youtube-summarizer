@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: 'YouTube to Text Converter — Fast, Accurate, and 100% Free',
     description:
       'Transcribe any YouTube video into readable, editable text format in seconds. No registration required.',
-    url: 'https://youtube-summarizer.vercel.app/youtube-to-text',
+    url: 'https://www.mytranscript.pro/youtube-to-text',
     siteName: 'YouTube Summarizer',
   },
 };

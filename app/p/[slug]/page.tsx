@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const baseUrl = 'https://youtube-summarizer.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.mytranscript.pro';
   const canonicalUrl = `${baseUrl}/p/${params.slug}`;
   const metaTitle = (page as any).metaTitle || `${page.title} — YouTube Summarizer`;
   const metaDescription =

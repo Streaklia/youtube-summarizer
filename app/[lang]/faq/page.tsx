@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title,
       description: 'Frequently asked questions regarding our free AI YouTube video summarizer.',
-      url: `https://youtube-summarizer.vercel.app/${lang}/faq`,
+      url: `https://www.mytranscript.pro/${lang}/faq`,
       type: 'website',
     },
   };

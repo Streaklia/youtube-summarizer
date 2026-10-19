@@ -11,7 +11,7 @@ export const DEFAULT_SITE_SEO_SETTINGS: SiteSeoSettings = {
   siteName: 'YouTubeSummarizer',
   logoText: 'YouTubeSummarizer',
   faviconUrl: '/favicon.ico',
-  openGraphImageUrl: 'https://youtube-summarizer.vercel.app/og-image.png',
+  openGraphImageUrl: 'https://www.mytranscript.pro/og-image.png',
   metaTitle: 'YouTubeSummarizer — High-Speed YouTube Video & Audio AI Summarizer',
   metaDescription:
     'Extract instant transcripts, generate structured key takeaways, chapters, and visual infographics from any YouTube video in seconds using AI.',

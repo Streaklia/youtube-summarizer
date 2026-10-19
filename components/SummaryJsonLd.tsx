@@ -75,7 +75,7 @@ export function SummaryJsonLd({
     author: {
       '@type': 'Organization',
       name: 'YouTube Summarizer',
-      url: 'https://youtube-summarizer.vercel.app',
+      url: 'https://www.mytranscript.pro',
     },
     publisher: {
       '@type': 'Organization',
@@ -105,7 +105,7 @@ export function SummaryJsonLd({
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://youtube-summarizer.vercel.app',
+        item: 'https://www.mytranscript.pro',
       },
       {
         '@type': 'ListItem',

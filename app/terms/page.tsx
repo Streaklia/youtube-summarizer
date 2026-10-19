@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Terms of Service — YouTube Summarizer',
     description: 'Read the terms and conditions for using YouTube Summarizer.',
-    url: 'https://youtube-summarizer.vercel.app/terms',
+    url: 'https://www.mytranscript.pro/terms',
     type: 'website',
   },
 };

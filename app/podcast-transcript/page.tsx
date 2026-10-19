@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     title: 'YouTube Podcast Transcript & Notes Generator — Fast AI Summaries',
     description:
       'Transcribe 3-hour video podcasts in seconds. Extract guest quotes, timestamps, and key insights automatically.',
-    url: 'https://youtube-summarizer.vercel.app/podcast-transcript',
+    url: 'https://www.mytranscript.pro/podcast-transcript',
     siteName: 'YouTube Summarizer',
   },
 };

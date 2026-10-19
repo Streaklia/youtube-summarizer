@@ -25,7 +25,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const thumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-  const canonicalUrl = `https://youtube-summarizer.vercel.app/summary/${videoId}`;
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.mytranscript.pro';
+  const canonicalUrl = `${baseUrl}/summary/${videoId}`;
 
   return {
     title: 'Video Summary & Key Takeaways | YouTube Summarizer',

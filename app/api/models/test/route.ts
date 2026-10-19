@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
       headers: {
         Authorization: `Bearer ${key}`,
         'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://youtube-summarizer.vercel.app',
+        'HTTP-Referer': 'https://www.mytranscript.pro',
         'X-Title': 'YouTube Summarizer Test',
       },
       body: JSON.stringify({

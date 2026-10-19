@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     title: 'AI YouTube Summarizer — Turn Hours of Video into 2-Minute Reads',
     description:
       'Save hours of watch time. Get bulleted key takeaways, chapter breakdowns, and full summaries from any YouTube video.',
-    url: 'https://youtube-summarizer.vercel.app/youtube-summary',
+    url: 'https://www.mytranscript.pro/youtube-summary',
     siteName: 'YouTube Summarizer',
   },
 };

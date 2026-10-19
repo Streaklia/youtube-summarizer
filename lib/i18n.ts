@@ -117,13 +117,13 @@ export function isSupportedLanguage(lang: string): lang is SupportedLanguage {
  * Generates an alternates languages mapping for Next.js metadata.
  * Produces clean hreflang tags:
  * {
- *   'en': 'https://youtube-summarizer.vercel.app/en/youtube-summary',
- *   'es': 'https://youtube-summarizer.vercel.app/es/youtube-summary',
+ *   'en': 'https://www.mytranscript.pro/en/youtube-summary',
+ *   'es': 'https://www.mytranscript.pro/es/youtube-summary',
  *   ...
- *   'x-default': 'https://youtube-summarizer.vercel.app/youtube-summary'
+ *   'x-default': 'https://www.mytranscript.pro/youtube-summary'
  * }
  */
-export function buildHrefLangAlternates(pathWithoutLang: string, baseUrl = 'https://youtube-summarizer.vercel.app') {
+export function buildHrefLangAlternates(pathWithoutLang: string, baseUrl = 'https://www.mytranscript.pro') {
   const cleanPath = pathWithoutLang.startsWith('/') ? pathWithoutLang : `/${pathWithoutLang}`;
   const isRoot = cleanPath === '/' || cleanPath === '';
 

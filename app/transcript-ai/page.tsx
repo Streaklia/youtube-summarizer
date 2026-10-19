@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: 'Transcript AI — Conversational Question-Answering for Any Video',
     description:
       'Ask any question and get instant answers with timestamped references cited directly from the video transcript.',
-    url: 'https://youtube-summarizer.vercel.app/transcript-ai',
+    url: 'https://www.mytranscript.pro/transcript-ai',
     siteName: 'YouTube Summarizer',
   },
 };

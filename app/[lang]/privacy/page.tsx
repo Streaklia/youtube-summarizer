@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title,
       description: 'Privacy commitments, zero data storage, and client-side API key handling.',
-      url: `https://youtube-summarizer.vercel.app/${lang}/privacy`,
+      url: `https://www.mytranscript.pro/${lang}/privacy`,
       type: 'website',
     },
   };

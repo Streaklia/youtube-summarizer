@@ -18,7 +18,7 @@ async function getIndexedVideoIds(): Promise<string[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://youtube-summarizer.vercel.app';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.mytranscript.pro';
   const currentDate = new Date();
 
   // High-Volume SEO Landing Pages

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'YouTube Summarizer Blog & Articles',
     description: 'Learn how to transform long YouTube videos into instant AI summaries and clean transcripts.',
-    url: 'https://youtube-summarizer.vercel.app/blog',
+    url: 'https://www.mytranscript.pro/blog',
     type: 'website',
   },
 };

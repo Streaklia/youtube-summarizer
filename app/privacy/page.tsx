@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Privacy Policy — YouTube Summarizer',
     description: 'Learn how YouTube Summarizer protects your personal privacy and client-side data.',
-    url: 'https://youtube-summarizer.vercel.app/privacy',
+    url: 'https://www.mytranscript.pro/privacy',
     type: 'website',
   },
 };

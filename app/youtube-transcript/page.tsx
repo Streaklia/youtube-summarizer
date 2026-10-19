@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     title: 'Free YouTube Transcript Generator — Extract Text with Timestamps',
     description:
       'Instantly generate and download complete, timestamped transcripts from any YouTube video for free.',
-    url: 'https://youtube-summarizer.vercel.app/youtube-transcript',
+    url: 'https://www.mytranscript.pro/youtube-transcript',
     siteName: 'YouTube Summarizer',
   },
 };

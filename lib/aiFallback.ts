@@ -144,7 +144,7 @@ async function executeOpenRouter(
     headers: {
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://youtube-summarizer.vercel.app',
+      'HTTP-Referer': 'https://www.mytranscript.pro',
       'X-Title': 'YouTube Summarizer',
     },
     body: JSON.stringify({

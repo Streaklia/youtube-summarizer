@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       openGraph: {
         title: toolDef.title,
         description: toolDef.metaDescription,
-        url: `https://youtube-summarizer.vercel.app/${lang}/${tool}`,
+        url: `https://www.mytranscript.pro/${lang}/${tool}`,
         siteName: 'YouTube Summarizer',
         type: 'website',
       },
@@ -77,7 +77,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       openGraph: {
         title: metaTitle,
         description: metaDescription,
-        url: `https://youtube-summarizer.vercel.app/${lang}/${tool}`,
+        url: `https://www.mytranscript.pro/${lang}/${tool}`,
         siteName: 'YouTube Summarizer',
         type: 'article',
       },

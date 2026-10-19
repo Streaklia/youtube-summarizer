@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     description:
       'Instant AI summaries, key takeaways & chapter breakdowns from any YouTube video.',
   },
-  metadataBase: new URL('https://youtube-summarizer.vercel.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.mytranscript.pro'),
   alternates: {
     canonical: '/',
     languages: {
@@ -90,7 +90,7 @@ export default function RootLayout({
               name: 'YouTube Summarizer',
               applicationCategory: 'MultimediaApplication',
               operatingSystem: 'All',
-              url: 'https://youtube-summarizer.vercel.app',
+              url: 'https://www.mytranscript.pro',
               description:
                 'AI-powered YouTube video summarizer, transcript extractor, and interactive chat. Get instant key takeaways, chapters, and infographics from any video.',
               aggregateRating: {
