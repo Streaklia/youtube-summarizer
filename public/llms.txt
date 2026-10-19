@@ -1,0 +1,43 @@
+# MyTranscript
+
+> MyTranscript (https://www.mytranscript.pro) is a fast, free, multilingual AI platform for YouTube transcription, intelligent video summarization, and interactive chat. Users paste any YouTube video or Shorts URL to instantly extract clean timestamped subtitles, generate chapterized takeaways, create visual infographic prompts, and converse with video content across multiple languages without registration, cookies, or extensions.
+
+## Core Features & Tools
+
+- [YouTube Transcript Generator](https://www.mytranscript.pro/youtube-transcript): Extract timestamped transcripts, search spoken phrases, copy text, and export clean captions.
+- [AI Video Summarizer](https://www.mytranscript.pro/youtube-summary): Generate executive summaries, 5-10 key actionable takeaways, and timestamped section breakdowns.
+- [YouTube Infographic Generator](https://www.mytranscript.pro/youtube-infographic): Convert complex video explanations into structured diagram prompts, workflows, and visual briefs.
+- [YouTube to Text Converter](https://www.mytranscript.pro/youtube-to-text): Convert video audio into clean, formatted text articles suitable for blogging, study notes, or newsletters.
+- [Podcast Transcript Extractor](https://www.mytranscript.pro/podcast-transcript): High-speed transcript extraction for long-form interviews, podcasts, lectures, and panel discussions.
+- [Transcript AI Interactive Chat](https://www.mytranscript.pro/transcript-ai): Chat directly with any YouTube video transcript using AI to ask questions, pull quotes, or clarify topics.
+
+## Multilingual Support
+
+MyTranscript provides localized endpoints with tailored metadata, hreflang alternates, and native language models:
+
+- [English](https://www.mytranscript.pro/en): English workspace and transcripts.
+- [Español (Spanish)](https://www.mytranscript.pro/es): Transcripción y resúmenes de videos de YouTube con IA.
+- [Deutsch (German)](https://www.mytranscript.pro/de): KI-gestützte YouTube-Transkription und Video-Zusammenfassungen.
+- [Français (French)](https://www.mytranscript.pro/fr): Transcription et résumé de vidéos YouTube par intelligence artificielle.
+- [Português (Portuguese)](https://www.mytranscript.pro/pt): Transcrição de vídeos do YouTube e resumos com IA.
+- [العربية (Arabic)](https://www.mytranscript.pro/ar): استخراج نصوص وفيديوهات يوتيوب وتلخيصها بالذكاء الاصطناعي مع دعم كامل للكتابة من اليمين إلى اليسار (RTL).
+
+## Technical Architecture & Privacy
+
+- **Framework**: Next.js 14 App Router, React 18, and Tailwind CSS with Edge-optimized server-side rendering and responsive dark theme.
+- **AI Engine**: Integrated with Google Gemini 2.5 Flash and OpenRouter LLM gateways for near-instant inference and high-context comprehension.
+- **Privacy First**: Zero persistent user tracking, no forced authentication, and client-side credential protection. User summaries are generated on demand.
+
+## Guides & Documentation
+
+- [How to Use MyTranscript](https://www.mytranscript.pro/p/how-to-use): Practical guide to extracting transcripts, generating summaries, and interacting with videos.
+- [About MyTranscript](https://www.mytranscript.pro/p/about): Mission, technology stack, and capabilities of the platform.
+- [AI Video Knowledge Base (Blog)](https://www.mytranscript.pro/blog): Deep-dive articles on video summarization, transcript best practices, and AI model comparisons.
+- [Frequently Asked Questions (FAQ)](https://www.mytranscript.pro/faq): Common inquiries regarding length limits, supported caption types, and privacy.
+
+## Reference & System Endpoints
+
+- [Privacy Policy](https://www.mytranscript.pro/privacy): Comprehensive data protection statement and zero-retention policy.
+- [Terms of Service](https://www.mytranscript.pro/terms): User guidelines, fair use standards, and service terms.
+- [XML Sitemap](https://www.mytranscript.pro/sitemap.xml): Machine-readable XML sitemap indexing all canonical static and localized routes.
+- [Robots Configuration](https://www.mytranscript.pro/robots.txt): Crawler rules and indexing directives.
