@@ -351,32 +351,37 @@ export function SummaryTabs({
   return (
     <div className="animate-fade-in-up">
       {/* Tab buttons */}
-      <div className="flex gap-0.5 p-1 rounded-2xl bg-white/[0.03] border border-white/[0.06] overflow-x-auto">
+      <div className="flex flex-wrap gap-2 items-center overflow-x-auto p-1.5 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
         {tabs.map((tab) => (
           <button
             key={tab.id}
+            type="button"
             onClick={() => {
               setActiveTab(tab.id);
               setCopied(false);
             }}
-            className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap min-w-0 ${
+            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap flex-shrink-0 cursor-pointer ${
               activeTab === tab.id
-                ? 'bg-white/[0.08] text-white shadow-sm'
-                : 'text-gray-500 hover:text-gray-300 hover:bg-white/[0.03]'
+                ? 'bg-white/[0.1] text-white shadow-sm border border-white/[0.08]'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-white/[0.04] border border-transparent'
             }`}
           >
-            <span className="text-base">{tab.emoji}</span>
-            <span className="hidden sm:inline">{tab.label}</span>
+            <span className="text-base leading-none flex-shrink-0">{tab.emoji}</span>
+            <span className="leading-none">{tab.label}</span>
             {tab.badge && (
-              <span className={`ml-1 px-1.5 py-0.2 text-[10px] font-bold tracking-wider text-white uppercase rounded-full shadow-sm ${
-                tab.id === 'transcript' ? 'bg-emerald-500/80' : 'bg-gradient-to-r from-red-500 to-rose-500 animate-pulse'
-              }`}>
+              <span
+                className={`inline-flex items-center px-1.5 py-0.5 text-[10px] font-bold tracking-wider text-white uppercase rounded-full shadow-sm flex-shrink-0 leading-none ${
+                  tab.id === 'transcript'
+                    ? 'bg-emerald-500/80'
+                    : 'bg-gradient-to-r from-red-500 to-rose-500 animate-pulse'
+                }`}
+              >
                 {tab.badge}
               </span>
             )}
             {/* Background generating indicator for AI tabs while summary is still fetching */}
             {loading && !summary && tab.id !== 'transcript' && (
-              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping absolute top-2 right-2" />
+              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse flex-shrink-0" />
             )}
           </button>
         ))}
@@ -494,9 +499,26 @@ export function SummaryTabs({
                   </div>
                 </div>
               ) : (
-                <p className="text-gray-600 text-center py-6">
-                  No transcript available for this video.
-                </p>
+                <div className="py-8 px-4 text-center rounded-2xl bg-white/[0.02] border border-white/[0.04] space-y-3">
+                  <div className="w-10 h-10 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 text-lg shadow-inner">
+                    ⚠️
+                  </div>
+                  <h4 className="text-sm font-semibold text-white">
+                    Transcript Unavailable from YouTube
+                  </h4>
+                  <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
+                    Captions for this video are either disabled by the creator or restricted by YouTube. Don&apos;t worry — our AI analyzes the video directly!
+                  </p>
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('takeaways')}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-sm hover:opacity-90 transition-opacity"
+                    >
+                      <span>📌 View Key Takeaways</span>
+                    </button>
+                  </div>
+                </div>
               )}
             </>
           )}
