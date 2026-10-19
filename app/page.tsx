@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { URLInput } from '@/components/URLInput';
 import { VideoInfo } from '@/components/VideoInfo';
@@ -16,6 +17,7 @@ import {
   ChatMessage,
   AISettings,
 } from '@/lib/types';
+import { extractVideoId } from '@/lib/youtube';
 
 const DEFAULT_SETTINGS: AISettings = {
   provider: 'gemini',
@@ -33,6 +35,7 @@ function loadSettings(): AISettings {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [summarizing, setSummarizing] = useState(false);
@@ -91,64 +94,14 @@ export default function Home() {
   const handleSubmit = async () => {
     if (!url.trim()) return;
 
-    setLoading(true);
-    setError(null);
-    setWarning(null);
-    setMetadata(null);
-    setTranscript([]);
-    setFormattedTranscript('');
-    setSummary(null);
-    setChatMessages([]);
-
-    try {
-      // Step 1: Fetch transcript and metadata
-      const transcriptRes = await fetch('/api/transcript', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
-      });
-
-      const transcriptData = await transcriptRes.json();
-
-      if (!transcriptRes.ok) {
-        throw new Error(transcriptData.error || 'Failed to fetch transcript');
-      }
-
-      setMetadata(transcriptData.metadata);
-      setTranscript(transcriptData.transcript || []);
-      setFormattedTranscript(transcriptData.formattedTranscript || '');
-      if (transcriptData.transcriptWarning) {
-        setWarning(transcriptData.transcriptWarning);
-      }
-      setLoading(false);
-
-      // Step 2: Generate AI summary (with videoUrl fallback)
-      setSummarizing(true);
-      const summaryRes = await fetch('/api/summarize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          transcript: transcriptData.formattedTranscript || '',
-          videoUrl: url,
-          title: transcriptData.metadata?.title || '',
-          ...getProviderPayload(),
-        }),
-      });
-
-      const summaryData = await summaryRes.json();
-
-      if (!summaryRes.ok) {
-        throw new Error(summaryData.error || 'Failed to generate summary');
-      }
-
-      setSummary(summaryData);
-      setActiveSection('summary');
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-      setSummarizing(false);
+    const videoId = extractVideoId(url);
+    if (videoId) {
+      // Redirect to clean, indexable programmatic SEO route
+      router.push(`/summary/${videoId}`);
+      return;
     }
+
+    setError('Invalid YouTube URL. Please provide a valid youtube.com or youtu.be link.');
   };
 
   const handleRegenerateSection = async (section: string) => {
