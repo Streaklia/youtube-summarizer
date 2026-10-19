@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { SeoPageLayout } from '@/components/SeoPageLayout';
+import { buildHrefLangAlternates } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: 'YouTube Infographic & Comic Generator — Visual AI Video Prompts',
@@ -13,9 +14,7 @@ export const metadata: Metadata = {
     'ai infographic prompt',
     'video storyboard generator',
   ],
-  alternates: {
-    canonical: 'https://youtube-summarizer.vercel.app/youtube-infographic',
-  },
+  alternates: buildHrefLangAlternates('/youtube-infographic'),
   openGraph: {
     title: 'YouTube Infographic & Comic Generator — Create Visual Video Breakdowns',
     description:

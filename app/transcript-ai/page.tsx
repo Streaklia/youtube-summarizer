@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { SeoPageLayout } from '@/components/SeoPageLayout';
+import { buildHrefLangAlternates } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: 'Transcript AI — Chat with Any YouTube Video Transcript Online',
@@ -13,9 +14,7 @@ export const metadata: Metadata = {
     'ai transcript analysis',
     'conversational video search',
   ],
-  alternates: {
-    canonical: 'https://youtube-summarizer.vercel.app/transcript-ai',
-  },
+  alternates: buildHrefLangAlternates('/transcript-ai'),
   openGraph: {
     title: 'Transcript AI — Conversational Question-Answering for Any Video',
     description:

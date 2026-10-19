@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { SeoPageLayout } from '@/components/SeoPageLayout';
+import { buildHrefLangAlternates } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: 'Free YouTube Transcript Generator — Extract Full Video Text Online',
@@ -13,9 +14,7 @@ export const metadata: Metadata = {
     'download youtube subtitles',
     'youtube transcript online free',
   ],
-  alternates: {
-    canonical: 'https://youtube-summarizer.vercel.app/youtube-transcript',
-  },
+  alternates: buildHrefLangAlternates('/youtube-transcript'),
   openGraph: {
     title: 'Free YouTube Transcript Generator — Extract Text with Timestamps',
     description:

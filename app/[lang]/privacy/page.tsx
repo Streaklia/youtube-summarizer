@@ -10,18 +10,17 @@ interface PageProps {
 }
 
 export function generateStaticParams() {
-  return (Object.keys(SUPPORTED_LANGUAGES) as SupportedLanguage[])
-    .filter((l) => l !== 'en')
-    .map((lang) => ({ lang }));
+  return (['en', 'es', 'de', 'fr', 'pt', 'ar'] as SupportedLanguage[]).map((lang) => ({ lang }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang } = params;
-  if (!isSupportedLanguage(lang) || lang === 'en') {
+  if (!isSupportedLanguage(lang)) {
     return { title: 'Privacy Policy — YouTube Summarizer' };
   }
 
   const langTitles: Record<string, string> = {
+    en: 'Privacy Policy',
     es: 'Política de Privacidad',
     de: 'Datenschutzerklärung',
     fr: 'Politique de Confidentialité',
@@ -46,7 +45,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default function LocalizedPrivacyPage({ params }: PageProps) {
   const { lang } = params;
-  if (!isSupportedLanguage(lang) || lang === 'en') {
+  if (!isSupportedLanguage(lang)) {
     notFound();
   }
 

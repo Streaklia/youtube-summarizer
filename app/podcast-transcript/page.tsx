@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { SeoPageLayout } from '@/components/SeoPageLayout';
+import { buildHrefLangAlternates } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: 'YouTube Podcast Transcript Generator — Transcribe Video Podcasts',
@@ -15,9 +16,7 @@ export const metadata: Metadata = {
     'joe rogan transcript',
     'ai podcast notes',
   ],
-  alternates: {
-    canonical: 'https://youtube-summarizer.vercel.app/podcast-transcript',
-  },
+  alternates: buildHrefLangAlternates('/podcast-transcript'),
   openGraph: {
     title: 'YouTube Podcast Transcript & Notes Generator — Fast AI Summaries',
     description:

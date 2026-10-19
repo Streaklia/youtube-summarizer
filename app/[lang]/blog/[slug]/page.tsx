@@ -12,12 +12,10 @@ interface PageProps {
 }
 
 export function generateStaticParams() {
-  const nonDefaultLangs = (Object.keys(SUPPORTED_LANGUAGES) as SupportedLanguage[]).filter(
-    (l) => l !== 'en'
-  );
+  const languages: SupportedLanguage[] = ['en', 'es', 'de', 'fr', 'pt', 'ar'];
 
   const params: { lang: string; slug: string }[] = [];
-  for (const lang of nonDefaultLangs) {
+  for (const lang of languages) {
     for (const post of BLOG_POSTS) {
       params.push({ lang, slug: post.slug });
     }
@@ -27,7 +25,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang, slug } = params;
-  if (!isSupportedLanguage(lang) || lang === 'en') {
+  if (!isSupportedLanguage(lang)) {
     return { title: 'Article Not Found' };
   }
 
@@ -51,7 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default function LocalizedBlogPostPage({ params }: PageProps) {
   const { lang, slug } = params;
-  if (!isSupportedLanguage(lang) || lang === 'en') {
+  if (!isSupportedLanguage(lang)) {
     notFound();
   }
 

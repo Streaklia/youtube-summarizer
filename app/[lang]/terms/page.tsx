@@ -10,18 +10,17 @@ interface PageProps {
 }
 
 export function generateStaticParams() {
-  return (Object.keys(SUPPORTED_LANGUAGES) as SupportedLanguage[])
-    .filter((l) => l !== 'en')
-    .map((lang) => ({ lang }));
+  return (['en', 'es', 'de', 'fr', 'pt', 'ar'] as SupportedLanguage[]).map((lang) => ({ lang }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang } = params;
-  if (!isSupportedLanguage(lang) || lang === 'en') {
+  if (!isSupportedLanguage(lang)) {
     return { title: 'Terms of Service — YouTube Summarizer' };
   }
 
   const langTitles: Record<string, string> = {
+    en: 'Terms of Service',
     es: 'Términos de Servicio',
     de: 'Nutzungsbedingungen',
     fr: 'Conditions d’Utilisation',
@@ -46,7 +45,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default function LocalizedTermsPage({ params }: PageProps) {
   const { lang } = params;
-  if (!isSupportedLanguage(lang) || lang === 'en') {
+  if (!isSupportedLanguage(lang)) {
     notFound();
   }
 

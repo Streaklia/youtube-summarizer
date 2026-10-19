@@ -11,16 +11,17 @@ interface HeaderProps {
   activeSection?: string;
   onNavigate?: (section: string) => void;
   hasResults?: boolean;
+  currentLang?: string;
 }
 
-// Core navigation links targeting high-volume tools
-const toolLinks = [
-  { href: '/', label: 'Summarizer', emoji: '⚡' },
-  { href: '/youtube-transcript', label: 'Transcript', emoji: '📄' },
-  { href: '/youtube-summary', label: 'AI Summary', emoji: '📝' },
-  { href: '/youtube-infographic', label: 'Infographic', emoji: '📊', badge: 'New' },
-  { href: '/youtube-to-text', label: 'To Text', emoji: '✍️' },
-  { href: '/podcast-transcript', label: 'Podcasts', emoji: '🎙️' },
+// Core navigation tools targeting high-volume keywords
+const baseToolLinks = [
+  { path: '', label: 'Summarizer', emoji: '⚡' },
+  { path: '/youtube-transcript', label: 'Transcript', emoji: '📄' },
+  { path: '/youtube-summary', label: 'AI Summary', emoji: '📝' },
+  { path: '/youtube-infographic', label: 'Infographic', emoji: '📊', badge: 'New' },
+  { path: '/youtube-to-text', label: 'To Text', emoji: '✍️' },
+  { path: '/podcast-transcript', label: 'Podcasts', emoji: '🎙️' },
 ];
 
 const resultNavItems = [
@@ -36,6 +37,7 @@ export function Header({
   activeSection = 'home',
   onNavigate,
   hasResults = false,
+  currentLang = 'en',
 }: HeaderProps) {
   const pathname = usePathname();
 
@@ -46,13 +48,23 @@ export function Header({
         : 'OpenRouter'
       : 'Gemini';
 
+  const prefix = currentLang === 'en' ? '' : `/${currentLang}`;
+  const homeHref = prefix || '/';
+
+  const toolLinks = baseToolLinks.map((tool) => ({
+    href: tool.path ? `${prefix}${tool.path}` : homeHref,
+    label: tool.label,
+    emoji: tool.emoji,
+    badge: tool.badge,
+  }));
+
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-800 bg-black/80 backdrop-blur-md px-4 py-3 sm:px-6">
       <div className="max-w-7xl mx-auto flex flex-col justify-center">
         {/* Main Header Flex Row: Left (Logo) | Center (Pill Nav) | Right (Actions) */}
         <div className="flex items-center justify-between gap-4">
           {/* Left section: Brand Logo + Name */}
-          <Link href="/" className="flex items-center gap-3 flex-shrink-0 group">
+          <Link href={homeHref} className="flex items-center gap-3 flex-shrink-0 group">
             <div className="relative flex items-center justify-center">
               <div className="absolute inset-0 bg-red-500/25 rounded-xl blur-md group-hover:bg-red-500/35 transition-all" />
               <div className="relative p-2 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl shadow-md shadow-red-500/20">

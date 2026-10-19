@@ -19,7 +19,7 @@ export const SUPPORTED_LANGUAGES: Record<SupportedLanguage, LanguageConfig> = {
     code: 'en',
     name: 'English',
     nativeName: 'English',
-    flag: '🇺🇸',
+    flag: '🇬🇧',
     dir: 'ltr',
     heroHeadline: 'Turn Any YouTube Video Into',
     heroGradient: 'Instant AI Summaries & Transcripts',
@@ -110,17 +110,17 @@ export const SUPPORTED_LANGUAGES: Record<SupportedLanguage, LanguageConfig> = {
 export const DEFAULT_LANGUAGE: SupportedLanguage = 'en';
 
 export function isSupportedLanguage(lang: string): lang is SupportedLanguage {
-  return Object.keys(SUPPORTED_LANGUAGES).includes(lang);
+  return ['en', 'es', 'de', 'fr', 'pt', 'ar'].includes(lang);
 }
 
 /**
  * Generates an alternates languages mapping for Next.js metadata.
  * Produces clean hreflang tags:
  * {
- *   'en': 'https://youtube-summarizer.vercel.app/blog',
- *   'es': 'https://youtube-summarizer.vercel.app/es/blog',
+ *   'en': 'https://youtube-summarizer.vercel.app/en/youtube-summary',
+ *   'es': 'https://youtube-summarizer.vercel.app/es/youtube-summary',
  *   ...
- *   'x-default': 'https://youtube-summarizer.vercel.app/blog'
+ *   'x-default': 'https://youtube-summarizer.vercel.app/youtube-summary'
  * }
  */
 export function buildHrefLangAlternates(pathWithoutLang: string, baseUrl = 'https://youtube-summarizer.vercel.app') {
@@ -129,7 +129,7 @@ export function buildHrefLangAlternates(pathWithoutLang: string, baseUrl = 'http
 
   const languages: Record<string, string> = {};
 
-  (Object.keys(SUPPORTED_LANGUAGES) as SupportedLanguage[]).forEach((lang) => {
+  (['en', 'es', 'de', 'fr', 'pt', 'ar'] as SupportedLanguage[]).forEach((lang) => {
     if (lang === 'en') {
       languages[lang] = isRoot ? baseUrl : `${baseUrl}${cleanPath}`;
     } else {

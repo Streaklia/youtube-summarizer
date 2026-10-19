@@ -22,7 +22,12 @@ function loadSettings(): AISettings {
   return DEFAULT_SETTINGS;
 }
 
-export function SeoPageLayout(props: SeoLandingToolProps) {
+interface SeoPageLayoutProps extends SeoLandingToolProps {
+  lang?: string;
+  dir?: 'ltr' | 'rtl';
+}
+
+export function SeoPageLayout({ lang = 'en', dir = 'ltr', ...props }: SeoPageLayoutProps) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<AISettings>(DEFAULT_SETTINGS);
 
@@ -36,7 +41,7 @@ export function SeoPageLayout(props: SeoLandingToolProps) {
   };
 
   return (
-    <main className="min-h-screen bg-black text-gray-100 relative overflow-hidden">
+    <main className="min-h-screen bg-black text-gray-100 relative overflow-hidden" dir={dir}>
       {/* Ambient gradient blobs */}
       <div className="gradient-blob w-[600px] h-[600px] bg-red-600 -top-48 -right-48" />
       <div
@@ -53,6 +58,7 @@ export function SeoPageLayout(props: SeoLandingToolProps) {
           onOpenSettings={() => setSettingsOpen(true)}
           activeProvider={settings.provider}
           activeModel={settings.openrouterModel}
+          currentLang={lang}
         />
 
         <SettingsModal
@@ -67,7 +73,7 @@ export function SeoPageLayout(props: SeoLandingToolProps) {
         </div>
 
         {/* Structured Footer with Cody attribution & internal links */}
-        <Footer currentLang="en" />
+        <Footer currentLang={lang as any} />
       </div>
     </main>
   );

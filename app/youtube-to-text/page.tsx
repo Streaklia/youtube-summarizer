@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { SeoPageLayout } from '@/components/SeoPageLayout';
+import { buildHrefLangAlternates } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: 'YouTube to Text Converter — Transcribe Video to Clean Text & Markdown',
@@ -13,9 +14,7 @@ export const metadata: Metadata = {
     'youtube video to text converter online free',
     'download youtube video text',
   ],
-  alternates: {
-    canonical: 'https://youtube-summarizer.vercel.app/youtube-to-text',
-  },
+  alternates: buildHrefLangAlternates('/youtube-to-text'),
   openGraph: {
     title: 'YouTube to Text Converter — Fast, Accurate, and 100% Free',
     description:

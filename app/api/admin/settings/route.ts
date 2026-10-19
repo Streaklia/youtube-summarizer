@@ -8,7 +8,8 @@ import {
   DEFAULT_TELEMETRY,
 } from '@/lib/adminStore';
 import { writePages } from '@/lib/pagesStore';
-import { PageOrPost } from '@/lib/adminTypes';
+import { writeLanguagesToStorage } from '@/lib/languagesStore';
+import { PageOrPost, LanguageSetting } from '@/lib/adminTypes';
 
 // In-memory cache for server runtime
 let store = {
@@ -67,7 +68,12 @@ export async function POST(req: NextRequest) {
         // Non-fatal: in-memory store still updated above
       }
     } else if (action === 'save_languages' && payload) {
-      store.languages = payload;
+      store.languages = payload as LanguageSetting[];
+      try {
+        writeLanguagesToStorage(payload as LanguageSetting[]);
+      } catch (langErr) {
+        console.warn('[admin/settings] Could not persist languages.json:', langErr);
+      }
     } else if (action === 'save_tools' && payload) {
       store.tools = payload;
     }

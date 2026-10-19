@@ -2,6 +2,7 @@ import { MetadataRoute } from 'next';
 import { BLOG_POSTS } from '@/lib/contentData';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/lib/i18n';
 import { getPublishedPages } from '@/lib/pagesStore';
+import { TOOL_SLUGS } from '@/lib/toolTranslations';
 
 /**
  * Returns a list of known or featured video IDs to seed the sitemap.
@@ -58,12 +59,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
-  // Multi-Language routes for non-English locales
-  const nonEnglishLangs = (Object.keys(SUPPORTED_LANGUAGES) as SupportedLanguage[]).filter(
-    (l) => l !== 'en'
-  );
+  // Multi-Language routes for all supported locales
+  const allLangs: SupportedLanguage[] = ['en', 'es', 'de', 'fr', 'pt', 'ar'];
 
-  for (const lang of nonEnglishLangs) {
+  for (const lang of allLangs) {
     routes.push({
       url: `${baseUrl}/${lang}`,
       lastModified: currentDate,
@@ -94,6 +93,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly' as const,
       priority: 0.4,
     });
+
+    // Localized Keyword Tool Routes
+    for (const tool of TOOL_SLUGS) {
+      routes.push({
+        url: `${baseUrl}/${lang}/${tool}`,
+        lastModified: currentDate,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      });
+    }
   }
 
   // Dynamic /summary/[videoId] programmatic SEO entries

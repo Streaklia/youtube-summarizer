@@ -11,18 +11,17 @@ interface PageProps {
 }
 
 export function generateStaticParams() {
-  return (Object.keys(SUPPORTED_LANGUAGES) as SupportedLanguage[])
-    .filter((l) => l !== 'en')
-    .map((lang) => ({ lang }));
+  return (['en', 'es', 'de', 'fr', 'pt', 'ar'] as SupportedLanguage[]).map((lang) => ({ lang }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { lang } = params;
-  if (!isSupportedLanguage(lang) || lang === 'en') {
+  if (!isSupportedLanguage(lang)) {
     return { title: 'FAQ — YouTube Summarizer' };
   }
 
   const langFaqTitles: Record<string, string> = {
+    en: 'Frequently Asked Questions & Help Center',
     es: 'Preguntas Frecuentes y Centro de Ayuda',
     de: 'Häufig gestellte Fragen (FAQ)',
     fr: 'Foire Aux Questions (FAQ)',
@@ -47,7 +46,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default function LocalizedFaqPage({ params }: PageProps) {
   const { lang } = params;
-  if (!isSupportedLanguage(lang) || lang === 'en') {
+  if (!isSupportedLanguage(lang)) {
     notFound();
   }
 

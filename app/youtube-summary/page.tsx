@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { SeoPageLayout } from '@/components/SeoPageLayout';
+import { buildHrefLangAlternates } from '@/lib/i18n';
 
 export const metadata: Metadata = {
   title: 'AI YouTube Summarizer — Summarize Long Videos in Seconds',
@@ -14,9 +15,7 @@ export const metadata: Metadata = {
     'youtube key takeaways',
     'gemini youtube summary',
   ],
-  alternates: {
-    canonical: 'https://youtube-summarizer.vercel.app/youtube-summary',
-  },
+  alternates: buildHrefLangAlternates('/youtube-summary'),
   openGraph: {
     title: 'AI YouTube Summarizer — Turn Hours of Video into 2-Minute Reads',
     description:

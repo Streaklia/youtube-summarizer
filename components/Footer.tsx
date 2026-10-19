@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Youtube, Globe, Heart, Shield, FileText, HelpCircle, BookOpen, Sparkles } from 'lucide-react';
+import { Youtube, Globe, Heart, Shield, FileText, HelpCircle, BookOpen, Sparkles, Info, Lightbulb } from 'lucide-react';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/lib/i18n';
 
 interface FooterProps {
@@ -126,6 +126,24 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
                 >
                   <HelpCircle className="w-3.5 h-3.5 text-zinc-500" />
                   <span>FAQ & Help Center</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/how-to-use"
+                  className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
+                >
+                  <Lightbulb className="w-3.5 h-3.5 text-zinc-500" />
+                  <span>How to Use YouTubeSummarizer</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/about"
+                  className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
+                >
+                  <Info className="w-3.5 h-3.5 text-zinc-500" />
+                  <span>About</span>
                 </Link>
               </li>
               <li>
