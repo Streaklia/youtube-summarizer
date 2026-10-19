@@ -103,6 +103,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.8,
       });
     }
+
+    // Localized Blog Articles
+    for (const post of BLOG_POSTS) {
+      routes.push({
+        url: `${baseUrl}/${lang}/blog/${post.slug}`,
+        lastModified: currentDate,
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+      });
+    }
   }
 
   // Dynamic /summary/[videoId] programmatic SEO entries

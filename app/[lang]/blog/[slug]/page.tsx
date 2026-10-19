@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${post.title} — YouTube Summarizer (${SUPPORTED_LANGUAGES[lang].name})`,
     description: post.excerpt,
-    alternates: buildHrefLangAlternates(`/blog/${post.slug}`),
+    alternates: buildHrefLangAlternates(`/blog/${post.slug}`, lang),
     openGraph: {
       title: post.title,
       description: post.excerpt,

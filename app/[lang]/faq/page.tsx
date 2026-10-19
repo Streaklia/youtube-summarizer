@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description: 'Frequently asked questions regarding our free AI YouTube video summarizer.',
-    alternates: buildHrefLangAlternates('/faq'),
+    alternates: buildHrefLangAlternates('/faq', lang),
     openGraph: {
       title,
       description: 'Frequently asked questions regarding our free AI YouTube video summarizer.',

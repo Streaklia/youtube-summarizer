@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description: 'Terms of service and fair use conditions for YouTube Summarizer.',
-    alternates: buildHrefLangAlternates('/terms'),
+    alternates: buildHrefLangAlternates('/terms', lang),
     openGraph: {
       title,
       description: 'Terms of service and fair use conditions for YouTube Summarizer.',

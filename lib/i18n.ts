@@ -123,7 +123,11 @@ export function isSupportedLanguage(lang: string): lang is SupportedLanguage {
  *   'x-default': 'https://www.mytranscript.pro/youtube-summary'
  * }
  */
-export function buildHrefLangAlternates(pathWithoutLang: string, baseUrl = 'https://www.mytranscript.pro') {
+export function buildHrefLangAlternates(
+  pathWithoutLang: string,
+  currentLang?: string,
+  baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.mytranscript.pro'
+) {
   const cleanPath = pathWithoutLang.startsWith('/') ? pathWithoutLang : `/${pathWithoutLang}`;
   const isRoot = cleanPath === '/' || cleanPath === '';
 
@@ -140,8 +144,10 @@ export function buildHrefLangAlternates(pathWithoutLang: string, baseUrl = 'http
   // Default fallback for unmatched language settings
   languages['x-default'] = isRoot ? baseUrl : `${baseUrl}${cleanPath}`;
 
+  const canonical = (currentLang && languages[currentLang]) ? languages[currentLang] : languages.en;
+
   return {
-    canonical: languages.en,
+    canonical,
     languages,
   };
 }

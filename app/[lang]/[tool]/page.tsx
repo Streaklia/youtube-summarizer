@@ -47,7 +47,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
       title: toolDef.title,
       description: toolDef.metaDescription,
-      alternates: buildHrefLangAlternates(`/${tool}`),
+      alternates: buildHrefLangAlternates(`/${tool}`, lang),
       openGraph: {
         title: toolDef.title,
         description: toolDef.metaDescription,
@@ -73,7 +73,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
       title: metaTitle,
       description: metaDescription,
-      alternates: buildHrefLangAlternates(`/${tool}`),
+      alternates: buildHrefLangAlternates(`/${tool}`, lang),
       openGraph: {
         title: metaTitle,
         description: metaDescription,

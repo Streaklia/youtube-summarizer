@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: config.metaTitle,
     description: config.metaDescription,
-    alternates: buildHrefLangAlternates('/'),
+    alternates: buildHrefLangAlternates('/', lang),
     openGraph: {
       title: config.metaTitle,
       description: config.metaDescription,

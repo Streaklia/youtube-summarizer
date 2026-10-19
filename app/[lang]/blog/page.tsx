@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description: 'Guides, benchmarks, and tutorials for AI YouTube summarization.',
-    alternates: buildHrefLangAlternates('/blog'),
+    alternates: buildHrefLangAlternates('/blog', lang),
     openGraph: {
       title,
       description: 'Guides, benchmarks, and tutorials for AI YouTube summarization.',

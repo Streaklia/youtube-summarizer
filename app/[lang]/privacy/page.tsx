@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description: 'Privacy commitments, zero data storage, and client-side API key handling.',
-    alternates: buildHrefLangAlternates('/privacy'),
+    alternates: buildHrefLangAlternates('/privacy', lang),
     openGraph: {
       title,
       description: 'Privacy commitments, zero data storage, and client-side API key handling.',
