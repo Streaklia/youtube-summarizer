@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Link, Loader2, Sparkles, Search } from 'lucide-react';
+import { Loader2, Sparkles, Search } from 'lucide-react';
 
 interface URLInputProps {
   url: string;
@@ -27,19 +27,9 @@ export function URLInput({ url, onUrlChange, onSubmit, loading }: URLInputProps)
         </p>
       </div>
 
-      {/* Input container */}
-      <div
-        className={`relative rounded-2xl transition-all duration-300 ${
-          isFocused ? 'glow-red' : ''
-        }`}
-      >
-        <div
-          className={`flex items-center gap-2 p-1.5 rounded-2xl border transition-all duration-300 ${
-            isFocused
-              ? 'bg-white/[0.06] border-red-500/40'
-              : 'bg-white/[0.03] border-white/[0.06] hover:border-white/[0.1]'
-          }`}
-        >
+      {/* Input container with animated gradient border */}
+      <div className="glow-border-wrapper">
+        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-black/90 backdrop-blur-xl transition-all duration-300">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-500" />
             <input
@@ -59,14 +49,14 @@ export function URLInput({ url, onUrlChange, onSubmit, loading }: URLInputProps)
           <button
             onClick={onSubmit}
             disabled={loading || !url.trim()}
-            className="px-5 sm:px-7 py-3.5 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 disabled:from-gray-800 disabled:to-gray-800 disabled:text-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 flex items-center gap-2 whitespace-nowrap text-sm shadow-lg shadow-red-500/20 disabled:shadow-none"
+            className="button-glow px-5 sm:px-7 py-3.5 bg-gradient-to-r from-red-500 via-rose-500 to-orange-500 hover:from-red-400 hover:to-rose-400 disabled:from-gray-800 disabled:to-gray-800 disabled:text-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 flex items-center gap-2 whitespace-nowrap text-sm disabled:shadow-none"
           >
             {loading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <>
                 <Sparkles className="w-4 h-4" />
-                Summarize
+                <span>Summarize</span>
               </>
             )}
           </button>

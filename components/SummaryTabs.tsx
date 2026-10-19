@@ -2,7 +2,18 @@
 
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Copy, Check, Quote, Hash, TrendingUp, Sparkles, RefreshCw, ExternalLink } from 'lucide-react';
+import {
+  Copy,
+  Check,
+  Quote,
+  Hash,
+  TrendingUp,
+  Sparkles,
+  RefreshCw,
+  ExternalLink,
+  FileDown,
+  Printer,
+} from 'lucide-react';
 import { SummaryResult, TranscriptEntry, VideoMetadata } from '@/lib/types';
 
 interface SummaryTabsProps {
@@ -15,33 +26,42 @@ interface SummaryTabsProps {
 }
 
 const tabs = [
-  { id: 'takeaways', label: 'Key Takeaways', emoji: '📌' },
-  { id: 'chapters', label: 'Chapters', emoji: '⏱️' },
-  { id: 'summary', label: 'Full Summary', emoji: '📝' },
-  { id: 'infographic', label: 'Infographic', emoji: '📊' },
-  { id: 'transcript', label: 'Transcript', emoji: '📄' },
-  { id: 'prompt', label: 'Prompt', emoji: '✨' },
+  { id: 'takeaways', label: 'Key Takeaways', emoji: '📌', badge: null },
+  { id: 'chapters', label: 'Chapters', emoji: '⏱️', badge: null },
+  { id: 'summary', label: 'Full Summary', emoji: '📝', badge: null },
+  { id: 'infographic', label: 'Infographic', emoji: '📊', badge: 'New' },
+  { id: 'transcript', label: 'Transcript', emoji: '📄', badge: null },
+  { id: 'prompt', label: 'Prompt', emoji: '✨', badge: null },
 ] as const;
 
-function Skeleton({ className = '', style }: { className?: string; style?: React.CSSProperties }) {
+function SkeletonCard() {
   return (
-    <div
-      className={`shimmer rounded-lg ${className}`}
-      style={style}
-    />
-  );
-}
+    <div className="space-y-4 animate-pulse">
+      {/* Skeleton Header */}
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-lg bg-white/[0.06]" />
+        <div className="h-5 w-48 rounded bg-white/[0.08]" />
+      </div>
 
-function SkeletonLines({ count = 5 }: { count?: number }) {
-  return (
-    <div className="space-y-3">
-      {Array.from({ length: count }).map((_, i) => (
-        <Skeleton
-          key={i}
-          className="h-4"
-          style={{ width: `${75 + Math.random() * 25}%` } as React.CSSProperties}
-        />
-      ))}
+      {/* Skeleton Content Bars */}
+      <div className="space-y-3 pt-2">
+        <div className="h-4 w-full rounded bg-white/[0.05]" />
+        <div className="h-4 w-11/12 rounded bg-white/[0.04]" />
+        <div className="h-4 w-4/5 rounded bg-white/[0.06]" />
+        <div className="h-4 w-5/6 rounded bg-white/[0.03]" />
+      </div>
+
+      {/* Grid of Skeleton Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4">
+        <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.04] space-y-2">
+          <div className="h-3 w-1/3 rounded bg-white/[0.06]" />
+          <div className="h-4 w-3/4 rounded bg-white/[0.04]" />
+        </div>
+        <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.04] space-y-2">
+          <div className="h-3 w-1/3 rounded bg-white/[0.06]" />
+          <div className="h-4 w-3/4 rounded bg-white/[0.04]" />
+        </div>
+      </div>
     </div>
   );
 }
@@ -138,7 +158,6 @@ export function SummaryTabs({
       ``,
     ];
 
-    // Key Takeaways
     if (summary.keyTakeaways.length > 0) {
       lines.push(`SECTION 1 — KEY TAKEAWAYS (use bullet points or checkmark icons):`);
       summary.keyTakeaways.slice(0, 5).forEach((t, i) => {
@@ -147,7 +166,6 @@ export function SummaryTabs({
       lines.push('');
     }
 
-    // Stats from infographic data
     if (info && info.keyStats.length > 0) {
       lines.push(`SECTION 2 — KEY STATISTICS (display as bold number cards or stat callouts):`);
       info.keyStats.forEach((s) => {
@@ -156,7 +174,6 @@ export function SummaryTabs({
       lines.push('');
     }
 
-    // Main Points
     if (info && info.mainPoints.length > 0) {
       lines.push(`SECTION 3 — MAIN POINTS (use numbered steps or a flow diagram style):`);
       info.mainPoints.forEach((p) => {
@@ -165,7 +182,6 @@ export function SummaryTabs({
       lines.push('');
     }
 
-    // Quotes
     if (info && info.quotes.length > 0) {
       lines.push(`SECTION 4 — NOTABLE QUOTES (display in a stylized quote block with quotation marks):`);
       info.quotes.forEach((q) => {
@@ -174,7 +190,6 @@ export function SummaryTabs({
       lines.push('');
     }
 
-    // Conclusion
     if (info?.conclusion) {
       lines.push(`FOOTER / CONCLUSION BANNER:`);
       lines.push(`  "${info.conclusion}"`);
@@ -248,6 +263,58 @@ export function SummaryTabs({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleExportMarkdown = () => {
+    if (!summary && transcript.length === 0) return;
+    const title = metadata?.title || 'YouTube Summary';
+    const channel = metadata?.channelName || '';
+    const date = new Date().toLocaleDateString();
+
+    let md = `# ${title}\n\n`;
+    if (channel) md += `**Channel:** ${channel}\n`;
+    md += `**Date:** ${date}\n\n---\n\n`;
+
+    if (summary) {
+      if (summary.keyTakeaways.length > 0) {
+        md += `## 📌 Key Takeaways\n\n`;
+        summary.keyTakeaways.forEach((t, i) => {
+          md += `${i + 1}. ${t}\n`;
+        });
+        md += `\n`;
+      }
+
+      if (summary.chapterSummaries.length > 0) {
+        md += `## ⏱️ Chapters\n\n`;
+        summary.chapterSummaries.forEach((c) => {
+          md += `### [${c.timestamp}] ${c.title}\n${c.summary}\n\n`;
+        });
+      }
+
+      if (summary.fullSummary) {
+        md += `## 📝 Full Summary\n\n${summary.fullSummary}\n\n`;
+      }
+    }
+
+    if (transcript.length > 0) {
+      md += `## 📄 Transcript\n\n`;
+      transcript.forEach((e) => {
+        md += `\`[${formatTimestamp(e.offset)}]\` ${e.text}\n\n`;
+      });
+    }
+
+    const blob = new Blob([md], { type: 'text/markdown;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-summary.md`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadPDF = () => {
+    // Uses browser print preview which natively outputs high-quality PDFs
+    window.print();
+  };
+
   const handleRegenerateCurrentTab = () => {
     if (activeTab === 'prompt') {
       setPromptSeed((prev) => prev + 1);
@@ -281,20 +348,47 @@ export function SummaryTabs({
           >
             <span className="text-base">{tab.emoji}</span>
             <span className="hidden sm:inline">{tab.label}</span>
+            {tab.badge && (
+              <span className="ml-1 px-1.5 py-0.2 bg-gradient-to-r from-red-500 to-rose-500 text-[10px] font-bold tracking-wider text-white uppercase rounded-full shadow-sm animate-pulse">
+                {tab.badge}
+              </span>
+            )}
           </button>
         ))}
       </div>
 
       {/* Tab content */}
       <div className="mt-3 glass">
-        {/* Top Control Bar with Tab Name, Regenerate, and Copy */}
+        {/* Top Control Bar with Tab Name, Export Options, Regenerate, and Copy */}
         <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-b border-white/[0.06]">
           <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2">
             <span>{tabs.find((t) => t.id === activeTab)?.emoji}</span>
             <span>{tabs.find((t) => t.id === activeTab)?.label}</span>
           </h3>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            {/* Export Markdown */}
+            <button
+              onClick={handleExportMarkdown}
+              disabled={loading || (!summary && transcript.length === 0)}
+              title="Export to Markdown (.md)"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.1] text-gray-400 hover:text-white"
+            >
+              <FileDown className="w-3.5 h-3.5 text-rose-400" />
+              <span className="hidden sm:inline">Markdown</span>
+            </button>
+
+            {/* Download PDF */}
+            <button
+              onClick={handleDownloadPDF}
+              disabled={loading || (!summary && transcript.length === 0)}
+              title="Download or Print PDF"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.1] text-gray-400 hover:text-white"
+            >
+              <Printer className="w-3.5 h-3.5 text-orange-400" />
+              <span className="hidden sm:inline">PDF</span>
+            </button>
+
             {/* Regenerate Tab Button */}
             <button
               onClick={handleRegenerateCurrentTab}
@@ -304,20 +398,23 @@ export function SummaryTabs({
                 (!summary && activeTab !== 'transcript')
               }
               title={`Regenerate ${tabs.find((t) => t.id === activeTab)?.label}`}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.1] text-gray-400 hover:text-white"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.1] text-gray-400 hover:text-white"
             >
               <RefreshCw
                 className={`w-3.5 h-3.5 ${
                   isCurrentSectionRegenerating ? 'animate-spin text-red-400' : ''
                 }`}
               />
-              <span>{isCurrentSectionRegenerating ? 'Regenerating...' : 'Regenerate'}</span>
+              <span className="hidden sm:inline">
+                {isCurrentSectionRegenerating ? 'Regenerating...' : 'Regenerate'}
+              </span>
             </button>
 
             {/* Copy Button */}
             <button
               onClick={handleCopy}
               disabled={loading || isCurrentSectionRegenerating || (!summary && activeTab !== 'transcript')}
+              title="Copy to clipboard"
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.1] text-gray-400 hover:text-white"
             >
               {copied ? (
@@ -336,10 +433,10 @@ export function SummaryTabs({
         </div>
 
         <div className="p-5 sm:p-6">
-          {/* ─── Loading skeleton or per-section regenerating skeleton ─── */}
+          {/* ─── Sleek skeleton pulse loaders while fetching ─── */}
           {(loading || isCurrentSectionRegenerating) && (
-            <div className="space-y-4">
-              <SkeletonLines count={6} />
+            <div className="py-2">
+              <SkeletonCard />
             </div>
           )}
 
