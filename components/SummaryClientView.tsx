@@ -7,7 +7,6 @@ import { URLInput } from '@/components/URLInput';
 import { VideoInfo } from '@/components/VideoInfo';
 import { SummaryTabs } from '@/components/SummaryTabs';
 import { ChatWithVideo } from '@/components/ChatWithVideo';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { SettingsModal } from '@/components/SettingsModal';
 import { AlertCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -80,12 +79,12 @@ export function SummaryClientView({
     setSettings(loadSettings());
   }, []);
 
-  // If initialSummary is missing (e.g. server had no API key or failed), trigger client-side summarization
+  // Phase 2: Start background summarization immediately while user reads transcript
   useEffect(() => {
     if (!initialSummary && !error) {
       triggerSummarize();
     }
-  }, []);
+  }, [videoId]);
 
   const handleSettingsSave = (newSettings: AISettings) => {
     setSettings(newSettings);
@@ -135,7 +134,6 @@ export function SummaryClientView({
       }
 
       setSummary(summaryData);
-      setActiveSection('summary');
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -143,13 +141,11 @@ export function SummaryClientView({
     }
   };
 
-  // When user enters a new URL in the input bar on this page, navigate to its clean programmatic route
   const handleUrlSubmit = () => {
     if (!url.trim()) return;
     const nextVideoId = extractVideoId(url);
     if (nextVideoId) {
       if (nextVideoId === videoId) {
-        // Same video: just re-summarize
         triggerSummarize();
       } else {
         router.push(`/summary/${nextVideoId}`);
@@ -288,7 +284,7 @@ export function SummaryClientView({
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
           {/* Back to Home Link */}
-          <div className="mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <Link
               href="/"
               className="inline-flex items-center gap-2 text-xs font-medium text-gray-400 hover:text-white transition-colors"
@@ -296,6 +292,12 @@ export function SummaryClientView({
               <ArrowLeft className="w-4 h-4" />
               <span>Back to search</span>
             </Link>
+
+            {/* Instant loading badge */}
+            <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span>Instant Transcript Ready</span>
+            </span>
           </div>
 
           {/* Quick Input Bar to summarize another video */}
@@ -303,7 +305,7 @@ export function SummaryClientView({
             url={url}
             onUrlChange={setUrl}
             onSubmit={handleUrlSubmit}
-            loading={loading || summarizing}
+            loading={loading}
           />
 
           {/* Error display */}
@@ -345,59 +347,26 @@ export function SummaryClientView({
             </div>
           )}
 
-          {/* Loading: generating summary */}
-          {summarizing && (
-            <div className="mt-8">
-              <LoadingSpinner
-                label={
-                  settings.provider === 'openrouter'
-                    ? `Generating summary with ${settings.openrouterModel.split('/').pop()}...`
-                    : 'Generating AI summary with Gemini...'
-                }
-              />
-            </div>
-          )}
-
-          {/* Summary tabs */}
-          <div ref={summaryRef}>
-            {(summarizing || summary) && (
-              <div className="mt-8">
-                <SummaryTabs
-                  summary={summary}
-                  transcript={transcript}
-                  metadata={metadata}
-                  loading={summarizing}
-                  onRegenerateSection={handleRegenerateSection}
-                  regeneratingSection={regeneratingSection}
-                />
-              </div>
-            )}
-
-            {!summarizing && !summary && transcript.length > 0 && (
-              <div className="mt-8">
-                <SummaryTabs
-                  summary={null}
-                  transcript={transcript}
-                  metadata={metadata}
-                  loading={false}
-                  onRegenerateSection={handleRegenerateSection}
-                  regeneratingSection={regeneratingSection}
-                />
-              </div>
-            )}
+          {/* Instant Tabs: Shows Transcript immediately while other tabs background load */}
+          <div ref={summaryRef} className="mt-8">
+            <SummaryTabs
+              summary={summary}
+              transcript={transcript}
+              metadata={metadata}
+              loading={summarizing}
+              onRegenerateSection={handleRegenerateSection}
+              regeneratingSection={regeneratingSection}
+              initialTab={transcript.length > 0 && !summary ? 'transcript' : 'takeaways'}
+            />
           </div>
 
-          {/* Chat with video */}
-          <div ref={chatRef}>
-            {(summary || formattedTranscript) && !summarizing && (
-              <div className="mt-8">
-                <ChatWithVideo
-                  messages={chatMessages}
-                  onSendMessage={handleChat}
-                  loading={chatLoading}
-                />
-              </div>
-            )}
+          {/* Chat with video: always accessible once transcript is ready */}
+          <div ref={chatRef} className="mt-8">
+            <ChatWithVideo
+              messages={chatMessages}
+              onSendMessage={handleChat}
+              loading={chatLoading}
+            />
           </div>
 
           {/* Footer */}

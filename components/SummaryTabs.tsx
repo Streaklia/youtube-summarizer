@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
   Copy,
@@ -13,6 +13,7 @@ import {
   ExternalLink,
   FileDown,
   Printer,
+  Loader2,
 } from 'lucide-react';
 import { SummaryResult, TranscriptEntry, VideoMetadata } from '@/lib/types';
 
@@ -23,22 +24,29 @@ interface SummaryTabsProps {
   loading?: boolean;
   onRegenerateSection?: (section: string) => Promise<void>;
   regeneratingSection?: string | null;
+  initialTab?: string;
 }
 
 const tabs = [
+  { id: 'transcript', label: 'Transcript', emoji: '📄', badge: 'Instant' },
   { id: 'takeaways', label: 'Key Takeaways', emoji: '📌', badge: null },
   { id: 'chapters', label: 'Chapters', emoji: '⏱️', badge: null },
   { id: 'summary', label: 'Full Summary', emoji: '📝', badge: null },
   { id: 'infographic', label: 'Infographic', emoji: '📊', badge: 'New' },
-  { id: 'transcript', label: 'Transcript', emoji: '📄', badge: null },
   { id: 'prompt', label: 'Prompt', emoji: '✨', badge: null },
 ] as const;
 
-function SkeletonCard() {
+function SkeletonCard({ label }: { label?: string }) {
   return (
     <div className="space-y-4 animate-pulse">
+      {/* Skeleton Status Banner */}
+      <div className="flex items-center gap-2 p-3 bg-red-500/5 border border-red-500/20 rounded-xl text-red-300 text-xs">
+        <Loader2 className="w-4 h-4 text-red-400 animate-spin" />
+        <span>{label || 'Generating AI breakdown in the background... Read the transcript while you wait.'}</span>
+      </div>
+
       {/* Skeleton Header */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 pt-2">
         <div className="w-8 h-8 rounded-lg bg-white/[0.06]" />
         <div className="h-5 w-48 rounded bg-white/[0.08]" />
       </div>
@@ -82,11 +90,21 @@ export function SummaryTabs({
   loading,
   onRegenerateSection,
   regeneratingSection,
+  initialTab,
 }: SummaryTabsProps) {
-  const [activeTab, setActiveTab] = useState<string>('takeaways');
+  const [activeTab, setActiveTab] = useState<string>(
+    initialTab || (transcript.length > 0 && !summary ? 'transcript' : 'takeaways')
+  );
   const [copied, setCopied] = useState(false);
   const [promptFormat, setPromptFormat] = useState<'infographic' | 'comic'>('infographic');
   const [promptSeed, setPromptSeed] = useState(0);
+
+  // Sync initialTab when provided
+  useEffect(() => {
+    if (initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   const generateComicPrompt = (): string => {
     if (!summary) return '';
@@ -311,7 +329,6 @@ export function SummaryTabs({
   };
 
   const handleDownloadPDF = () => {
-    // Uses browser print preview which natively outputs high-quality PDFs
     window.print();
   };
 
@@ -326,8 +343,10 @@ export function SummaryTabs({
   };
 
   const isCurrentSectionRegenerating = regeneratingSection === activeTab;
-  const showContent = !loading && summary;
-  const showTranscript = !loading && transcript.length > 0;
+  const isAITab = activeTab !== 'transcript';
+  const showSkeleton = (loading && !summary && isAITab) || isCurrentSectionRegenerating;
+  const showContent = summary && !isCurrentSectionRegenerating;
+  const showTranscript = transcript.length > 0;
 
   return (
     <div className="animate-fade-in-up">
@@ -349,9 +368,15 @@ export function SummaryTabs({
             <span className="text-base">{tab.emoji}</span>
             <span className="hidden sm:inline">{tab.label}</span>
             {tab.badge && (
-              <span className="ml-1 px-1.5 py-0.2 bg-gradient-to-r from-red-500 to-rose-500 text-[10px] font-bold tracking-wider text-white uppercase rounded-full shadow-sm animate-pulse">
+              <span className={`ml-1 px-1.5 py-0.2 text-[10px] font-bold tracking-wider text-white uppercase rounded-full shadow-sm ${
+                tab.id === 'transcript' ? 'bg-emerald-500/80' : 'bg-gradient-to-r from-red-500 to-rose-500 animate-pulse'
+              }`}>
                 {tab.badge}
               </span>
+            )}
+            {/* Background generating indicator for AI tabs while summary is still fetching */}
+            {loading && !summary && tab.id !== 'transcript' && (
+              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping absolute top-2 right-2" />
             )}
           </button>
         ))}
@@ -361,16 +386,24 @@ export function SummaryTabs({
       <div className="mt-3 glass">
         {/* Top Control Bar with Tab Name, Export Options, Regenerate, and Copy */}
         <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 border-b border-white/[0.06]">
-          <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2">
-            <span>{tabs.find((t) => t.id === activeTab)?.emoji}</span>
-            <span>{tabs.find((t) => t.id === activeTab)?.label}</span>
-          </h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2">
+              <span>{tabs.find((t) => t.id === activeTab)?.emoji}</span>
+              <span>{tabs.find((t) => t.id === activeTab)?.label}</span>
+            </h3>
+            {loading && !summary && (
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-[11px] text-red-300 font-medium">
+                <Loader2 className="w-3 h-3 animate-spin text-red-400" />
+                <span>AI Background Summarizing</span>
+              </span>
+            )}
+          </div>
 
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             {/* Export Markdown */}
             <button
               onClick={handleExportMarkdown}
-              disabled={loading || (!summary && transcript.length === 0)}
+              disabled={loading && !summary && transcript.length === 0}
               title="Export to Markdown (.md)"
               className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.1] text-gray-400 hover:text-white"
             >
@@ -381,7 +414,7 @@ export function SummaryTabs({
             {/* Download PDF */}
             <button
               onClick={handleDownloadPDF}
-              disabled={loading || (!summary && transcript.length === 0)}
+              disabled={loading && !summary && transcript.length === 0}
               title="Download or Print PDF"
               className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.1] text-gray-400 hover:text-white"
             >
@@ -413,7 +446,7 @@ export function SummaryTabs({
             {/* Copy Button */}
             <button
               onClick={handleCopy}
-              disabled={loading || isCurrentSectionRegenerating || (!summary && activeTab !== 'transcript')}
+              disabled={isCurrentSectionRegenerating || (!summary && activeTab !== 'transcript')}
               title="Copy to clipboard"
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 disabled:opacity-20 disabled:cursor-not-allowed bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.1] text-gray-400 hover:text-white"
             >
@@ -433,15 +466,43 @@ export function SummaryTabs({
         </div>
 
         <div className="p-5 sm:p-6">
-          {/* ─── Sleek skeleton pulse loaders while fetching ─── */}
-          {(loading || isCurrentSectionRegenerating) && (
+          {/* ─── Skeleton Pulse Loader for AI tabs currently generating ─── */}
+          {showSkeleton && (
             <div className="py-2">
               <SkeletonCard />
             </div>
           )}
 
+          {/* ─── Instant Transcript Tab: ALWAYS accessible immediately ─── */}
+          {activeTab === 'transcript' && !isCurrentSectionRegenerating && (
+            <>
+              {showTranscript ? (
+                <div>
+                  <div className="mb-3 flex items-center justify-between text-xs text-gray-500 pb-2 border-b border-white/[0.04]">
+                    <span>{transcript.length} transcript segments loaded</span>
+                    <span className="text-emerald-400">● Instant ready</span>
+                  </div>
+                  <div className="max-h-[520px] overflow-y-auto space-y-0.5 font-mono text-sm pr-2">
+                    {transcript.map((entry, i) => (
+                      <div key={i} className="flex gap-3 py-1.5 hover:bg-white/[0.02] rounded-lg px-2 -mx-2 transition-colors">
+                        <span className="text-red-500/50 flex-shrink-0 select-none text-xs mt-0.5">
+                          {formatTimestamp(entry.offset)}
+                        </span>
+                        <span className="text-gray-300 leading-relaxed">{entry.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-gray-600 text-center py-6">
+                  No transcript available for this video.
+                </p>
+              )}
+            </>
+          )}
+
           {/* ─── Key Takeaways ─── */}
-          {activeTab === 'takeaways' && !isCurrentSectionRegenerating && showContent && (
+          {activeTab === 'takeaways' && !showSkeleton && showContent && (
             <ul className="space-y-3">
               {summary.keyTakeaways.map((takeaway, i) => (
                 <li key={i} className="flex gap-3 items-start group">
@@ -455,7 +516,7 @@ export function SummaryTabs({
           )}
 
           {/* ─── Chapters ─── */}
-          {activeTab === 'chapters' && !isCurrentSectionRegenerating && showContent && (
+          {activeTab === 'chapters' && !showSkeleton && showContent && (
             <div className="space-y-3">
               {summary.chapterSummaries.length > 0 ? (
                 summary.chapterSummaries.map((chapter, i) => (
@@ -482,18 +543,17 @@ export function SummaryTabs({
           )}
 
           {/* ─── Full Summary ─── */}
-          {activeTab === 'summary' && !isCurrentSectionRegenerating && showContent && (
+          {activeTab === 'summary' && !showSkeleton && showContent && (
             <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-gray-400 prose-strong:text-gray-200 prose-a:text-red-400 prose-li:text-gray-400">
               <ReactMarkdown>{summary.fullSummary}</ReactMarkdown>
             </div>
           )}
 
           {/* ─── Infographic Data ─── */}
-          {activeTab === 'infographic' && !isCurrentSectionRegenerating && showContent && (
+          {activeTab === 'infographic' && !showSkeleton && showContent && (
             <>
               {summary.infographic ? (
                 <div className="space-y-6">
-                  {/* Title */}
                   <div className="text-center">
                     <h3 className="text-xl font-bold text-white">
                       {summary.infographic.title}
@@ -503,7 +563,6 @@ export function SummaryTabs({
                     </p>
                   </div>
 
-                  {/* Key Stats */}
                   {summary.infographic.keyStats.length > 0 && (
                     <div>
                       <div className="flex items-center gap-2 mb-3">
@@ -530,7 +589,6 @@ export function SummaryTabs({
                     </div>
                   )}
 
-                  {/* Main Points */}
                   {summary.infographic.mainPoints.length > 0 && (
                     <div>
                       <div className="flex items-center gap-2 mb-3">
@@ -562,7 +620,6 @@ export function SummaryTabs({
                     </div>
                   )}
 
-                  {/* Quotes */}
                   {summary.infographic.quotes.length > 0 && (
                     <div>
                       <div className="flex items-center gap-2 mb-3">
@@ -584,7 +641,6 @@ export function SummaryTabs({
                     </div>
                   )}
 
-                  {/* Conclusion */}
                   {summary.infographic.conclusion && (
                     <div className="p-4 bg-gradient-to-r from-red-500/5 to-rose-500/5 border border-red-500/10 rounded-xl text-center">
                       <p className="text-sm font-medium text-red-300/80">
@@ -601,34 +657,11 @@ export function SummaryTabs({
             </>
           )}
 
-          {/* ─── Transcript ─── */}
-          {activeTab === 'transcript' && !isCurrentSectionRegenerating && (
-            <>
-              {showTranscript ? (
-                <div className="max-h-[500px] overflow-y-auto space-y-0.5 font-mono text-sm pr-2">
-                  {transcript.map((entry, i) => (
-                    <div key={i} className="flex gap-3 py-1.5 hover:bg-white/[0.02] rounded-lg px-2 -mx-2 transition-colors">
-                      <span className="text-red-500/50 flex-shrink-0 select-none text-xs mt-0.5">
-                        {formatTimestamp(entry.offset)}
-                      </span>
-                      <span className="text-gray-400">{entry.text}</span>
-                    </div>
-                  ))}
-                </div>
-              ) : loading ? null : (
-                <p className="text-gray-600 text-center py-4">
-                  No transcript available.
-                </p>
-              )}
-            </>
-          )}
-
           {/* ─── Prompt ─── */}
-          {activeTab === 'prompt' && !isCurrentSectionRegenerating && (
+          {activeTab === 'prompt' && !showSkeleton && (
             <>
               {showContent ? (
                 <div className="space-y-4">
-                  {/* Style selector + Duck.ai quick button */}
                   <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-gray-500 font-medium">Prompt Style:</span>
@@ -667,7 +700,6 @@ export function SummaryTabs({
                     </a>
                   </div>
 
-                  {/* Description */}
                   <div className="flex items-start gap-3 p-4 bg-gradient-to-r from-purple-500/5 to-red-500/5 border border-purple-500/10 rounded-xl">
                     <Sparkles className="w-5 h-5 text-purple-400 flex-shrink-0 mt-0.5" />
                     <div>
@@ -680,7 +712,6 @@ export function SummaryTabs({
                     </div>
                   </div>
 
-                  {/* Prompt preview */}
                   <div className="relative">
                     <div className="max-h-[400px] overflow-y-auto rounded-xl bg-black border border-white/[0.06] p-5">
                       <pre className="text-sm text-gray-400 whitespace-pre-wrap font-mono leading-relaxed">
@@ -689,7 +720,6 @@ export function SummaryTabs({
                     </div>
                   </div>
 
-                  {/* Big copy button */}
                   <button
                     onClick={handleCopy}
                     className="w-full py-3 bg-gradient-to-r from-purple-600 to-red-600 hover:from-purple-500 hover:to-red-500 text-white font-medium rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-sm shadow-lg shadow-purple-500/10"
