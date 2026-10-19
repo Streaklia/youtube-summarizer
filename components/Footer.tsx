@@ -186,14 +186,10 @@ export function Footer({ currentLang }: FooterProps) {
           </div>
         </div>
 
-        {/* Bottom Attribution Line (Requested: "Powered by Cody · Built with love") */}
+        {/* Bottom Attribution Line (Requested: "Powered by Cody") */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
           <div className="flex items-center gap-1.5 text-zinc-400">
             <span>Powered by <strong className="text-zinc-300 font-medium">Cody</strong></span>
-            <span className="text-zinc-700">·</span>
-            <span className="inline-flex items-center gap-1">
-              Built with love <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline" />
-            </span>
           </div>
 
           <div className="flex items-center gap-4 text-zinc-500 text-[11px]">

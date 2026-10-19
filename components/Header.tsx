@@ -7,13 +7,14 @@ import { extractLangFromPath, getSavedLanguage, localizedUrl } from '@/lib/local
 import { isSupportedLanguage } from '@/lib/i18n';
 
 interface HeaderProps {
-  onOpenSettings: () => void;
+  onOpenSettings?: () => void;
   activeProvider?: string;
   activeModel?: string;
   activeSection?: string;
   onNavigate?: (section: string) => void;
   hasResults?: boolean;
   currentLang?: string;
+  showAiSettings?: boolean;
 }
 
 // Core navigation tools targeting high-volume keywords
@@ -40,6 +41,7 @@ export function Header({
   onNavigate,
   hasResults = false,
   currentLang,
+  showAiSettings = false,
 }: HeaderProps) {
   const pathname = usePathname();
 
@@ -113,23 +115,27 @@ export function Header({
             })}
           </nav>
 
-          {/* Right section: Action buttons (Model badge + Settings gear) */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/80 border border-zinc-800 text-xs font-medium text-zinc-300 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
-              <span className="truncate max-w-[90px] sm:max-w-[120px]">{providerLabel}</span>
-            </div>
+          {/* Right section: Action buttons (Model badge + Settings gear) - hidden from public by default */}
+          {showAiSettings && (
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/80 border border-zinc-800 text-xs font-medium text-zinc-300 shadow-sm">
+                <Sparkles className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
+                <span className="truncate max-w-[90px] sm:max-w-[120px]">{providerLabel}</span>
+              </div>
 
-            <button
-              type="button"
-              onClick={onOpenSettings}
-              className="p-2 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white transition-all cursor-pointer shadow-sm"
-              title="AI Settings"
-              aria-label="Open AI Settings"
-            >
-              <Settings className="w-4 h-4" />
-            </button>
-          </div>
+              {onOpenSettings && (
+                <button
+                  type="button"
+                  onClick={onOpenSettings}
+                  className="p-2 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white transition-all cursor-pointer shadow-sm"
+                  title="AI Settings"
+                  aria-label="Open AI Settings"
+                >
+                  <Settings className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Mobile Navigation bar: clean horizontal pill row without ugly scrollbars */}

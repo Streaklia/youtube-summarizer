@@ -22,11 +22,14 @@ import {
   BarChart3,
   Search,
   Sparkles,
+  Settings,
   Code,
   ShieldCheck,
   Eye,
   X,
 } from 'lucide-react';
+import { SettingsModal } from '@/components/SettingsModal';
+import { AISettings } from '@/lib/types';
 import {
   SiteSeoSettings,
   MonetizationSettings,
@@ -78,6 +81,35 @@ export default function AdminPage() {
   // Tool Modal
   const [toolModalOpen, setToolModalOpen] = useState(false);
   const [editingTool, setEditingTool] = useState<KeywordToolPage | null>(null);
+
+  // AI & Gemini Settings Modal (Protected Admin Console Only)
+  const [aiSettingsModalOpen, setAiSettingsModalOpen] = useState(false);
+  const [aiSettings, setAiSettings] = useState<AISettings>({
+    provider: 'gemini',
+    openrouterApiKey: '',
+    openrouterModel: '',
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('yt-summarizer-settings');
+        if (stored) {
+          setAiSettings(JSON.parse(stored));
+        }
+      } catch {}
+    }
+  }, []);
+
+  const handleSaveAiSettings = (newSettings: AISettings) => {
+    setAiSettings(newSettings);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('yt-summarizer-settings', JSON.stringify(newSettings));
+      } catch {}
+    }
+    showToast('AI Provider & Model Settings updated successfully!');
+  };
 
   // Check existing session on load
   useEffect(() => {
@@ -453,6 +485,19 @@ export default function AdminPage() {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setAiSettingsModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 rounded-xl transition-all shadow-sm cursor-pointer"
+                title="Configure Gemini & OpenRouter AI settings"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span className="capitalize">{aiSettings.provider || 'Gemini'}</span>
+                <span className="text-red-300">·</span>
+                <Settings className="w-3.5 h-3.5" />
+                <span>AI Settings</span>
+              </button>
+
               <button
                 type="button"
                 onClick={handleSyncDefaults}
@@ -1646,6 +1691,14 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+      {/* AI Settings Modal (Exclusive to Protected Admin Console) */}
+      <SettingsModal
+        isOpen={aiSettingsModalOpen}
+        onClose={() => setAiSettingsModalOpen(false)}
+        settings={aiSettings}
+        onSave={handleSaveAiSettings}
+      />
     </div>
   );
 }
