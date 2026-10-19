@@ -2,14 +2,12 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Header } from '@/components/Header';
-import { URLInput } from '@/components/URLInput';
-import { VideoInfo } from '@/components/VideoInfo';
-import { SummaryTabs } from '@/components/SummaryTabs';
-import { ChatWithVideo } from '@/components/ChatWithVideo';
-import { SettingsModal } from '@/components/SettingsModal';
-import { AlertCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
+import { Header } from '@/components/Header';
+import { SettingsModal } from '@/components/SettingsModal';
+import { VideoPlayerColumn } from '@/components/VideoPlayerColumn';
+import { SummaryTabs } from '@/components/SummaryTabs';
+import { ChatRightColumn } from '@/components/ChatRightColumn';
 import {
   VideoMetadata,
   SummaryResult,
@@ -18,6 +16,7 @@ import {
   AISettings,
 } from '@/lib/types';
 import { extractVideoId } from '@/lib/youtube';
+import { PlusCircle, Search, AlertCircle, Sparkles, ArrowLeft } from 'lucide-react';
 
 interface SummaryClientViewProps {
   videoId: string;
@@ -54,8 +53,12 @@ export function SummaryClientView({
   initialError,
 }: SummaryClientViewProps) {
   const router = useRouter();
-  const [url, setUrl] = useState(`https://www.youtube.com/watch?v=${videoId}`);
-  const [loading, setLoading] = useState(false);
+
+  // Dialog / Input state for '+ Load a different video'
+  const [showLoadModal, setShowLoadModal] = useState(false);
+  const [loadUrl, setLoadUrl] = useState('');
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const [summarizing, setSummarizing] = useState(false);
   const [error, setError] = useState<string | null>(initialError);
   const [warning, setWarning] = useState<string | null>(initialTranscriptWarning);
@@ -69,17 +72,13 @@ export function SummaryClientView({
   const [chatLoading, setChatLoading] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<AISettings>(DEFAULT_SETTINGS);
-  const [activeSection, setActiveSection] = useState('summary');
   const [regeneratingSection, setRegeneratingSection] = useState<string | null>(null);
-
-  const summaryRef = useRef<HTMLDivElement>(null);
-  const chatRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setSettings(loadSettings());
   }, []);
 
-  // Phase 2: Start background summarization immediately while user reads transcript
+  // Background AI generation without blocking the instant transcript view
   useEffect(() => {
     if (!initialSummary && !error) {
       triggerSummarize();
@@ -89,17 +88,6 @@ export function SummaryClientView({
   const handleSettingsSave = (newSettings: AISettings) => {
     setSettings(newSettings);
     localStorage.setItem('yt-summarizer-settings', JSON.stringify(newSettings));
-  };
-
-  const handleNavigate = (section: string) => {
-    setActiveSection(section);
-    if (section === 'home') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (section === 'summary' && summaryRef.current) {
-      summaryRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else if (section === 'chat' && chatRef.current) {
-      chatRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   };
 
   const getProviderPayload = () => {
@@ -141,18 +129,17 @@ export function SummaryClientView({
     }
   };
 
-  const handleUrlSubmit = () => {
-    if (!url.trim()) return;
-    const nextVideoId = extractVideoId(url);
-    if (nextVideoId) {
-      if (nextVideoId === videoId) {
-        triggerSummarize();
-      } else {
-        router.push(`/summary/${nextVideoId}`);
-      }
-    } else {
-      setError('Invalid YouTube URL. Please enter a valid YouTube video link.');
+  const handleLoadSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!loadUrl.trim()) return;
+    const nextVideoId = extractVideoId(loadUrl);
+    if (!nextVideoId) {
+      setLoadError('Please enter a valid YouTube URL');
+      return;
     }
+    setShowLoadModal(false);
+    setLoadUrl('');
+    router.push(`/summary/${nextVideoId}`);
   };
 
   const handleRegenerateSection = async (section: string) => {
@@ -253,26 +240,19 @@ export function SummaryClientView({
   };
 
   return (
-    <main className="min-h-screen bg-black text-gray-100 relative overflow-hidden">
-      {/* Ambient gradient blobs */}
+    <main className="min-h-screen bg-black text-gray-100 relative overflow-hidden flex flex-col">
+      {/* Background ambient lighting */}
       <div className="gradient-blob w-[600px] h-[600px] bg-red-600 -top-48 -right-48" />
       <div
         className="gradient-blob w-[500px] h-[500px] bg-rose-700 top-[60%] -left-64"
         style={{ animationDelay: '-8s' }}
       />
-      <div
-        className="gradient-blob w-[400px] h-[400px] bg-orange-600 top-[30%] right-[20%]"
-        style={{ animationDelay: '-15s' }}
-      />
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col min-h-screen">
         <Header
           onOpenSettings={() => setSettingsOpen(true)}
           activeProvider={settings.provider}
           activeModel={settings.openrouterModel}
-          activeSection={activeSection}
-          onNavigate={handleNavigate}
-          hasResults={true}
         />
 
         <SettingsModal
@@ -282,104 +262,143 @@ export function SummaryClientView({
           onSave={handleSettingsSave}
         />
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-          {/* Back to Home Link */}
-          <div className="mb-6 flex items-center justify-between">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-xs font-medium text-gray-400 hover:text-white transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to search</span>
-            </Link>
-
-            {/* Instant loading badge */}
-            <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Instant Transcript Ready</span>
-            </span>
-          </div>
-
-          {/* Quick Input Bar to summarize another video */}
-          <URLInput
-            url={url}
-            onUrlChange={setUrl}
-            onSubmit={handleUrlSubmit}
-            loading={loading}
-          />
-
-          {/* Error display */}
-          {error && (
-            <div className="mt-8 p-4 glass border-red-500/20 animate-fade-in-up">
-              <div className="flex items-start gap-3">
-                <div className="p-1 rounded-lg bg-red-500/10">
-                  <AlertCircle className="w-4 h-4 text-red-400" />
-                </div>
-                <div>
-                  <p className="font-medium text-red-300 text-sm">Notice</p>
-                  <p className="mt-1 text-red-400/80 text-xs">{error}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Warning Banner */}
-          {warning && (
-            <div className="mt-6 p-4 glass border-amber-500/10 animate-fade-in-up">
-              <div className="flex items-start gap-3">
-                <div className="p-1 rounded-lg bg-amber-500/10">
-                  <AlertCircle className="w-4 h-4 text-amber-400" />
-                </div>
-                <div>
-                  <p className="font-medium text-amber-300 text-sm">
-                    Direct Video Analysis
-                  </p>
-                  <p className="mt-0.5 text-xs text-amber-300/60">{warning}</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Video metadata */}
-          {metadata && (
-            <div className="mt-8">
-              <VideoInfo metadata={metadata} />
-            </div>
-          )}
-
-          {/* Instant Tabs: Shows Transcript immediately while other tabs background load */}
-          <div ref={summaryRef} className="mt-8">
-            <SummaryTabs
-              summary={summary}
-              transcript={transcript}
-              metadata={metadata}
-              loading={summarizing}
-              onRegenerateSection={handleRegenerateSection}
-              regeneratingSection={regeneratingSection}
-              initialTab={transcript.length > 0 && !summary ? 'transcript' : 'takeaways'}
-            />
-          </div>
-
-          {/* Chat with video: always accessible once transcript is ready */}
-          <div ref={chatRef} className="mt-8">
-            <ChatWithVideo
-              messages={chatMessages}
-              onSendMessage={handleChat}
-              loading={chatLoading}
-            />
-          </div>
-
-          {/* Footer */}
-          <footer className="mt-20 pb-8 text-center">
-            <div className="flex items-center justify-center gap-2 text-xs text-gray-700">
-              <span>Powered by</span>
-              <span className="text-gray-500">
-                {settings.provider === 'openrouter' ? 'OpenRouter' : 'Google Gemini AI'}
+        {/* Clean Top Action Bar with '+ Load a different video' and Breadcrumb */}
+        <div className="border-b border-white/[0.04] bg-white/[0.01]">
+          <div className="max-w-[1720px] mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 text-xs text-gray-400">
+              <Link
+                href="/"
+                className="inline-flex items-center gap-1.5 hover:text-white transition-colors"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Home</span>
+              </Link>
+              <span className="text-gray-600">/</span>
+              <span className="text-gray-300 font-medium truncate max-w-[280px] sm:max-w-md">
+                {metadata.title}
               </span>
-              <span className="text-gray-800">·</span>
-              <span>Built with Next.js & Tailwind CSS</span>
             </div>
-          </footer>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowLoadModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.1] text-xs font-medium text-gray-200 hover:text-white transition-all shadow-sm"
+              >
+                <PlusCircle className="w-3.5 h-3.5 text-rose-400" />
+                <span>Load a different video</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Modal for '+ Load a different video' */}
+        {showLoadModal && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <div
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+              onClick={() => setShowLoadModal(false)}
+            />
+            <div className="relative w-full max-w-lg glass p-5 rounded-2xl shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-red-400" />
+                  <h3 className="text-sm font-semibold text-white">Load YouTube Video</h3>
+                </div>
+                <button
+                  onClick={() => setShowLoadModal(false)}
+                  className="text-gray-500 hover:text-white text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleLoadSubmit} className="space-y-3">
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                  <input
+                    type="url"
+                    value={loadUrl}
+                    onChange={(e) => setLoadUrl(e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    autoFocus
+                    className="w-full pl-10 pr-4 py-2.5 bg-white/[0.04] border border-white/[0.08] rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-500 text-xs sm:text-sm"
+                  />
+                </div>
+                {loadError && (
+                  <p className="text-red-400 text-xs flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    <span>{loadError}</span>
+                  </p>
+                )}
+                <div className="flex justify-end gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => setShowLoadModal(false)}
+                    className="px-3 py-1.5 rounded-lg text-xs text-gray-400 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-red-500 to-rose-600 text-white text-xs font-semibold shadow-sm"
+                  >
+                    Summarize
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Global Warning / Notice */}
+        {warning && (
+          <div className="max-w-[1720px] mx-auto px-4 sm:px-6 pt-3 w-full">
+            <div className="p-2.5 glass border-amber-500/10 text-amber-300 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-400 flex-shrink-0" />
+              <span>{warning}</span>
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            MODERN 3-COLUMN SPLIT LAYOUT (Desktop) / STACKED (Tablet & Mobile)
+           ========================================================================= */}
+        <div className="flex-1 max-w-[1720px] w-full mx-auto px-4 sm:px-6 py-4 sm:py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+            {/* -------------------------------------------------------------
+                LEFT COLUMN (3.5 cols on desktop): Video Player & Details
+               ------------------------------------------------------------- */}
+            <div className="lg:col-span-4 xl:col-span-3.5 space-y-4">
+              <VideoPlayerColumn videoId={videoId} metadata={metadata} />
+            </div>
+
+            {/* -------------------------------------------------------------
+                MIDDLE COLUMN (5 cols on desktop): Interactive Tabs & Content
+               ------------------------------------------------------------- */}
+            <div className="lg:col-span-5 xl:col-span-5.5 min-w-0">
+              <SummaryTabs
+                summary={summary}
+                transcript={transcript}
+                metadata={metadata}
+                loading={summarizing}
+                onRegenerateSection={handleRegenerateSection}
+                regeneratingSection={regeneratingSection}
+                initialTab={transcript.length > 0 && !summary ? 'transcript' : 'takeaways'}
+              />
+            </div>
+
+            {/* -------------------------------------------------------------
+                RIGHT COLUMN (3 cols on desktop): AI Chat & Quick Actions
+               ------------------------------------------------------------- */}
+            <div className="lg:col-span-3 xl:col-span-3">
+              <ChatRightColumn
+                messages={chatMessages}
+                onSendMessage={handleChat}
+                loading={chatLoading}
+                onQuickAction={(prompt) => handleChat(prompt)}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </main>
