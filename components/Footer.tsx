@@ -206,10 +206,6 @@ export function Footer({ currentLang }: FooterProps) {
             <Link href={localizedUrl('/terms', activeLang)} className="hover:text-zinc-400 transition-colors">
               Terms
             </Link>
-            <span>·</span>
-            <Link href="/admin" className="text-zinc-700 hover:text-zinc-500 transition-colors">
-              Console
-            </Link>
           </div>
         </div>
       </div>
