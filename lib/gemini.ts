@@ -101,7 +101,7 @@ Extract 3-6 key stats, 3-5 main points, 1-3 quotes, and a punchy conclusion. Be 
     throw new Error(`Unknown section: ${section}`);
   }
 
-  return `You are an expert content analyst. Analyze the following YouTube video and regenerate the requested section with a fresh perspective.
+  return `You are an expert content analyst. Analyze the following YouTube video and generate the requested section with high quality and accuracy.
 
 ${sourceBlock}
 

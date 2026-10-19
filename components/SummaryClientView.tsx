@@ -78,11 +78,21 @@ export function SummaryClientView({
     setSettings(loadSettings());
   }, []);
 
-  // Background AI generation without blocking the instant transcript view
+  // Hydrate cached sections from sessionStorage on mount / videoId change
   useEffect(() => {
-    if (!initialSummary && !error) {
-      triggerSummarize();
-    }
+    if (typeof window === 'undefined') return;
+    try {
+      const cached = sessionStorage.getItem(`yt-summary-${videoId}`);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        setSummary((prev) => ({
+          keyTakeaways: parsed.keyTakeaways || prev?.keyTakeaways || [],
+          chapterSummaries: parsed.chapterSummaries || prev?.chapterSummaries || [],
+          fullSummary: parsed.fullSummary || prev?.fullSummary || '',
+          infographic: parsed.infographic || prev?.infographic || null,
+        }));
+      }
+    } catch {}
   }, [videoId]);
 
   const handleSettingsSave = (newSettings: AISettings) => {
@@ -101,34 +111,6 @@ export function SummaryClientView({
     return { provider: 'gemini' as const };
   };
 
-  const triggerSummarize = async () => {
-    setSummarizing(true);
-    setError(null);
-    try {
-      const summaryRes = await fetch('/api/summarize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          transcript: formattedTranscript,
-          videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
-          title: metadata.title,
-          ...getProviderPayload(),
-        }),
-      });
-
-      const summaryData = await summaryRes.json();
-      if (!summaryRes.ok) {
-        throw new Error(summaryData.error || 'Failed to generate summary');
-      }
-
-      setSummary(summaryData);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setSummarizing(false);
-    }
-  };
-
   const handleLoadSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!loadUrl.trim()) return;
@@ -142,8 +124,13 @@ export function SummaryClientView({
     router.push(`/summary/${nextVideoId}`);
   };
 
-  const handleRegenerateSection = async (section: string) => {
-    if (!summary && section !== 'transcript') return;
+  /**
+   * On-demand generation and regeneration for any tab section.
+   * Generates only the requested tab to conserve tokens and reduce latency.
+   * Results are persisted in state and cached in sessionStorage.
+   */
+  const handleGenerateSection = async (section: string) => {
+    if (regeneratingSection) return;
 
     if (section === 'transcript') {
       setRegeneratingSection('transcript');
@@ -182,18 +169,27 @@ export function SummaryClientView({
 
       const updatedPart = await res.json();
       if (!res.ok) {
-        throw new Error(updatedPart.error || `Failed to regenerate ${section}`);
+        throw new Error(updatedPart.error || `Failed to generate ${section}`);
       }
 
       setSummary((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
+        const updated: SummaryResult = {
+          keyTakeaways: prev?.keyTakeaways || [],
+          chapterSummaries: prev?.chapterSummaries || [],
+          fullSummary: prev?.fullSummary || '',
+          infographic: prev?.infographic || null,
           ...updatedPart,
         };
+
+        // Cache in sessionStorage so switching tabs never triggers unnecessary re-fetch
+        try {
+          sessionStorage.setItem(`yt-summary-${videoId}`, JSON.stringify(updated));
+        } catch {}
+
+        return updated;
       });
     } catch (err: any) {
-      console.error('Regenerate section error:', err);
+      console.error(`Generate section '${section}' error:`, err);
     } finally {
       setRegeneratingSection(null);
     }
@@ -380,10 +376,11 @@ export function SummaryClientView({
                 summary={summary}
                 transcript={transcript}
                 metadata={metadata}
-                loading={summarizing}
-                onRegenerateSection={handleRegenerateSection}
+                loading={Boolean(regeneratingSection)}
+                onRegenerateSection={handleGenerateSection}
+                onGenerateSection={handleGenerateSection}
                 regeneratingSection={regeneratingSection}
-                initialTab={transcript.length > 0 && !summary ? 'transcript' : 'takeaways'}
+                initialTab={transcript.length > 0 ? 'transcript' : 'takeaways'}
               />
             </div>
 
