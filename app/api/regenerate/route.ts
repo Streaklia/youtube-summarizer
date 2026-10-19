@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { regenerateSection } from '@/lib/gemini';
-import { regenerateSectionOpenRouter } from '@/lib/openrouter';
+import { regenerateSectionWithFallback } from '@/lib/aiFallback';
 
 export const maxDuration = 60;
 
@@ -31,38 +30,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (provider === 'openrouter') {
-      if (!openrouterApiKey || !openrouterModel) {
-        return NextResponse.json(
-          { error: 'OpenRouter API key and model are required' },
-          { status: 400 }
-        );
-      }
-      const partial = await regenerateSectionOpenRouter(
-        section,
-        transcript || '',
+    const partial = await regenerateSectionWithFallback(
+      section,
+      transcript || '',
+      videoUrl,
+      title,
+      {
+        preferredProvider: provider,
         openrouterApiKey,
         openrouterModel,
-        videoUrl,
-        title
-      );
-      return NextResponse.json(partial);
-    }
+      }
+    );
 
-    // Default: Gemini
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json(
-        { error: 'GEMINI_API_KEY is not configured.' },
-        { status: 500 }
-      );
-    }
-
-    const partial = await regenerateSection(section, transcript || '', videoUrl, title);
     return NextResponse.json(partial);
   } catch (error: any) {
-    console.error('Regeneration error:', error);
+    console.error('Regeneration fallback chain error:', error);
     return NextResponse.json(
-      { error: error.message || 'Failed to regenerate section' },
+      { error: error.message || `Failed to regenerate section '${req.nextUrl.searchParams.get('section') || 'requested'}'` },
       { status: 500 }
     );
   }
