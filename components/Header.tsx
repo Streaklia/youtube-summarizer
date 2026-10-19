@@ -13,7 +13,7 @@ interface HeaderProps {
   hasResults?: boolean;
 }
 
-// Global top navigation items targeting high-volume search tools
+// Core navigation links targeting high-volume tools
 const toolLinks = [
   { href: '/', label: 'Summarizer', emoji: '⚡' },
   { href: '/youtube-transcript', label: 'Transcript', emoji: '📄' },
@@ -21,7 +21,6 @@ const toolLinks = [
   { href: '/youtube-infographic', label: 'Infographic', emoji: '📊', badge: 'New' },
   { href: '/youtube-to-text', label: 'To Text', emoji: '✍️' },
   { href: '/podcast-transcript', label: 'Podcasts', emoji: '🎙️' },
-  { href: '/transcript-ai', label: 'AI Chat', emoji: '💬' },
 ];
 
 const resultNavItems = [
@@ -48,43 +47,44 @@ export function Header({
       : 'Gemini';
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-black/85 backdrop-blur-2xl">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        {/* Top row: Brand Logo + Primary Tool Navigation + Settings */}
-        <div className="flex items-center justify-between h-16 gap-4">
-          {/* Logo */}
+    <header className="sticky top-0 z-50 border-b border-zinc-800 bg-black/80 backdrop-blur-md px-4 py-3 sm:px-6">
+      <div className="max-w-7xl mx-auto flex flex-col justify-center">
+        {/* Main Header Flex Row: Left (Logo) | Center (Pill Nav) | Right (Actions) */}
+        <div className="flex items-center justify-between gap-4">
+          {/* Left section: Brand Logo + Name */}
           <Link href="/" className="flex items-center gap-3 flex-shrink-0 group">
-            <div className="relative">
-              <div className="absolute inset-0 bg-red-500/20 rounded-xl blur-lg group-hover:bg-red-500/30 transition-all" />
-              <div className="relative p-2 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl shadow-lg shadow-red-500/20">
+            <div className="relative flex items-center justify-center">
+              <div className="absolute inset-0 bg-red-500/25 rounded-xl blur-md group-hover:bg-red-500/35 transition-all" />
+              <div className="relative p-2 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl shadow-md shadow-red-500/20">
                 <Youtube className="w-5 h-5 text-white" />
               </div>
             </div>
-            <div>
-              <span className="text-lg font-bold text-white tracking-tight">
-                YouTube<span className="text-gradient">Summarizer</span>
+            <div className="flex items-baseline font-bold text-base sm:text-lg tracking-tight select-none">
+              <span className="text-white">YouTube</span>
+              <span className="bg-gradient-to-r from-red-500 via-rose-400 to-orange-400 bg-clip-text text-transparent">
+                Summarizer
               </span>
             </div>
           </Link>
 
-          {/* Desktop Navigation Menu to switch between SEO tools */}
-          <nav className="hidden md:flex items-center gap-1 overflow-x-auto py-1">
+          {/* Center section: Sleek pill-shaped navigation container */}
+          <nav className="hidden md:flex items-center p-1 bg-zinc-900/80 border border-zinc-800/90 rounded-full shadow-inner gap-1">
             {toolLinks.map((tool) => {
               const isActive = pathname === tool.href;
               return (
                 <Link
                   key={tool.href}
                   href={tool.href}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 whitespace-nowrap ${
+                  className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150 whitespace-nowrap ${
                     isActive
-                      ? 'bg-white/[0.08] text-white shadow-sm border border-white/[0.08]'
-                      : 'text-gray-400 hover:text-white hover:bg-white/[0.03]'
+                      ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700/60 font-semibold'
+                      : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40 border border-transparent'
                   }`}
                 >
-                  <span>{tool.emoji}</span>
+                  <span className="text-xs leading-none">{tool.emoji}</span>
                   <span>{tool.label}</span>
                   {tool.badge && (
-                    <span className="px-1 py-0.2 bg-gradient-to-r from-red-500 to-rose-500 text-[9px] font-bold text-white uppercase rounded-full">
+                    <span className="px-1.5 py-0.2 bg-gradient-to-r from-red-500 to-rose-500 text-[9px] font-bold text-white uppercase rounded-full shadow-sm">
                       {tool.badge}
                     </span>
                   )}
@@ -93,54 +93,63 @@ export function Header({
             })}
           </nav>
 
-          {/* Right side: Provider badge + Settings */}
+          {/* Right section: Action buttons (Model badge + Settings gear) */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-xs text-gray-400">
-              <Sparkles className="w-3 h-3 text-red-400" />
-              <span className="truncate max-w-[90px]">{providerLabel}</span>
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/80 border border-zinc-800 text-xs font-medium text-zinc-300 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
+              <span className="truncate max-w-[90px] sm:max-w-[120px]">{providerLabel}</span>
             </div>
+
             <button
+              type="button"
               onClick={onOpenSettings}
-              className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.1] text-gray-400 hover:text-white transition-all duration-200"
+              className="p-2 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 text-zinc-400 hover:text-white transition-all cursor-pointer shadow-sm"
               title="AI Settings"
+              aria-label="Open AI Settings"
             >
               <Settings className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* Mobile Scrolling Tool Navigation Bar */}
-        <div className="flex md:hidden overflow-x-auto gap-1 pb-2 pt-1 scrollbar-none border-t border-white/[0.04] -mx-4 px-4">
+        {/* Mobile Navigation bar: clean horizontal pill row without ugly scrollbars */}
+        <div className="flex md:hidden items-center gap-1.5 pt-2 pb-0.5 overflow-x-auto no-scrollbar border-t border-zinc-800/50 -mx-4 px-4 mt-2">
           {toolLinks.map((tool) => {
             const isActive = pathname === tool.href;
             return (
               <Link
                 key={tool.href}
                 href={tool.href}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium whitespace-nowrap ${
+                className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all ${
                   isActive
-                    ? 'bg-white/[0.08] text-white border border-white/[0.08]'
-                    : 'text-gray-400 hover:text-white'
+                    ? 'bg-zinc-800 text-white border border-zinc-700 font-semibold'
+                    : 'bg-zinc-900/60 text-zinc-400 hover:text-white border border-zinc-800/80'
                 }`}
               >
-                <span>{tool.emoji}</span>
+                <span className="text-xs">{tool.emoji}</span>
                 <span>{tool.label}</span>
+                {tool.badge && (
+                  <span className="px-1 py-0.2 bg-gradient-to-r from-red-500 to-rose-500 text-[8px] font-bold text-white uppercase rounded-full">
+                    {tool.badge}
+                  </span>
+                )}
               </Link>
             );
           })}
         </div>
 
-        {/* Bottom row: In-Page Result navigation tabs (visible on summary view) */}
+        {/* In-Page Result navigation tabs (visible on summary view if hasResults is enabled) */}
         {hasResults && (
-          <nav className="-mb-px flex gap-1 pb-0 border-t border-white/[0.04] pt-1">
+          <nav className="-mb-px flex gap-1 pb-0 border-t border-zinc-800/60 pt-1 mt-2">
             {resultNavItems.map((item) => (
               <button
                 key={item.id}
+                type="button"
                 onClick={() => onNavigate?.(item.id)}
-                className={`relative px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 ${
+                className={`relative px-4 py-2 text-sm font-medium rounded-t-lg transition-all duration-200 cursor-pointer ${
                   activeSection === item.id
-                    ? 'text-white bg-white/[0.06]'
-                    : 'text-gray-500 hover:text-gray-300 hover:bg-white/[0.03]'
+                    ? 'text-white bg-zinc-800/60'
+                    : 'text-zinc-500 hover:text-zinc-300 hover:bg-zinc-900/40'
                 }`}
               >
                 <span className="flex items-center gap-2">

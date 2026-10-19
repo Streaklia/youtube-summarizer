@@ -118,6 +118,15 @@
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-red-400 via-rose-400 to-orange-400;
   }
+
+  /* Completely remove scrollbars while preserving full scrollability */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 @keyframes gradientBorderMove {
