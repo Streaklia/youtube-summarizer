@@ -98,6 +98,8 @@ export default function Home() {
 
     const videoId = extractVideoId(url);
     if (videoId) {
+      setLoading(true);
+      setError(null);
       // Redirect to clean, indexable programmatic SEO route preserving active locale
       const savedLang = getSavedLanguage();
       const targetUrl =

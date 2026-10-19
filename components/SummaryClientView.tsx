@@ -9,6 +9,7 @@ import { VideoPlayerColumn } from '@/components/VideoPlayerColumn';
 import { SummaryTabs } from '@/components/SummaryTabs';
 import { ChatRightColumn } from '@/components/ChatRightColumn';
 import { Footer } from '@/components/Footer';
+import { SummaryJsonLd } from '@/components/SummaryJsonLd';
 import { extractLangFromPath, getSavedLanguage, localizedUrl, persistLanguage } from '@/lib/localizedUrl';
 import { isSupportedLanguage, SupportedLanguage } from '@/lib/i18n';
 import {
@@ -23,12 +24,13 @@ import { PlusCircle, Search, AlertCircle, Sparkles, ArrowLeft } from 'lucide-rea
 
 interface SummaryClientViewProps {
   videoId: string;
-  initialMetadata: VideoMetadata;
-  initialTranscript: TranscriptEntry[];
-  initialFormattedTranscript: string;
-  initialTranscriptWarning: string | null;
-  initialSummary: SummaryResult | null;
-  initialError: string | null;
+  /** All initial* props are now optional — when omitted, data is fetched client-side on mount */
+  initialMetadata?: VideoMetadata;
+  initialTranscript?: TranscriptEntry[];
+  initialFormattedTranscript?: string;
+  initialTranscriptWarning?: string | null;
+  initialSummary?: SummaryResult | null;
+  initialError?: string | null;
 }
 
 const DEFAULT_SETTINGS: AISettings = {
@@ -36,6 +38,20 @@ const DEFAULT_SETTINGS: AISettings = {
   openrouterApiKey: '',
   openrouterModel: '',
 };
+
+/**
+ * Placeholder metadata used during the initial client-side fetch.
+ * The YouTube iframe only needs videoId to work, so the video starts loading instantly.
+ */
+function placeholderMetadata(videoId: string): VideoMetadata {
+  return {
+    title: 'Loading video details…',
+    thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+    channelName: '',
+    duration: '',
+    videoId,
+  };
+}
 
 function loadSettings(): AISettings {
   if (typeof window === 'undefined') return DEFAULT_SETTINGS;
@@ -64,20 +80,28 @@ export function SummaryClientView({
     extractLangFromPath(pathname) ||
     (typeof window !== 'undefined' ? getSavedLanguage() : 'en');
 
+  // Determine whether server provided initial data or we need to fetch client-side
+  const hasInitialData = Boolean(initialMetadata);
+
   // Dialog / Input state for '+ Load a different video'
   const [showLoadModal, setShowLoadModal] = useState(false);
   const [loadUrl, setLoadUrl] = useState('');
   const [loadError, setLoadError] = useState<string | null>(null);
 
+  // Loading state for initial client-side data fetch
+  const [isLoadingData, setIsLoadingData] = useState(!hasInitialData);
+
   const [summarizing, setSummarizing] = useState(false);
-  const [error, setError] = useState<string | null>(initialError);
-  const [warning, setWarning] = useState<string | null>(initialTranscriptWarning);
-  const [metadata, setMetadata] = useState<VideoMetadata>(initialMetadata);
-  const [transcript, setTranscript] = useState<TranscriptEntry[]>(initialTranscript);
-  const [formattedTranscript, setFormattedTranscript] = useState<string>(
-    initialFormattedTranscript
+  const [error, setError] = useState<string | null>(initialError ?? null);
+  const [warning, setWarning] = useState<string | null>(initialTranscriptWarning ?? null);
+  const [metadata, setMetadata] = useState<VideoMetadata>(
+    initialMetadata || placeholderMetadata(videoId)
   );
-  const [summary, setSummary] = useState<SummaryResult | null>(initialSummary);
+  const [transcript, setTranscript] = useState<TranscriptEntry[]>(initialTranscript || []);
+  const [formattedTranscript, setFormattedTranscript] = useState<string>(
+    initialFormattedTranscript || ''
+  );
+  const [summary, setSummary] = useState<SummaryResult | null>(initialSummary ?? null);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -90,6 +114,52 @@ export function SummaryClientView({
       persistLanguage(urlLang);
     }
   }, [urlLang]);
+
+  /**
+   * Client-side data fetch — runs on mount when no initial data was provided
+   * by the server (i.e. instant navigation via router.push).
+   * The YouTube iframe embed loads immediately in parallel since it only needs videoId.
+   */
+  useEffect(() => {
+    if (hasInitialData) return; // Server already provided data
+
+    let cancelled = false;
+
+    async function fetchVideoData() {
+      try {
+        const res = await fetch('/api/transcript', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ videoId }),
+        });
+
+        if (cancelled) return;
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          setError(data.error || 'Failed to fetch video data');
+          setIsLoadingData(false);
+          return;
+        }
+
+        setMetadata(data.metadata);
+        setTranscript(data.transcript || []);
+        setFormattedTranscript(data.formattedTranscript || '');
+        if (data.transcriptWarning) {
+          setWarning(data.transcriptWarning);
+        }
+        setIsLoadingData(false);
+      } catch (err: any) {
+        if (cancelled) return;
+        setError(err.message || 'Failed to fetch video data');
+        setIsLoadingData(false);
+      }
+    }
+
+    fetchVideoData();
+    return () => { cancelled = true; };
+  }, [videoId, hasInitialData]);
 
   // Hydrate cached sections from sessionStorage on mount / videoId change
   useEffect(() => {
@@ -252,6 +322,8 @@ export function SummaryClientView({
     }
   };
 
+  const canonicalUrl = `https://youtube-summarizer.vercel.app/summary/${videoId}`;
+
   return (
     <main className="min-h-screen bg-black text-gray-100 relative overflow-hidden flex flex-col">
       {/* Background ambient lighting */}
@@ -276,6 +348,16 @@ export function SummaryClientView({
           onSave={handleSettingsSave}
         />
 
+        {/* Render JSON-LD structured data once metadata is loaded */}
+        {!isLoadingData && (
+          <SummaryJsonLd
+            videoId={videoId}
+            metadata={metadata}
+            summary={summary}
+            canonicalUrl={canonicalUrl}
+          />
+        )}
+
         {/* Clean Top Action Bar with '+ Load a different video' and Breadcrumb */}
         <div className="border-b border-white/[0.04] bg-white/[0.01]">
           <div className="max-w-[1720px] mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
@@ -288,9 +370,13 @@ export function SummaryClientView({
                 <span className="hidden sm:inline">Home</span>
               </Link>
               <span className="text-gray-600">/</span>
-              <span className="text-gray-300 font-medium truncate max-w-[280px] sm:max-w-md">
-                {metadata.title}
-              </span>
+              {isLoadingData ? (
+                <span className="h-4 w-48 bg-white/[0.06] rounded animate-pulse" />
+              ) : (
+                <span className="text-gray-300 font-medium truncate max-w-[280px] sm:max-w-md">
+                  {metadata.title}
+                </span>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -364,6 +450,16 @@ export function SummaryClientView({
           </div>
         )}
 
+        {/* Global error */}
+        {error && !isLoadingData && (
+          <div className="max-w-[1720px] mx-auto px-4 sm:px-6 pt-3 w-full">
+            <div className="p-2.5 glass border-red-500/10 text-red-300 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+              <span>{error}</span>
+            </div>
+          </div>
+        )}
+
         {/* Global Warning / Notice */}
         {warning && (
           <div className="max-w-[1720px] mx-auto px-4 sm:px-6 pt-3 w-full">
@@ -383,23 +479,67 @@ export function SummaryClientView({
                 LEFT COLUMN (3.5 cols on desktop): Video Player & Details
                ------------------------------------------------------------- */}
             <div className="lg:col-span-4 xl:col-span-3.5 space-y-4">
-              <VideoPlayerColumn videoId={videoId} metadata={metadata} />
+              {isLoadingData ? (
+                <div className="glass p-3 space-y-3.5">
+                  {/* Skeleton: Video Player */}
+                  <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black/60 border border-white/[0.08]">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
+                      title="Loading video..."
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="absolute inset-0 w-full h-full border-0"
+                    />
+                  </div>
+                  {/* Skeleton: Title & channel */}
+                  <div className="space-y-2">
+                    <div className="h-5 w-3/4 bg-white/[0.06] rounded animate-pulse" />
+                    <div className="h-4 w-1/2 bg-white/[0.04] rounded animate-pulse" />
+                  </div>
+                </div>
+              ) : (
+                <VideoPlayerColumn videoId={videoId} metadata={metadata} />
+              )}
             </div>
 
             {/* -------------------------------------------------------------
                 MIDDLE COLUMN (5 cols on desktop): Interactive Tabs & Content
                ------------------------------------------------------------- */}
             <div className="lg:col-span-5 xl:col-span-5.5 min-w-0">
-              <SummaryTabs
-                summary={summary}
-                transcript={transcript}
-                metadata={metadata}
-                loading={Boolean(regeneratingSection)}
-                onRegenerateSection={handleGenerateSection}
-                onGenerateSection={handleGenerateSection}
-                regeneratingSection={regeneratingSection}
-                initialTab={transcript.length > 0 ? 'transcript' : 'takeaways'}
-              />
+              {isLoadingData ? (
+                <div className="glass p-4 space-y-4">
+                  {/* Skeleton: Tab bar */}
+                  <div className="flex gap-1 bg-white/[0.02] p-1 rounded-xl border border-white/[0.06]">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="flex-1 h-9 rounded-lg bg-white/[0.04] animate-pulse" />
+                    ))}
+                  </div>
+                  {/* Skeleton: Content area */}
+                  <div className="space-y-3">
+                    <div className="h-4 w-full bg-white/[0.04] rounded animate-pulse" />
+                    <div className="h-4 w-5/6 bg-white/[0.04] rounded animate-pulse" />
+                    <div className="h-4 w-4/6 bg-white/[0.04] rounded animate-pulse" />
+                    <div className="h-4 w-full bg-white/[0.04] rounded animate-pulse" />
+                    <div className="h-4 w-3/4 bg-white/[0.04] rounded animate-pulse" />
+                    <div className="h-4 w-5/6 bg-white/[0.04] rounded animate-pulse" />
+                    <div className="h-4 w-2/3 bg-white/[0.04] rounded animate-pulse" />
+                  </div>
+                  <p className="text-center text-xs text-gray-500 pt-2 animate-pulse">
+                    Fetching transcript & video data…
+                  </p>
+                </div>
+              ) : (
+                <SummaryTabs
+                  summary={summary}
+                  transcript={transcript}
+                  metadata={metadata}
+                  loading={Boolean(regeneratingSection)}
+                  onRegenerateSection={handleGenerateSection}
+                  onGenerateSection={handleGenerateSection}
+                  regeneratingSection={regeneratingSection}
+                  initialTab={transcript.length > 0 ? 'transcript' : 'takeaways'}
+                />
+              )}
             </div>
 
             {/* -------------------------------------------------------------

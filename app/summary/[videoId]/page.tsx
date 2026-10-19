@@ -1,7 +1,5 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getVideoData } from '@/lib/serverSummary';
-import { SummaryJsonLd } from '@/components/SummaryJsonLd';
 import { SummaryClientView } from '@/components/SummaryClientView';
 
 interface PageProps {
@@ -10,9 +8,12 @@ interface PageProps {
   };
 }
 
-// Enable Incremental Static Regeneration (ISR) with revalidation every 1 hour (3600s)
-export const revalidate = 3600;
-
+/**
+ * Lightweight metadata — no API calls.
+ * Uses only videoId to build a generic SEO title and thumbnail URL
+ * so Next.js can render the page shell instantly without blocking on
+ * oEmbed / transcript fetches.
+ */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { videoId } = params;
 
@@ -23,39 +24,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const data = await getVideoData(videoId);
-  const title = data.metadata.title || 'YouTube Video';
-  const channel = data.metadata.channelName || 'YouTube';
-  const pageTitle = `${title} — Summary & Key Takeaways | YouTube Summarizer`;
-
-  let description = `AI summary, key takeaways, and timestamped breakdown of "${title}" by ${channel}.`;
-  if (data.summary?.keyTakeaways && data.summary.keyTakeaways.length > 0) {
-    description = `${data.summary.keyTakeaways.slice(0, 3).join('. ')}.`;
-  }
-
+  const thumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
   const canonicalUrl = `https://youtube-summarizer.vercel.app/summary/${videoId}`;
-  const thumbnail =
-    data.metadata.thumbnail ||
-    `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
   return {
-    title: pageTitle,
-    description: description.slice(0, 160),
-    keywords: [
-      `${title} summary`,
-      `${title} transcript`,
-      `${title} notes`,
-      `${channel} summary`,
-      'youtube video summary',
-      'ai video takeaways',
-    ],
+    title: 'Video Summary & Key Takeaways | YouTube Summarizer',
+    description:
+      'AI-generated summary, key takeaways, and timestamped transcript analysis for this YouTube video.',
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
       type: 'article',
-      title: pageTitle,
-      description: description.slice(0, 200),
+      title: 'Video Summary & Key Takeaways | YouTube Summarizer',
+      description:
+        'AI-generated summary, key takeaways, and timestamped transcript analysis for this YouTube video.',
       url: canonicalUrl,
       siteName: 'YouTube Summarizer',
       images: [
@@ -63,50 +46,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           url: thumbnail,
           width: 1280,
           height: 720,
-          alt: title,
+          alt: 'YouTube Video Summary',
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: pageTitle,
-      description: description.slice(0, 200),
+      title: 'Video Summary & Key Takeaways | YouTube Summarizer',
+      description:
+        'AI-generated summary, key takeaways, and timestamped transcript analysis for this YouTube video.',
       images: [thumbnail],
     },
   };
 }
 
-export default async function SummaryPage({ params }: PageProps) {
+export default function SummaryPage({ params }: PageProps) {
   const { videoId } = params;
 
   if (!videoId || !/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
     notFound();
   }
 
-  // Server-side retrieval (SSR/ISR cached)
-  const data = await getVideoData(videoId);
-  const canonicalUrl = `https://youtube-summarizer.vercel.app/summary/${videoId}`;
-
-  return (
-    <>
-      {/* Rich Structured Data (VideoObject, Article, BreadcrumbList) injected in server render */}
-      <SummaryJsonLd
-        videoId={videoId}
-        metadata={data.metadata}
-        summary={data.summary}
-        canonicalUrl={canonicalUrl}
-      />
-
-      {/* Interactive Client Shell */}
-      <SummaryClientView
-        videoId={videoId}
-        initialMetadata={data.metadata}
-        initialTranscript={data.transcript}
-        initialFormattedTranscript={data.formattedTranscript}
-        initialTranscriptWarning={data.transcriptWarning}
-        initialSummary={data.summary}
-        initialError={data.error}
-      />
-    </>
-  );
+  // Pass only videoId — all data is fetched client-side for instant navigation
+  return <SummaryClientView videoId={videoId} />;
 }

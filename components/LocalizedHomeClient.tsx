@@ -86,6 +86,8 @@ export function LocalizedHomeClient({ langConfig }: LocalizedHomeClientProps) {
 
     const detectedId = extractVideoId(url);
     if (detectedId) {
+      setLoading(true);
+      setError(null);
       persistLanguage(langConfig.code);
       const targetUrl =
         langConfig.code !== 'en'
@@ -95,36 +97,7 @@ export function LocalizedHomeClient({ langConfig }: LocalizedHomeClientProps) {
       return;
     }
 
-    setLoading(true);
-    setError(null);
-    setMetadata(null);
-    setTranscript([]);
-    setFormattedTranscript('');
-    setSummary(null);
-    setChatMessages([]);
-
-    try {
-      const transcriptRes = await fetch('/api/transcript', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
-      });
-
-      const transcriptData = await transcriptRes.json();
-      if (!transcriptRes.ok) {
-        throw new Error(transcriptData.error || 'Failed to fetch transcript');
-      }
-
-      setMetadata(transcriptData.metadata);
-      setTranscript(transcriptData.transcript);
-      setFormattedTranscript(transcriptData.formattedTranscript);
-      setLoading(false);
-      setSummarizing(false);
-    } catch (err: any) {
-      setError(err.message);
-      setLoading(false);
-      setSummarizing(false);
-    }
+    setError('Invalid YouTube URL. Please provide a valid youtube.com or youtu.be link.');
   };
 
   const handleChat = async (message: string) => {
