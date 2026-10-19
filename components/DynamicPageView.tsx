@@ -2,12 +2,14 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { SettingsModal } from '@/components/SettingsModal';
 import { AISettings } from '@/lib/types';
 import { ManagedPage } from '@/lib/pagesStore';
+import { extractLangFromPath, getSavedLanguage, localizedUrl } from '@/lib/localizedUrl';
 import { FileText, Calendar, ArrowLeft, ArrowRight, Youtube } from 'lucide-react';
 
 interface DynamicPageViewProps {
@@ -21,8 +23,13 @@ const DEFAULT_SETTINGS: AISettings = {
 };
 
 export function DynamicPageView({ page }: DynamicPageViewProps) {
+  const pathname = usePathname();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<AISettings>(DEFAULT_SETTINGS);
+
+  const activeLang =
+    extractLangFromPath(pathname) ||
+    (typeof window !== 'undefined' ? getSavedLanguage() : 'en');
 
   const isLegalPage =
     page.route === '/privacy' ||
@@ -40,6 +47,7 @@ export function DynamicPageView({ page }: DynamicPageViewProps) {
           onOpenSettings={() => setSettingsOpen(true)}
           activeProvider={settings.provider}
           activeModel={settings.openrouterModel}
+          currentLang={activeLang}
         />
 
         <SettingsModal
@@ -52,7 +60,7 @@ export function DynamicPageView({ page }: DynamicPageViewProps) {
         <article className="max-w-3xl mx-auto px-4 sm:px-6 pt-12 pb-20">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-xs text-zinc-500 mb-6">
-            <Link href="/" className="hover:text-zinc-300 transition-colors">
+            <Link href={localizedUrl('/', activeLang)} className="hover:text-zinc-300 transition-colors">
               Home
             </Link>
             <span>/</span>
@@ -113,7 +121,7 @@ export function DynamicPageView({ page }: DynamicPageViewProps) {
               </div>
             </div>
             <Link
-              href="/"
+              href={localizedUrl('/', activeLang)}
               className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-red-600/25 transition-all whitespace-nowrap"
             >
               <span>Try Summarizer Free</span>
@@ -122,7 +130,7 @@ export function DynamicPageView({ page }: DynamicPageViewProps) {
           </div>
         </article>
 
-        <Footer currentLang="en" />
+        <Footer currentLang={activeLang} />
       </div>
     </main>
   );

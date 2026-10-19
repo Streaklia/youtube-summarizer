@@ -19,6 +19,7 @@ import {
   AISettings,
 } from '@/lib/types';
 import { extractVideoId } from '@/lib/youtube';
+import { getSavedLanguage } from '@/lib/localizedUrl';
 
 const DEFAULT_SETTINGS: AISettings = {
   provider: 'gemini',
@@ -97,8 +98,13 @@ export default function Home() {
 
     const videoId = extractVideoId(url);
     if (videoId) {
-      // Redirect to clean, indexable programmatic SEO route
-      router.push(`/summary/${videoId}`);
+      // Redirect to clean, indexable programmatic SEO route preserving active locale
+      const savedLang = getSavedLanguage();
+      const targetUrl =
+        savedLang && savedLang !== 'en'
+          ? `/summary/${videoId}?lang=${savedLang}`
+          : `/summary/${videoId}`;
+      router.push(targetUrl);
       return;
     }
 

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPublishedPages, getPageBySlug } from '@/lib/pagesStore';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Public GET /api/pages
  * Query params:

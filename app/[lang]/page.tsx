@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { LocalizedHomeClient } from '@/components/LocalizedHomeClient';
+import { DynamicPageView } from '@/components/DynamicPageView';
 import { SupportedLanguage, isSupportedLanguage, buildHrefLangAlternates } from '@/lib/i18n';
 import { getLanguageConfig } from '@/lib/languagesStore';
 import { getPageBySlug } from '@/lib/pagesStore';
@@ -20,6 +21,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { lang } = params;
 
   if (!isSupportedLanguage(lang)) {
+    const page = getPageBySlug(lang);
+    if (page) {
+      const metaTitle = page.metaTitle || `${page.title} — YouTube Summarizer`;
+      const metaDescription =
+        page.metaDescription ||
+        (page.content ? page.content.replace(/[#*`\[\]]/g, '').slice(0, 160) : '');
+      return {
+        title: metaTitle,
+        description: metaDescription,
+        alternates: buildHrefLangAlternates(`/${lang}`),
+      };
+    }
     return {
       title: 'YouTube Summarizer',
     };
@@ -49,13 +62,12 @@ export default function LocalizedHomePage({ params }: PageProps) {
     return <LocalizedHomeClient langConfig={config} />;
   }
 
-  // Not a language code — check if it's an admin-managed page slug
+  // Not a language code — check if it's an admin-managed page slug (e.g. /about, /how-to-use)
   const adminPage = getPageBySlug(lang);
   if (adminPage) {
-    redirect(`/p/${lang}`);
+    return <DynamicPageView page={adminPage} />;
   }
 
   // Nothing matched — 404
   notFound();
 }
-

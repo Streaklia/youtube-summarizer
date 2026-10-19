@@ -4,33 +4,22 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Youtube, Globe, Heart, Shield, FileText, HelpCircle, BookOpen, Sparkles, Info, Lightbulb } from 'lucide-react';
-import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/lib/i18n';
+import { SUPPORTED_LANGUAGES, SupportedLanguage, isSupportedLanguage } from '@/lib/i18n';
+import { extractLangFromPath, getSavedLanguage, localizedUrl, persistLanguage } from '@/lib/localizedUrl';
 
 interface FooterProps {
-  currentLang?: SupportedLanguage;
+  currentLang?: SupportedLanguage | string;
 }
 
-export function Footer({ currentLang = 'en' }: FooterProps) {
+export function Footer({ currentLang }: FooterProps) {
   const pathname = usePathname() || '/';
 
-  // Helper to construct language URL paths
-  const getLanguageHref = (langCode: SupportedLanguage) => {
-    // Strip leading /[lang] prefix if present
-    const segments = pathname.split('/').filter(Boolean);
-    const hasLangPrefix = segments.length > 0 && Object.keys(SUPPORTED_LANGUAGES).includes(segments[0]);
-    const pathWithoutLang = hasLangPrefix
-      ? '/' + segments.slice(1).join('/')
-      : pathname;
-
-    const cleanPath = pathWithoutLang === '/' ? '' : pathWithoutLang;
-
-    if (langCode === 'en') {
-      return cleanPath || '/';
-    }
-    return `/${langCode}${cleanPath}`;
-  };
-
-  const prefix = currentLang === 'en' ? '' : `/${currentLang}`;
+  // Dynamically resolve active language: explicit prop -> path segment -> client saved storage -> 'en'
+  const pathLang = extractLangFromPath(pathname);
+  const activeLang: SupportedLanguage =
+    (currentLang && isSupportedLanguage(currentLang) ? currentLang : null) ||
+    pathLang ||
+    (typeof window !== 'undefined' ? getSavedLanguage() : 'en');
 
   return (
     <footer className="mt-20 border-t border-zinc-900 bg-black/60 backdrop-blur-md">
@@ -38,7 +27,7 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-zinc-900">
           {/* Brand Column */}
           <div className="md:col-span-1 space-y-3">
-            <Link href={prefix || '/'} className="inline-flex items-center gap-2 group">
+            <Link href={localizedUrl('/', activeLang)} className="inline-flex items-center gap-2 group">
               <div className="p-1.5 rounded-lg bg-red-600/10 border border-red-500/20 group-hover:bg-red-600/20 transition-colors">
                 <Youtube className="w-5 h-5 text-red-500" />
               </div>
@@ -63,7 +52,7 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
             <ul className="space-y-2 text-xs">
               <li>
                 <Link
-                  href={prefix || '/'}
+                  href={localizedUrl('/', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
                 >
                   <span>Home Tool</span>
@@ -71,7 +60,7 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="/youtube-transcript"
+                  href={localizedUrl('/youtube-transcript', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
                   YouTube Transcript Generator
@@ -79,7 +68,7 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="/youtube-summary"
+                  href={localizedUrl('/youtube-summary', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
                   AI Video Summarizer
@@ -87,7 +76,7 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="/youtube-infographic"
+                  href={localizedUrl('/youtube-infographic', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
                   Infographic Generator
@@ -95,7 +84,7 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="/podcast-transcript"
+                  href={localizedUrl('/podcast-transcript', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
                   Podcast Transcripts
@@ -112,7 +101,7 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
             <ul className="space-y-2 text-xs">
               <li>
                 <Link
-                  href={`${prefix}/blog`}
+                  href={localizedUrl('/blog', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
                 >
                   <BookOpen className="w-3.5 h-3.5 text-zinc-500" />
@@ -121,7 +110,7 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href={`${prefix}/faq`}
+                  href={localizedUrl('/faq', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
                 >
                   <HelpCircle className="w-3.5 h-3.5 text-zinc-500" />
@@ -130,7 +119,7 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="/how-to-use"
+                  href={localizedUrl('/how-to-use', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
                 >
                   <Lightbulb className="w-3.5 h-3.5 text-zinc-500" />
@@ -139,7 +128,7 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href="/about"
+                  href={localizedUrl('/about', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
                 >
                   <Info className="w-3.5 h-3.5 text-zinc-500" />
@@ -148,7 +137,7 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href={`${prefix}/privacy`}
+                  href={localizedUrl('/privacy', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
                 >
                   <Shield className="w-3.5 h-3.5 text-zinc-500" />
@@ -157,7 +146,7 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
               </li>
               <li>
                 <Link
-                  href={`${prefix}/terms`}
+                  href={localizedUrl('/terms', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
                 >
                   <FileText className="w-3.5 h-3.5 text-zinc-500" />
@@ -174,12 +163,14 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
               <span>Language (Idiomas)</span>
             </h4>
             <div className="grid grid-cols-2 gap-1.5">
-              {(Object.values(SUPPORTED_LANGUAGES)).map((lang) => {
-                const isActive = currentLang === lang.code;
+              {Object.values(SUPPORTED_LANGUAGES).map((lang) => {
+                const isActive = activeLang === lang.code;
+                const targetUrl = localizedUrl(pathname, lang.code);
                 return (
                   <Link
                     key={lang.code}
-                    href={getLanguageHref(lang.code)}
+                    href={targetUrl}
+                    onClick={() => persistLanguage(lang.code)}
                     className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors border ${
                       isActive
                         ? 'bg-red-500/10 text-red-400 border-red-500/30 font-medium'
@@ -208,11 +199,11 @@ export function Footer({ currentLang = 'en' }: FooterProps) {
           <div className="flex items-center gap-4 text-zinc-500 text-[11px]">
             <span>© {new Date().getFullYear()} YouTube Summarizer</span>
             <span>·</span>
-            <Link href={`${prefix}/privacy`} className="hover:text-zinc-400 transition-colors">
+            <Link href={localizedUrl('/privacy', activeLang)} className="hover:text-zinc-400 transition-colors">
               Privacy
             </Link>
             <span>·</span>
-            <Link href={`${prefix}/terms`} className="hover:text-zinc-400 transition-colors">
+            <Link href={localizedUrl('/terms', activeLang)} className="hover:text-zinc-400 transition-colors">
               Terms
             </Link>
             <span>·</span>

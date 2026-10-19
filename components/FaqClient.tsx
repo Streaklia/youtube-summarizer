@@ -42,6 +42,7 @@ export function FaqClient({ lang }: FaqClientProps) {
           onOpenSettings={() => setSettingsOpen(true)}
           activeProvider={settings.provider}
           activeModel={settings.openrouterModel}
+          currentLang={lang}
         />
 
         <SettingsModal

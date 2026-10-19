@@ -20,6 +20,7 @@ import {
 } from '@/lib/types';
 import { extractVideoId } from '@/lib/youtube';
 import { LanguageConfig } from '@/lib/i18n';
+import { persistLanguage } from '@/lib/localizedUrl';
 
 const DEFAULT_SETTINGS: AISettings = {
   provider: 'gemini',
@@ -85,7 +86,12 @@ export function LocalizedHomeClient({ langConfig }: LocalizedHomeClientProps) {
 
     const detectedId = extractVideoId(url);
     if (detectedId) {
-      router.push(`/summary/${detectedId}`);
+      persistLanguage(langConfig.code);
+      const targetUrl =
+        langConfig.code !== 'en'
+          ? `/summary/${detectedId}?lang=${langConfig.code}`
+          : `/summary/${detectedId}`;
+      router.push(targetUrl);
       return;
     }
 
@@ -202,6 +208,7 @@ export function LocalizedHomeClient({ langConfig }: LocalizedHomeClientProps) {
           activeSection={activeSection}
           onNavigate={(sec) => setActiveSection(sec)}
           hasResults={Boolean(summary || transcript.length > 0)}
+          currentLang={langConfig.code}
         />
 
         <SettingsModal

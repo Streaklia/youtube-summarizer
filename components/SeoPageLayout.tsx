@@ -69,7 +69,7 @@ export function SeoPageLayout({ lang = 'en', dir = 'ltr', ...props }: SeoPageLay
         />
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
-          <SeoLandingTool {...props} />
+          <SeoLandingTool lang={lang} {...props} />
         </div>
 
         {/* Structured Footer with Cody attribution & internal links */}

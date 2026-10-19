@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Youtube, Settings, Sparkles } from 'lucide-react';
+import { extractLangFromPath, getSavedLanguage, localizedUrl } from '@/lib/localizedUrl';
+import { isSupportedLanguage } from '@/lib/i18n';
 
 interface HeaderProps {
   onOpenSettings: () => void;
@@ -16,7 +18,7 @@ interface HeaderProps {
 
 // Core navigation tools targeting high-volume keywords
 const baseToolLinks = [
-  { path: '', label: 'Summarizer', emoji: '⚡' },
+  { path: '/', label: 'Summarizer', emoji: '⚡' },
   { path: '/youtube-transcript', label: 'Transcript', emoji: '📄' },
   { path: '/youtube-summary', label: 'AI Summary', emoji: '📝' },
   { path: '/youtube-infographic', label: 'Infographic', emoji: '📊', badge: 'New' },
@@ -37,9 +39,16 @@ export function Header({
   activeSection = 'home',
   onNavigate,
   hasResults = false,
-  currentLang = 'en',
+  currentLang,
 }: HeaderProps) {
   const pathname = usePathname();
+
+  // Dynamically resolve active language: explicit prop -> path segment -> client saved storage -> 'en'
+  const pathLang = extractLangFromPath(pathname);
+  const activeLang =
+    (currentLang && isSupportedLanguage(currentLang) ? currentLang : null) ||
+    pathLang ||
+    (typeof window !== 'undefined' ? getSavedLanguage() : 'en');
 
   const providerLabel =
     activeProvider === 'openrouter'
@@ -48,11 +57,10 @@ export function Header({
         : 'OpenRouter'
       : 'Gemini';
 
-  const prefix = currentLang === 'en' ? '' : `/${currentLang}`;
-  const homeHref = prefix || '/';
+  const homeHref = localizedUrl('/', activeLang);
 
   const toolLinks = baseToolLinks.map((tool) => ({
-    href: tool.path ? `${prefix}${tool.path}` : homeHref,
+    href: localizedUrl(tool.path, activeLang),
     label: tool.label,
     emoji: tool.emoji,
     badge: tool.badge,

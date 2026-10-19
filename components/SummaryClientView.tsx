@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Header } from '@/components/Header';
 import { SettingsModal } from '@/components/SettingsModal';
@@ -9,6 +9,8 @@ import { VideoPlayerColumn } from '@/components/VideoPlayerColumn';
 import { SummaryTabs } from '@/components/SummaryTabs';
 import { ChatRightColumn } from '@/components/ChatRightColumn';
 import { Footer } from '@/components/Footer';
+import { extractLangFromPath, getSavedLanguage, localizedUrl, persistLanguage } from '@/lib/localizedUrl';
+import { isSupportedLanguage, SupportedLanguage } from '@/lib/i18n';
 import {
   VideoMetadata,
   SummaryResult,
@@ -54,6 +56,13 @@ export function SummaryClientView({
   initialError,
 }: SummaryClientViewProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlLang = searchParams?.get('lang');
+  const activeLang: SupportedLanguage =
+    (urlLang && isSupportedLanguage(urlLang) ? (urlLang as SupportedLanguage) : null) ||
+    extractLangFromPath(pathname) ||
+    (typeof window !== 'undefined' ? getSavedLanguage() : 'en');
 
   // Dialog / Input state for '+ Load a different video'
   const [showLoadModal, setShowLoadModal] = useState(false);
@@ -77,7 +86,10 @@ export function SummaryClientView({
 
   useEffect(() => {
     setSettings(loadSettings());
-  }, []);
+    if (urlLang && isSupportedLanguage(urlLang)) {
+      persistLanguage(urlLang);
+    }
+  }, [urlLang]);
 
   // Hydrate cached sections from sessionStorage on mount / videoId change
   useEffect(() => {
@@ -122,7 +134,11 @@ export function SummaryClientView({
     }
     setShowLoadModal(false);
     setLoadUrl('');
-    router.push(`/summary/${nextVideoId}`);
+    const targetUrl =
+      activeLang && activeLang !== 'en'
+        ? `/summary/${nextVideoId}?lang=${activeLang}`
+        : `/summary/${nextVideoId}`;
+    router.push(targetUrl);
   };
 
   /**
@@ -250,6 +266,7 @@ export function SummaryClientView({
           onOpenSettings={() => setSettingsOpen(true)}
           activeProvider={settings.provider}
           activeModel={settings.openrouterModel}
+          currentLang={activeLang}
         />
 
         <SettingsModal
@@ -264,7 +281,7 @@ export function SummaryClientView({
           <div className="max-w-[1720px] mx-auto px-4 sm:px-6 py-2.5 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3 text-xs text-gray-400">
               <Link
-                href="/"
+                href={localizedUrl('/', activeLang)}
                 className="inline-flex items-center gap-1.5 hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
@@ -400,7 +417,7 @@ export function SummaryClientView({
         </div>
 
         {/* Structured Footer with Cody attribution & internal links */}
-        <Footer currentLang="en" />
+        <Footer currentLang={activeLang} />
       </div>
     </main>
   );

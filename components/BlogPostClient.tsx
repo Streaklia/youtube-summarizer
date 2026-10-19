@@ -8,6 +8,7 @@ import { SettingsModal } from '@/components/SettingsModal';
 import { SupportedLanguage } from '@/lib/i18n';
 import { BlogPost, BLOG_POSTS } from '@/lib/contentData';
 import { AISettings } from '@/lib/types';
+import { localizedUrl } from '@/lib/localizedUrl';
 import { BookOpen, Clock, Calendar, ArrowLeft, ArrowRight, Youtube, CheckCircle2, Share2 } from 'lucide-react';
 
 interface BlogPostClientProps {
@@ -39,6 +40,7 @@ export function BlogPostClient({ post, lang }: BlogPostClientProps) {
           onOpenSettings={() => setSettingsOpen(true)}
           activeProvider={settings.provider}
           activeModel={settings.openrouterModel}
+          currentLang={lang}
         />
 
         <SettingsModal
@@ -127,7 +129,7 @@ export function BlogPostClient({ post, lang }: BlogPostClientProps) {
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
               <Link
-                href="/youtube-transcript"
+                href={localizedUrl('/youtube-transcript', lang)}
                 className="px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 text-xs font-semibold transition-all"
               >
                 Transcript Tool

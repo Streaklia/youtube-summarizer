@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Loader2, Sparkles, Search, AlertCircle } from 'lucide-react';
 import { extractVideoId } from '@/lib/youtube';
+import { extractLangFromPath, getSavedLanguage, persistLanguage } from '@/lib/localizedUrl';
 
 export interface SeoLandingToolProps {
   badge?: string;
@@ -17,6 +18,7 @@ export interface SeoLandingToolProps {
   features?: { title: string; description: string; icon: string }[];
   faqs?: { question: string; answer: string }[];
   seoBottomContent?: React.ReactNode;
+  lang?: string;
 }
 
 export function SeoLandingTool({
@@ -31,8 +33,10 @@ export function SeoLandingTool({
   features,
   faqs,
   seoBottomContent,
+  lang,
 }: SeoLandingToolProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,9 +52,20 @@ export function SeoLandingTool({
       return;
     }
 
+    const activeLang =
+      lang ||
+      extractLangFromPath(pathname) ||
+      (typeof window !== 'undefined' ? getSavedLanguage() : 'en');
+
+    persistLanguage(activeLang);
+
     setLoading(true);
-    // Instant redirect to clean, programmatic route
-    router.push(`/summary/${videoId}`);
+    // Instant redirect to clean, programmatic route while preserving locale
+    const targetUrl =
+      activeLang && activeLang !== 'en'
+        ? `/summary/${videoId}?lang=${activeLang}`
+        : `/summary/${videoId}`;
+    router.push(targetUrl);
   };
 
   return (
