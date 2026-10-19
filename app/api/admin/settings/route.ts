@@ -7,6 +7,8 @@ import {
   DEFAULT_KEYWORD_TOOLS,
   DEFAULT_TELEMETRY,
 } from '@/lib/adminStore';
+import { writePages } from '@/lib/pagesStore';
+import { PageOrPost } from '@/lib/adminTypes';
 
 // In-memory cache for server runtime
 let store = {
@@ -54,7 +56,16 @@ export async function POST(req: NextRequest) {
     } else if (action === 'save_monetization' && payload) {
       store.monetization = { ...store.monetization, ...payload };
     } else if (action === 'save_pages' && payload) {
-      store.pages = payload;
+      store.pages = payload as PageOrPost[];
+      // Also persist to data/pages.json so the public dynamic renderer
+      // always reads the latest admin-managed pages without relying on
+      // the in-memory store (which resets on every serverless cold start).
+      try {
+        writePages(payload as PageOrPost[]);
+      } catch (writeErr) {
+        console.warn('[admin/settings] Could not persist pages.json:', writeErr);
+        // Non-fatal: in-memory store still updated above
+      }
     } else if (action === 'save_languages' && payload) {
       store.languages = payload;
     } else if (action === 'save_tools' && payload) {

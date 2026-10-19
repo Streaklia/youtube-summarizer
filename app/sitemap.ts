@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { BLOG_POSTS } from '@/lib/contentData';
 import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/lib/i18n';
+import { getPublishedPages } from '@/lib/pagesStore';
 
 /**
  * Returns a list of known or featured video IDs to seed the sitemap.
@@ -104,6 +105,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly',
       priority: 0.8,
     });
+  }
+
+  // Admin-managed pages at /p/[slug]
+  const adminPages = getPublishedPages();
+  for (const page of adminPages) {
+    const slug = page.route.replace(/^\//, '');
+    if (slug) {
+      routes.push({
+        url: `${baseUrl}/p/${slug}`,
+        lastModified: page.updatedAt ? new Date(page.updatedAt) : currentDate,
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+      });
+    }
   }
 
   return routes;

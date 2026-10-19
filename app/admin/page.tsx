@@ -1506,9 +1506,17 @@ export default function AdminPage() {
                   required
                   value={editingPage.route}
                   onChange={(e) => setEditingPage({ ...editingPage, route: e.target.value })}
-                  placeholder="/privacy"
+                  placeholder="/my-new-page"
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-red-500"
                 />
+                <p className="mt-1.5 text-[11px] text-slate-400">
+                  Use format <code className="bg-slate-100 px-1 rounded">/slug-name</code>.
+                  This page will be live at{' '}
+                  <code className="bg-slate-100 px-1 rounded">
+                    /p{editingPage.route || '/slug-name'}
+                  </code>
+                  . Visitors using the bare URL <code className="bg-slate-100 px-1 rounded">{editingPage.route || '/slug-name'}</code> will be automatically redirected there.
+                </p>
               </div>
 
               <div>

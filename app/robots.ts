@@ -7,12 +7,12 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/summary/'],
+        allow: ['/', '/summary/', '/p/', '/blog/', '/faq', '/privacy', '/terms'],
         disallow: ['/api/', '/_next/', '/private/', '/admin/', '/admin'],
       },
       {
         userAgent: 'Googlebot',
-        allow: ['/', '/summary/'],
+        allow: ['/', '/summary/', '/p/', '/blog/', '/faq', '/privacy', '/terms'],
         disallow: ['/api/', '/_next/', '/admin/', '/admin'],
       },
     ],

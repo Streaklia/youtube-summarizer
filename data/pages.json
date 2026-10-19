@@ -1,0 +1,50 @@
+[
+  {
+    "id": "p-1",
+    "title": "Privacy Policy",
+    "type": "PAGE",
+    "route": "/privacy",
+    "menuPlacement": "Footer",
+    "status": "Published",
+    "metaTitle": "Privacy Policy — YouTube Summarizer",
+    "metaDescription": "Our privacy commitments: zero personal data logging, local browser storage for API keys, and privacy-by-default video processing.",
+    "content": "## Privacy Policy\n\n**Last updated: October 19, 2026**\n\n### 1. Zero Personal Data Collection\n\nYouTube Summarizer is designed with privacy-by-default. We do not require account registration, email addresses, credit cards, or passwords to use the core video summarizer.\n\n### 2. Client-Side API Key Storage\n\nAny custom API keys you enter in the Settings modal (such as OpenRouter keys) are stored purely on your local device via browser `localStorage`. They are never sent to or logged on our permanent database servers.\n\n### 3. YouTube Data Processing\n\nWhen you submit a video URL, our serverless API retrieves public subtitles and metadata using YouTube's standard protocols solely to generate the requested summary. We do not store or sell your search history.\n\n### 4. Cookies\n\nWe use a single HTTP-only session cookie only when accessing the `/admin` console. No tracking or analytics cookies are used.\n\n### 5. Contact\n\nFor privacy-related inquiries, please contact us at privacy@youtube-summarizer.app.",
+    "updatedAt": "2026-10-19"
+  },
+  {
+    "id": "p-2",
+    "title": "Terms of Service",
+    "type": "PAGE",
+    "route": "/terms",
+    "menuPlacement": "Footer",
+    "status": "Published",
+    "metaTitle": "Terms of Service — YouTube Summarizer",
+    "metaDescription": "Terms of service, fair use guidelines, and conditions for utilizing our free AI YouTube video summarizer.",
+    "content": "## Terms of Service\n\n**Last updated: October 19, 2026**\n\n### 1. Acceptance of Terms\n\nBy accessing and utilizing YouTube Summarizer, you acknowledge and agree to comply with these terms, our privacy policy, and all applicable digital copyright laws.\n\n### 2. Intended Educational & Fair Use\n\nOur application provides transformative AI summaries, study notes, and research aids. Video transcripts belong to their respective creators and copyright owners. You agree not to abuse the service for automated scraping or mass unauthorized redistribution.\n\n### 3. Disclaimer & AI Accuracy\n\nWhile AI models such as Gemini strive for high factual accuracy, machine learning summaries may occasionally contain omissions or interpretations. Users are encouraged to cross-reference timestamps with the original source video.\n\n### 4. Service Availability\n\nWe strive to maintain high availability but do not guarantee uninterrupted access. The service is provided as-is without warranty.\n\n### 5. Changes to Terms\n\nWe reserve the right to update these terms at any time. Continued use of the service constitutes acceptance of updated terms.",
+    "updatedAt": "2026-10-19"
+  },
+  {
+    "id": "p-3",
+    "title": "How to Use YouTubeSummarizer",
+    "type": "PAGE",
+    "route": "/how-to-use",
+    "menuPlacement": "Header",
+    "status": "Published",
+    "metaTitle": "How to Use YouTube Summarizer — Step-by-Step Guide",
+    "metaDescription": "Step-by-step guide on extracting video transcripts and generating instant AI takeaways from any YouTube video.",
+    "content": "## How to Use YouTube Summarizer\n\nGet instant AI-powered summaries from any YouTube video in just a few steps.\n\n### Step 1: Copy a YouTube URL\n\nFind any YouTube video you want to summarize. Copy the full URL from your browser address bar (e.g., `https://www.youtube.com/watch?v=dQw4w9WgXcQ`).\n\n### Step 2: Paste the URL\n\nPaste the copied URL into the input field on the [YouTube Summarizer homepage](/) and click **Summarize Video**.\n\n### Step 3: Wait 1-2 Seconds\n\nThe transcript is fetched instantly. The AI summary generates in the background — you can read the raw transcript immediately while it processes.\n\n### Step 4: Explore the Results\n\n- **Transcript tab**: Full timestamped captions you can search and copy.\n- **Key Takeaways**: 5-10 bullet points of the most important insights.\n- **Chapters**: Timestamped chapter breakdown with mini-summaries.\n- **Full Summary**: A structured article-style deep summary.\n- **Infographic**: Visual stat cards and memorable quotes.\n- **Chat**: Ask any question about the video content.\n\n### Step 5: Configure Your AI Model (Optional)\n\nClick the **Settings** gear icon in the top navigation to switch between Google Gemini (default, free) and OpenRouter models.",
+    "updatedAt": "2026-10-19"
+  },
+  {
+    "id": "p-4",
+    "title": "About YouTubeSummarizer",
+    "type": "PAGE",
+    "route": "/about",
+    "menuPlacement": "Footer",
+    "status": "Published",
+    "metaTitle": "About YouTube Summarizer — Our Mission & Team",
+    "metaDescription": "Learn more about our mission to make video learning faster, smarter, and more accessible with AI.",
+    "content": "## About YouTube Summarizer\n\n### Our Mission\n\nWe believe that knowledge trapped inside long YouTube videos should be instantly accessible to everyone. YouTube Summarizer was built to eliminate the friction between you and the insights you need.\n\n### What We Do\n\nWe use state-of-the-art large language models (Google Gemini, Meta Llama via OpenRouter) to:\n\n- Extract full timestamped transcripts in under 2 seconds\n- Generate structured key takeaways and chapter breakdowns\n- Create visual infographic summaries\n- Enable interactive Q&A chat with any video\n\n### Free & Privacy-First\n\nThe core tool is completely free with no signup required. We are committed to never storing or selling your usage data. API keys are saved only in your browser's local storage.\n\n### Powered By\n\nOur AI pipeline is powered by **Cody**, built with love using Next.js, Tailwind CSS, Google Gemini AI, and OpenRouter's open model ecosystem.\n\n[Start summarizing videos for free →](/)",
+    "updatedAt": "2026-10-19"
+  }
+]

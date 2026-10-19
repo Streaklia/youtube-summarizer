@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { LocalizedHomeClient } from '@/components/LocalizedHomeClient';
 import { SUPPORTED_LANGUAGES, SupportedLanguage, isSupportedLanguage, buildHrefLangAlternates } from '@/lib/i18n';
+import { getPageBySlug } from '@/lib/pagesStore';
 
 interface PageProps {
   params: {
@@ -43,11 +44,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default function LocalizedHomePage({ params }: PageProps) {
   const { lang } = params;
 
-  // Validate supported language; if 'en', canonical is '/'
-  if (!isSupportedLanguage(lang) || lang === 'en') {
-    notFound();
+  // If it's a valid non-English language code → render the localized homepage
+  if (isSupportedLanguage(lang) && lang !== 'en') {
+    const config = SUPPORTED_LANGUAGES[lang];
+    return <LocalizedHomeClient langConfig={config} />;
   }
 
-  const config = SUPPORTED_LANGUAGES[lang];
-  return <LocalizedHomeClient langConfig={config} />;
+  // Not a language code — check if it's an admin-managed page slug
+  // (middleware should have redirected already, but this is a safety net for SSG)
+  const adminPage = getPageBySlug(lang);
+  if (adminPage) {
+    redirect(`/p/${lang}`);
+  }
+
+  // Nothing matched — 404
+  notFound();
 }
+
