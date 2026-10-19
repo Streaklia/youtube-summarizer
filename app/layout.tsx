@@ -53,6 +53,9 @@ export const metadata: Metadata = {
       'Instant AI summaries, key takeaways & chapter breakdowns from any YouTube video.',
   },
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.mytranscript.pro'),
+  verification: {
+    google: '2DWnYjHyIzauCAhOmv7_BqjX9L8iECzcOdyU1oAOC2c',
+  },
   alternates: {
     canonical: '/',
     languages: {
@@ -76,6 +79,7 @@ export default function RootLayout({
     <html lang="en" className={`dark ${inter.variable}`}>
       <head>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>" />
+        <meta name="google-site-verification" content="2DWnYjHyIzauCAhOmv7_BqjX9L8iECzcOdyU1oAOC2c" />
         <meta name="theme-color" content="#000000" />
         <meta name="color-scheme" content="dark" />
       </head>
