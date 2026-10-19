@@ -11,7 +11,7 @@ const DEDICATED_ROUTES = new Set([
   '/terms',
   '/faq',
   '/blog',
-  '/admin',
+  '/Xdmin99',
   '/youtube-transcript',
   '/youtube-summary',
   '/youtube-infographic',
