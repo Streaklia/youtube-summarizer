@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BlogPostClient } from '@/components/BlogPostClient';
 import { BLOG_POSTS } from '@/lib/contentData';
-import { SUPPORTED_LANGUAGES, SupportedLanguage, isSupportedLanguage, buildHrefLangAlternates } from '@/lib/i18n';
+import { ALL_SUPPORTED_LANGUAGES, SUPPORTED_LANGUAGES, isSupportedLanguage, buildHrefLangAlternates } from '@/lib/i18n';
 
 interface PageProps {
   params: {
@@ -12,7 +12,7 @@ interface PageProps {
 }
 
 export function generateStaticParams() {
-  const languages: SupportedLanguage[] = ['en', 'es', 'de', 'fr', 'pt', 'ar'];
+  const languages = ALL_SUPPORTED_LANGUAGES;
 
   const params: { lang: string; slug: string }[] = [];
   for (const lang of languages) {
@@ -34,8 +34,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Article Not Found' };
   }
 
+  const langName = SUPPORTED_LANGUAGES[lang]?.name || lang;
+
   return {
-    title: `${post.title} — YouTube Summarizer (${SUPPORTED_LANGUAGES[lang].name})`,
+    title: `${post.title} — MyTranscript (${langName})`,
     description: post.excerpt,
     alternates: buildHrefLangAlternates(`/blog/${post.slug}`, lang),
     openGraph: {

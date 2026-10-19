@@ -7,11 +7,17 @@ const LANGUAGES_DATA_FILE = path.join(process.cwd(), 'data', 'languages.json');
 
 const NATIVE_NAMES: Record<SupportedLanguage, string> = {
   en: 'English',
-  es: 'Español',
-  de: 'Deutsch',
-  fr: 'Français',
-  pt: 'Português',
   ar: 'العربية',
+  es: 'Español',
+  fr: 'Français',
+  'zh-CN': '简体中文',
+  ja: '日本語',
+  ko: '한국어',
+  'pt-BR': 'Português (Brasil)',
+  vi: 'Tiếng Việt',
+  th: 'ไทย',
+  de: 'Deutsch',
+  pt: 'Português',
 };
 
 /**

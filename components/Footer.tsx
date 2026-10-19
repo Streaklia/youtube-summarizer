@@ -32,7 +32,7 @@ export function Footer({ currentLang }: FooterProps) {
                 <Youtube className="w-5 h-5 text-red-500" />
               </div>
               <span className="font-bold text-white text-base tracking-tight">
-                YouTube<span className="text-red-500">Summarizer</span>
+                My<span className="text-red-500">Transcript</span>
               </span>
             </Link>
             <p className="text-xs text-zinc-400 leading-relaxed">
@@ -52,34 +52,34 @@ export function Footer({ currentLang }: FooterProps) {
             <ul className="space-y-2 text-xs">
               <li>
                 <Link
-                  href={localizedUrl('/', activeLang)}
+                  href={localizedUrl('/youtube-transcript', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
                 >
-                  <span>Home Tool</span>
+                  YouTube Transcript
                 </Link>
               </li>
               <li>
                 <Link
-                  href={localizedUrl('/youtube-transcript', activeLang)}
+                  href={localizedUrl('/youtube-summarizer', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
-                  YouTube Transcript Generator
+                  YouTube Summarizer
                 </Link>
               </li>
               <li>
                 <Link
-                  href={localizedUrl('/youtube-summary', activeLang)}
+                  href={localizedUrl('/youtube-to-text', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
-                  AI Video Summarizer
+                  YouTube to Text
                 </Link>
               </li>
               <li>
                 <Link
-                  href={localizedUrl('/youtube-infographic', activeLang)}
+                  href={localizedUrl('/download-youtube-transcript', activeLang)}
                   className="text-zinc-400 hover:text-white transition-colors"
                 >
-                  Infographic Generator
+                  Download Subtitles
                 </Link>
               </li>
               <li>

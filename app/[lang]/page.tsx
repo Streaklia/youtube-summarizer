@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { LocalizedHomeClient } from '@/components/LocalizedHomeClient';
 import { DynamicPageView } from '@/components/DynamicPageView';
-import { SupportedLanguage, isSupportedLanguage, buildHrefLangAlternates } from '@/lib/i18n';
+import { SupportedLanguage, ALL_SUPPORTED_LANGUAGES, isSupportedLanguage, buildHrefLangAlternates } from '@/lib/i18n';
 import { getLanguageConfig } from '@/lib/languagesStore';
 import { getPageBySlug } from '@/lib/pagesStore';
 
@@ -13,8 +13,7 @@ interface PageProps {
 }
 
 export function generateStaticParams() {
-  // Support all 6 languages: en, es, de, fr, pt, ar
-  return (['en', 'es', 'de', 'fr', 'pt', 'ar'] as SupportedLanguage[]).map((lang) => ({ lang }));
+  return ALL_SUPPORTED_LANGUAGES.map((lang) => ({ lang }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

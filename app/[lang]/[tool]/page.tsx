@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { SeoPageLayout } from '@/components/SeoPageLayout';
 import { DynamicPageView } from '@/components/DynamicPageView';
-import { SupportedLanguage, isSupportedLanguage, buildHrefLangAlternates } from '@/lib/i18n';
-import { TOOL_DATA, TOOL_SLUGS, ToolSlug } from '@/lib/toolTranslations';
+import { SupportedLanguage, ALL_SUPPORTED_LANGUAGES, isSupportedLanguage, buildHrefLangAlternates } from '@/lib/i18n';
+import { TOOL_SLUGS, ToolSlug, getToolDefinition } from '@/lib/toolTranslations';
 import { getPageBySlug, getPublishedPages } from '@/lib/pagesStore';
 
 interface PageProps {
@@ -14,7 +14,7 @@ interface PageProps {
 }
 
 export function generateStaticParams() {
-  const languages: SupportedLanguage[] = ['en', 'es', 'de', 'fr', 'pt', 'ar'];
+  const languages = ALL_SUPPORTED_LANGUAGES;
   const params: { lang: string; tool: string }[] = [];
 
   for (const lang of languages) {
@@ -38,12 +38,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { lang, tool } = params;
 
   if (!isSupportedLanguage(lang)) {
-    return { title: 'YouTube Summarizer' };
+    return { title: 'MyTranscript — YouTube Transcript & AI Summarizer' };
   }
 
   // Check if it's a core keyword tool
   if (TOOL_SLUGS.includes(tool as ToolSlug)) {
-    const toolDef = TOOL_DATA[tool as ToolSlug][lang];
+    const toolDef = getToolDefinition(tool, lang);
     return {
       title: toolDef.title,
       description: toolDef.metaDescription,
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         title: toolDef.title,
         description: toolDef.metaDescription,
         url: `https://www.mytranscript.pro/${lang}/${tool}`,
-        siteName: 'YouTube Summarizer',
+        siteName: 'MyTranscript',
         type: 'website',
       },
       twitter: {
@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // Check if it's an admin-managed dynamic page (e.g. /how-to-use, /about, /privacy, /terms)
   const page = getPageBySlug(tool);
   if (page) {
-    const metaTitle = page.metaTitle || `${page.title} — YouTube Summarizer`;
+    const metaTitle = page.metaTitle || `${page.title} — MyTranscript`;
     const metaDescription =
       page.metaDescription ||
       (page.content ? page.content.replace(/[#*`\[\]]/g, '').slice(0, 160) : '');
@@ -78,7 +78,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         title: metaTitle,
         description: metaDescription,
         url: `https://www.mytranscript.pro/${lang}/${tool}`,
-        siteName: 'YouTube Summarizer',
+        siteName: 'MyTranscript',
         type: 'article',
       },
       twitter: {
@@ -89,7 +89,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  return { title: 'YouTube Summarizer' };
+  return { title: 'MyTranscript' };
 }
 
 export default function LocalizedToolPage({ params }: PageProps) {
@@ -101,7 +101,7 @@ export default function LocalizedToolPage({ params }: PageProps) {
 
   // 1. Core keyword tools
   if (TOOL_SLUGS.includes(tool as ToolSlug)) {
-    const toolDef = TOOL_DATA[tool as ToolSlug][lang];
+    const toolDef = getToolDefinition(tool, lang);
     const isRtl = lang === 'ar';
 
     return (

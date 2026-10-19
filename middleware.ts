@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isSupportedLanguage } from '@/lib/i18n';
+import { TOOL_SLUGS } from '@/lib/toolTranslations';
 
 /**
  * Routes that already have dedicated Next.js App Router page files.
@@ -21,13 +22,7 @@ const DEDICATED_ROUTES = new Set([
 ]);
 
 /**
- * Middleware: Redirect admin-managed page slugs to /p/[slug].
- *
- * When someone visits /about or /how-to-use:
- *  - It's not a supported language code → skip [lang] handling
- *  - It's not a dedicated route → redirect to /p/about or /p/how-to-use
- *
- * This avoids adding another catch-all that conflicts with [lang].
+ * Middleware: Redirect admin-managed page slugs to /p/[slug] and tool slugs to /en/[tool].
  */
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -57,14 +52,20 @@ export function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // If it's a dedicated route (exact top-level match), let it through
+  // If it's a dedicated route with an existing app directory, let it through
   const topLevelPath = `/${firstSegment}`;
   if (DEDICATED_ROUTES.has(topLevelPath)) {
     return NextResponse.next();
   }
 
+  // If it's a core programmatic tool slug, redirect to canonical /en/[tool]
+  if (TOOL_SLUGS.includes(firstSegment as any)) {
+    const redirectUrl = req.nextUrl.clone();
+    redirectUrl.pathname = `/en/${firstSegment}`;
+    return NextResponse.redirect(redirectUrl, 308);
+  }
+
   // Everything else: redirect to /p/[slug] where the dynamic renderer lives.
-  // This covers /about → /p/about, /how-to-use → /p/how-to-use, etc.
   const redirectUrl = req.nextUrl.clone();
   redirectUrl.pathname = `/p${pathname}`;
 

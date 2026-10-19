@@ -122,10 +122,19 @@ export function resolveTabFromToolOrPath(toolOrPath: string | null | undefined):
   if (segment.includes('infographic') || segment.includes('comic')) {
     return 'infographic';
   }
-  if (segment.includes('summary')) {
+  if (segment.includes('chat') || segment.includes('bot')) {
+    return 'chat';
+  }
+  if (segment.includes('summary') || segment.includes('summarizer')) {
     return 'summary';
   }
-  if (segment.includes('transcript') || segment.includes('to-text') || segment.includes('podcast')) {
+  if (
+    segment.includes('transcript') ||
+    segment.includes('to-text') ||
+    segment.includes('podcast') ||
+    segment.includes('subtitle') ||
+    segment.includes('download')
+  ) {
     return 'transcript';
   }
   if (segment.includes('chapter')) {
