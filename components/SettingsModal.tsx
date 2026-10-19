@@ -1,7 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Settings, Loader2, Search, Zap, ExternalLink } from 'lucide-react';
+import {
+  X,
+  Settings,
+  Loader2,
+  Search,
+  Zap,
+  ExternalLink,
+  Play,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Sparkles,
+} from 'lucide-react';
 import { AISettings } from '@/lib/types';
 
 interface OpenRouterModelInfo {
@@ -16,6 +28,13 @@ interface SettingsModalProps {
   onClose: () => void;
   settings: AISettings;
   onSave: (settings: AISettings) => void;
+}
+
+interface TestResult {
+  model: string;
+  success: boolean;
+  elapsedMs: number;
+  error?: string;
 }
 
 export function SettingsModal({
@@ -34,10 +53,13 @@ export function SettingsModal({
   const [models, setModels] = useState<OpenRouterModelInfo[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
   const [modelSearch, setModelSearch] = useState('');
-  const [freeOnly, setFreeOnly] = useState(false);
+  const [hasEnvKey, setHasEnvKey] = useState(false);
   const [error, setError] = useState('');
 
-  // Sync form state when modal opens
+  // Testing states
+  const [testingModel, setTestingModel] = useState<string | null>(null);
+  const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
+
   useEffect(() => {
     if (isOpen) {
       setProvider(settings.provider);
@@ -45,29 +67,72 @@ export function SettingsModal({
       setOpenrouterModel(settings.openrouterModel);
       setError('');
       setModelSearch('');
+      // Auto-fetch free models if opening OpenRouter or key is present
+      fetchFreeModels(settings.openrouterApiKey);
     }
   }, [isOpen, settings]);
 
-  const fetchModels = async () => {
-    if (!openrouterApiKey.trim()) {
-      setError('Please enter your OpenRouter API key first');
-      return;
-    }
+  const fetchFreeModels = async (keyOverride?: string) => {
+    const key = keyOverride !== undefined ? keyOverride : openrouterApiKey;
     setLoadingModels(true);
     setError('');
     try {
       const res = await fetch('/api/models', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apiKey: openrouterApiKey }),
+        body: JSON.stringify({ apiKey: key }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setModels(data.models);
+
+      setModels(data.models || []);
+      setHasEnvKey(!!data.hasEnvKey);
+
+      // Auto-select first free model if none selected yet
+      if (!openrouterModel && data.models && data.models.length > 0) {
+        setOpenrouterModel(data.models[0].id);
+      }
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch models');
+      setError(err.message || 'Failed to fetch free models');
     } finally {
       setLoadingModels(false);
+    }
+  };
+
+  const handleTestModel = async (modelId: string) => {
+    setTestingModel(modelId);
+    try {
+      const res = await fetch('/api/models/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: modelId,
+          apiKey: openrouterApiKey,
+        }),
+      });
+
+      const data = await res.json();
+      setTestResults((prev) => ({
+        ...prev,
+        [modelId]: {
+          model: modelId,
+          success: res.ok && data.success,
+          elapsedMs: data.elapsedMs || 0,
+          error: data.error,
+        },
+      }));
+    } catch (err: any) {
+      setTestResults((prev) => ({
+        ...prev,
+        [modelId]: {
+          model: modelId,
+          success: false,
+          elapsedMs: 0,
+          error: err.message || 'Connection failed',
+        },
+      }));
+    } finally {
+      setTestingModel(null);
     }
   };
 
@@ -88,13 +153,13 @@ export function SettingsModal({
   };
 
   const filteredModels = models.filter((m) => {
-    if (freeOnly && !m.isFree) return false;
     if (
       modelSearch &&
       !m.name.toLowerCase().includes(modelSearch.toLowerCase()) &&
       !m.id.toLowerCase().includes(modelSearch.toLowerCase())
-    )
+    ) {
       return false;
+    }
     return true;
   });
 
@@ -109,14 +174,17 @@ export function SettingsModal({
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg max-h-[90vh] mx-4 bg-[#0a0a0a] border border-white/[0.08] rounded-2xl shadow-2xl shadow-black/50 flex flex-col overflow-hidden">
+      <div className="relative w-full max-w-lg max-h-[90vh] mx-4 bg-[#0a0a0a] border border-white/[0.08] rounded-2xl shadow-2xl shadow-black/50 flex flex-col overflow-hidden animate-fade-in-up">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2.5">
             <div className="p-1.5 rounded-lg bg-white/[0.06]">
               <Settings className="w-4 h-4 text-gray-400" />
             </div>
-            <h2 className="text-base font-semibold text-white">AI Settings</h2>
+            <div>
+              <h2 className="text-base font-semibold text-white">AI Engine & Fallback Settings</h2>
+              <p className="text-[11px] text-gray-500">Auto-fails over between Gemini & OpenRouter</p>
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -131,7 +199,7 @@ export function SettingsModal({
           {/* Provider selection */}
           <div>
             <label className="block text-sm font-medium text-gray-400 mb-3">
-              Provider
+              Preferred Primary Provider
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -142,9 +210,12 @@ export function SettingsModal({
                     : 'border-white/[0.06] bg-white/[0.02] text-gray-400 hover:border-white/[0.1] hover:bg-white/[0.04]'
                 }`}
               >
-                <div className="font-medium text-sm">✦ Gemini</div>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-sm">✦ Gemini</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Active</span>
+                </div>
                 <div className="text-xs mt-1.5 opacity-60">
-                  Server API key · gemini-2.5-flash
+                  gemini-1.5-flash ➔ gemini-2.5-flash
                 </div>
               </button>
               <button
@@ -155,23 +226,32 @@ export function SettingsModal({
                     : 'border-white/[0.06] bg-white/[0.02] text-gray-400 hover:border-white/[0.1] hover:bg-white/[0.04]'
                 }`}
               >
-                <div className="font-medium text-sm">🔀 OpenRouter</div>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-sm">🔀 OpenRouter</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">Free Models</span>
+                </div>
                 <div className="text-xs mt-1.5 opacity-60">
-                  300+ models · free options
+                  Llama, Mistral & Qwen free endpoints
                 </div>
               </button>
             </div>
           </div>
 
+          {/* Fallback Notice */}
+          <div className="p-3.5 bg-white/[0.02] border border-white/[0.06] rounded-xl flex items-center gap-2.5 text-xs text-gray-400">
+            <Sparkles className="w-4 h-4 text-rose-400 flex-shrink-0" />
+            <span>
+              <strong>Smart Auto-Switch:</strong> If your selected model hits rate limits or goes down, requests will automatically switch to alternative free models.
+            </span>
+          </div>
+
           {/* Gemini info */}
           {provider === 'gemini' && (
-            <div className="p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl text-sm text-gray-500">
-              Using{' '}
-              <span className="text-white font-medium">gemini-2.5-flash</span>{' '}
-              with the server&apos;s API key from{' '}
-              <code className="text-red-400 bg-white/[0.06] px-1.5 py-0.5 rounded text-xs">
-                .env.local
-              </code>
+            <div className="p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl text-sm text-gray-500 space-y-1">
+              <div className="text-white font-medium text-xs">Priority Chain:</div>
+              <div className="text-xs text-gray-400">1. gemini-1.5-flash (Fast, Primary)</div>
+              <div className="text-xs text-gray-400">2. gemini-2.5-flash (Automatic Fallback)</div>
+              <div className="text-xs text-gray-400">3. OpenRouter Free Models (Secondary Failover)</div>
             </div>
           )}
 
@@ -180,26 +260,33 @@ export function SettingsModal({
             <>
               {/* API Key */}
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-2">
-                  OpenRouter API Key
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-gray-400">
+                    OpenRouter API Key
+                  </label>
+                  {hasEnvKey && (
+                    <span className="text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                      ✓ Configured in .env
+                    </span>
+                  )}
+                </div>
                 <div className="flex gap-2">
                   <input
                     type="password"
                     value={openrouterApiKey}
                     onChange={(e) => setOpenrouterApiKey(e.target.value)}
-                    placeholder="sk-or-v1-..."
+                    placeholder={hasEnvKey ? 'Loaded from OPENROUTER_API_KEY (.env)' : 'sk-or-v1-...'}
                     className="flex-1 px-4 py-2.5 bg-white/[0.04] border border-white/[0.06] rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-500/40 text-sm transition-all duration-200"
                   />
                   <button
-                    onClick={fetchModels}
-                    disabled={loadingModels || !openrouterApiKey.trim()}
-                    className="px-4 py-2.5 bg-white/[0.06] border border-white/[0.06] hover:border-white/[0.1] hover:bg-white/[0.08] disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl text-sm transition-all duration-200 flex items-center gap-2 whitespace-nowrap"
+                    onClick={() => fetchFreeModels(openrouterApiKey)}
+                    disabled={loadingModels}
+                    className="px-4 py-2.5 bg-white/[0.06] border border-white/[0.06] hover:border-white/[0.1] hover:bg-white/[0.08] disabled:opacity-40 text-white rounded-xl text-sm transition-all duration-200 flex items-center gap-2 whitespace-nowrap"
                   >
                     {loadingModels ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      'Fetch Models'
+                      'Fetch Free Models'
                     )}
                   </button>
                 </div>
@@ -209,30 +296,22 @@ export function SettingsModal({
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 mt-2 text-xs text-gray-600 hover:text-red-400 transition-colors"
                 >
-                  Get your API key at openrouter.ai{' '}
+                  Get your free OpenRouter API key at openrouter.ai{' '}
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
 
-              {/* Model selection */}
+              {/* Free Models List */}
               {models.length > 0 && (
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-sm font-medium text-gray-400">
-                      Model{' '}
-                      <span className="text-gray-600">
-                        ({filteredModels.length})
+                    <label className="text-sm font-medium text-gray-400 flex items-center gap-1.5">
+                      <span>Select Free Model</span>
+                      <span className="px-1.5 py-0.2 bg-emerald-500/20 text-emerald-400 text-[10px] rounded font-bold uppercase">
+                        {filteredModels.length} Free
                       </span>
                     </label>
-                    <label className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={freeOnly}
-                        onChange={(e) => setFreeOnly(e.target.checked)}
-                        className="rounded border-white/10 bg-white/[0.06] text-red-500 focus:ring-red-500 w-3.5 h-3.5"
-                      />
-                      Free only
-                    </label>
+                    <span className="text-[11px] text-gray-500">Includes response test</span>
                   </div>
 
                   {/* Search */}
@@ -242,52 +321,105 @@ export function SettingsModal({
                       type="text"
                       value={modelSearch}
                       onChange={(e) => setModelSearch(e.target.value)}
-                      placeholder="Search models..."
+                      placeholder="Search free models..."
                       className="w-full pl-10 pr-4 py-2 bg-white/[0.04] border border-white/[0.06] rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-500/40 text-sm transition-all"
                     />
                   </div>
 
-                  {/* Model list */}
-                  <div className="max-h-52 overflow-y-auto rounded-xl border border-white/[0.06] bg-white/[0.02] divide-y divide-white/[0.04]">
+                  {/* Model list with interactive Test Button */}
+                  <div className="max-h-56 overflow-y-auto rounded-xl border border-white/[0.06] bg-white/[0.02] divide-y divide-white/[0.04]">
                     {filteredModels.length === 0 && (
                       <div className="px-4 py-6 text-center text-sm text-gray-600">
-                        No models match your search
+                        No free models match your search
                       </div>
                     )}
-                    {filteredModels.map((model) => (
-                      <button
-                        key={model.id}
-                        onClick={() => setOpenrouterModel(model.id)}
-                        className={`w-full px-4 py-2.5 flex items-center justify-between text-left text-sm transition-all duration-200 ${
-                          openrouterModel === model.id
-                            ? 'bg-red-500/5 text-white'
-                            : 'text-gray-400 hover:bg-white/[0.04]'
-                        }`}
-                      >
-                        <div className="min-w-0 flex-1 mr-2">
-                          <div className="truncate font-medium">
-                            {model.name}
-                          </div>
-                          <div className="text-xs text-gray-600 truncate">
-                            {model.id}
-                            {model.contextLength > 0 &&
-                              ` · ${Math.round(model.contextLength / 1000)}k ctx`}
+                    {filteredModels.map((model) => {
+                      const isSelected = openrouterModel === model.id;
+                      const test = testResults[model.id];
+                      const isTesting = testingModel === model.id;
+
+                      return (
+                        <div
+                          key={model.id}
+                          className={`w-full px-4 py-2.5 flex items-center justify-between transition-all duration-200 ${
+                            isSelected
+                              ? 'bg-red-500/10 text-white border-l-2 border-red-500'
+                              : 'text-gray-400 hover:bg-white/[0.04]'
+                          }`}
+                        >
+                          {/* Selection Button */}
+                          <button
+                            onClick={() => setOpenrouterModel(model.id)}
+                            className="min-w-0 flex-1 mr-2 text-left"
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="truncate font-medium text-sm text-gray-200">
+                                {model.name}
+                              </span>
+                              {isSelected && (
+                                <span className="px-1.5 py-0.2 bg-red-500/20 text-red-300 text-[10px] rounded font-semibold">
+                                  Selected
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-gray-600 truncate mt-0.5">
+                              {model.id}
+                              {model.contextLength > 0 &&
+                                ` · ${Math.round(model.contextLength / 1000)}k ctx`}
+                            </div>
+                          </button>
+
+                          {/* Test Status & Trigger Button */}
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {test && (
+                              <div
+                                className={`flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded ${
+                                  test.success
+                                    ? 'bg-emerald-500/10 text-emerald-400'
+                                    : 'bg-red-500/10 text-red-400'
+                                }`}
+                                title={test.error || 'Model is working!'}
+                              >
+                                {test.success ? (
+                                  <>
+                                    <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                                    <span>{test.elapsedMs}ms</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <XCircle className="w-3 h-3 text-red-400" />
+                                    <span>Failed</span>
+                                  </>
+                                )}
+                              </div>
+                            )}
+
+                            <button
+                              onClick={() => handleTestModel(model.id)}
+                              disabled={isTesting}
+                              title="Test model response & latency"
+                              className="px-2 py-1 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.1] rounded-lg text-xs text-gray-300 hover:text-white transition-all flex items-center gap-1"
+                            >
+                              {isTesting ? (
+                                <Loader2 className="w-3 h-3 animate-spin text-red-400" />
+                              ) : (
+                                <Play className="w-3 h-3 text-rose-400 fill-rose-400/20" />
+                              )}
+                              <span>Test</span>
+                            </button>
                           </div>
                         </div>
-                        {model.isFree && (
-                          <span className="ml-2 px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-xs font-medium rounded-full flex items-center gap-1 flex-shrink-0">
-                            <Zap className="w-3 h-3" />
-                            Free
-                          </span>
-                        )}
-                      </button>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {openrouterModel && (
-                    <div className="mt-2 text-xs text-gray-600">
-                      Selected:{' '}
-                      <span className="text-gray-400">{openrouterModel}</span>
+                    <div className="mt-2 text-xs text-gray-500 flex items-center justify-between">
+                      <div>
+                        Selected:{' '}
+                        <span className="text-gray-300 font-medium">{openrouterModel}</span>
+                      </div>
+                      <span className="text-[11px] text-emerald-400/80">● 100% Free Endpoint</span>
                     </div>
                   )}
                 </div>
@@ -314,6 +446,7 @@ export function SettingsModal({
             onClick={handleSave}
             disabled={
               provider === 'openrouter' &&
+              !hasEnvKey &&
               (!openrouterApiKey.trim() || !openrouterModel)
             }
             className="px-5 py-2 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 disabled:from-gray-800 disabled:to-gray-800 disabled:text-gray-600 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-all duration-200"
