@@ -27,6 +27,8 @@ export const metadata: Metadata = {
 export default function YouTubeInfographicPage() {
   return (
     <SeoPageLayout
+      toolSlug="youtube-infographic"
+      targetTab="infographic"
       badge="Visual Storytelling"
       badgeEmoji="🎨"
       headlinePrefix="Convert Any Video into"

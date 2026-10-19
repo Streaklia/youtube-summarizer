@@ -28,6 +28,8 @@ export const metadata: Metadata = {
 export default function YouTubeSummaryPage() {
   return (
     <SeoPageLayout
+      toolSlug="youtube-summary"
+      targetTab="summary"
       badge="AI Video Intelligence"
       badgeEmoji="✨"
       headlinePrefix="Summarize Long"

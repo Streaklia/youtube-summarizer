@@ -27,6 +27,8 @@ export const metadata: Metadata = {
 export default function YouTubeTranscriptPage() {
   return (
     <SeoPageLayout
+      toolSlug="youtube-transcript"
+      targetTab="transcript"
       badge="Instant Text Extraction"
       badgeEmoji="📄"
       headlinePrefix="Generate"

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Loader2, Sparkles, Search, AlertCircle } from 'lucide-react';
 import { extractVideoId } from '@/lib/youtube';
-import { extractLangFromPath, getSavedLanguage, persistLanguage } from '@/lib/localizedUrl';
+import { extractLangFromPath, getSavedLanguage, persistLanguage, resolveTabFromToolOrPath } from '@/lib/localizedUrl';
 
 export interface SeoLandingToolProps {
   badge?: string;
@@ -19,6 +19,8 @@ export interface SeoLandingToolProps {
   faqs?: { question: string; answer: string }[];
   seoBottomContent?: React.ReactNode;
   lang?: string;
+  toolSlug?: string;
+  targetTab?: string;
 }
 
 export function SeoLandingTool({
@@ -34,6 +36,8 @@ export function SeoLandingTool({
   faqs,
   seoBottomContent,
   lang,
+  toolSlug,
+  targetTab,
 }: SeoLandingToolProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -60,11 +64,20 @@ export function SeoLandingTool({
     persistLanguage(activeLang);
 
     setLoading(true);
-    // Instant redirect to clean, programmatic route while preserving locale
-    const targetUrl =
-      activeLang && activeLang !== 'en'
-        ? `/summary/${videoId}?lang=${activeLang}`
-        : `/summary/${videoId}`;
+
+    // Resolve context-aware target tab based on explicit prop or active route pathname
+    const determinedTab = targetTab || resolveTabFromToolOrPath(toolSlug || pathname);
+
+    const params = new URLSearchParams();
+    if (activeLang && activeLang !== 'en') {
+      params.set('lang', activeLang);
+    }
+    if (determinedTab) {
+      params.set('tab', determinedTab);
+    }
+
+    const queryStr = params.toString();
+    const targetUrl = `/summary/${videoId}${queryStr ? `?${queryStr}` : ''}`;
     router.push(targetUrl);
   };
 

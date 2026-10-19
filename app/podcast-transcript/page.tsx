@@ -29,6 +29,8 @@ export const metadata: Metadata = {
 export default function PodcastTranscriptPage() {
   return (
     <SeoPageLayout
+      toolSlug="podcast-transcript"
+      targetTab="transcript"
       badge="Podcast Intelligence"
       badgeEmoji="🎙️"
       headlinePrefix="Extract Transcripts from"

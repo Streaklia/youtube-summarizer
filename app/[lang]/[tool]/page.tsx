@@ -108,6 +108,7 @@ export default function LocalizedToolPage({ params }: PageProps) {
       <SeoPageLayout
         lang={lang}
         dir={isRtl ? 'rtl' : 'ltr'}
+        toolSlug={tool}
         badge={toolDef.badge}
         badgeEmoji={toolDef.badgeEmoji}
         headlinePrefix={toolDef.headlinePrefix}

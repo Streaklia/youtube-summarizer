@@ -105,3 +105,37 @@ export function persistLanguage(lang: string): void {
     document.cookie = `${LANGUAGE_COOKIE}=${lang}; path=/; max-age=${maxAge}; SameSite=Lax`;
   } catch {}
 }
+
+/**
+ * Maps a tool slug or URL pathname to its corresponding results page tab.
+ * E.g.:
+ *  'youtube-infographic' or '/es/youtube-infographic' -> 'infographic'
+ *  'youtube-summary' or '/youtube-summary' -> 'summary'
+ *  'youtube-transcript' or '/podcast-transcript' -> 'transcript'
+ *  'transcript-ai' -> 'takeaways'
+ */
+export function resolveTabFromToolOrPath(toolOrPath: string | null | undefined): string | null {
+  if (!toolOrPath) return null;
+  const clean = toolOrPath.toLowerCase().replace(/^\/+/, '');
+  const segment = clean.split('/').pop() || clean;
+
+  if (segment.includes('infographic') || segment.includes('comic')) {
+    return 'infographic';
+  }
+  if (segment.includes('summary')) {
+    return 'summary';
+  }
+  if (segment.includes('transcript') || segment.includes('to-text') || segment.includes('podcast')) {
+    return 'transcript';
+  }
+  if (segment.includes('chapter')) {
+    return 'chapters';
+  }
+  if (segment.includes('takeaway') || segment.includes('ai')) {
+    return 'takeaways';
+  }
+  if (segment.includes('prompt')) {
+    return 'prompt';
+  }
+  return null;
+}

@@ -26,6 +26,7 @@ interface SummaryTabsProps {
   onGenerateSection?: (section: string) => Promise<void>;
   regeneratingSection?: string | null;
   initialTab?: string;
+  onTabChange?: (tab: string) => void;
 }
 
 const tabs = [
@@ -138,6 +139,7 @@ export function SummaryTabs({
   onGenerateSection,
   regeneratingSection,
   initialTab,
+  onTabChange,
 }: SummaryTabsProps) {
   const [activeTab, setActiveTab] = useState<string>(
     initialTab || (transcript.length > 0 ? 'transcript' : 'takeaways')
@@ -456,6 +458,9 @@ export function SummaryTabs({
               onClick={() => {
                 setActiveTab(tab.id);
                 setCopied(false);
+                if (onTabChange) {
+                  onTabChange(tab.id);
+                }
               }}
               className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 whitespace-nowrap flex-shrink-0 cursor-pointer ${
                 activeTab === tab.id

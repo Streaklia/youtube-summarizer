@@ -27,6 +27,8 @@ export const metadata: Metadata = {
 export default function YouTubeToTextPage() {
   return (
     <SeoPageLayout
+      toolSlug="youtube-to-text"
+      targetTab="transcript"
       badge="Speech to Text"
       badgeEmoji="✍️"
       headlinePrefix="Convert Any"

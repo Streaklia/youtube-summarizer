@@ -10,7 +10,13 @@ import { SummaryTabs } from '@/components/SummaryTabs';
 import { ChatRightColumn } from '@/components/ChatRightColumn';
 import { Footer } from '@/components/Footer';
 import { SummaryJsonLd } from '@/components/SummaryJsonLd';
-import { extractLangFromPath, getSavedLanguage, localizedUrl, persistLanguage } from '@/lib/localizedUrl';
+import {
+  extractLangFromPath,
+  getSavedLanguage,
+  localizedUrl,
+  persistLanguage,
+  resolveTabFromToolOrPath,
+} from '@/lib/localizedUrl';
 import { isSupportedLanguage, SupportedLanguage } from '@/lib/i18n';
 import {
   VideoMetadata,
@@ -24,7 +30,7 @@ import { PlusCircle, Search, AlertCircle, Sparkles, ArrowLeft } from 'lucide-rea
 
 interface SummaryClientViewProps {
   videoId: string;
-  /** All initial* props are now optional — when omitted, data is fetched client-side on mount */
+  /** All initial* props are optional — when omitted, data is fetched client-side on mount */
   initialMetadata?: VideoMetadata;
   initialTranscript?: TranscriptEntry[];
   initialFormattedTranscript?: string;
@@ -38,6 +44,8 @@ const DEFAULT_SETTINGS: AISettings = {
   openrouterApiKey: '',
   openrouterModel: '',
 };
+
+const VALID_TABS = ['transcript', 'takeaways', 'chapters', 'summary', 'infographic', 'prompt'];
 
 /**
  * Placeholder metadata used during the initial client-side fetch.
@@ -80,6 +88,44 @@ export function SummaryClientView({
     extractLangFromPath(pathname) ||
     (typeof window !== 'undefined' ? getSavedLanguage() : 'en');
 
+  // Resolve requested tab from query parameters (?tab=infographic or ?tool=youtube-infographic)
+  const requestedTab = (() => {
+    const tabParam = searchParams?.get('tab');
+    if (tabParam && VALID_TABS.includes(tabParam.toLowerCase())) {
+      return tabParam.toLowerCase();
+    }
+    const toolParam = searchParams?.get('tool');
+    if (toolParam) {
+      const fromTool = resolveTabFromToolOrPath(toolParam);
+      if (fromTool && VALID_TABS.includes(fromTool)) {
+        return fromTool;
+      }
+    }
+    return null;
+  })();
+
+  // Track active tab state for deep linking
+  const [activeTab, setActiveTab] = useState<string>(
+    requestedTab || (initialTranscript && initialTranscript.length > 0 ? 'transcript' : 'takeaways')
+  );
+
+  // Sync activeTab if query params change
+  useEffect(() => {
+    if (requestedTab) {
+      setActiveTab(requestedTab);
+    }
+  }, [requestedTab]);
+
+  // Hash check on client mount (e.g. /summary/xyz#infographic)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !requestedTab && window.location.hash) {
+      const hashTab = resolveTabFromToolOrPath(window.location.hash);
+      if (hashTab && VALID_TABS.includes(hashTab)) {
+        setActiveTab(hashTab);
+      }
+    }
+  }, [requestedTab]);
+
   // Determine whether server provided initial data or we need to fetch client-side
   const hasInitialData = Boolean(initialMetadata);
 
@@ -108,12 +154,68 @@ export function SummaryClientView({
   const [settings, setSettings] = useState<AISettings>(DEFAULT_SETTINGS);
   const [regeneratingSection, setRegeneratingSection] = useState<string | null>(null);
 
+  // Track auto-triggered generations so we never fire multiple times in a loop
+  const autoTriggeredRef = useRef<Record<string, boolean>>({});
+
   useEffect(() => {
     setSettings(loadSettings());
     if (urlLang && isSupportedLanguage(urlLang)) {
       persistLanguage(urlLang);
     }
   }, [urlLang]);
+
+  // Hydrate cached sections from sessionStorage on mount / videoId change
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const cached = sessionStorage.getItem(`yt-summary-${videoId}`);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        setSummary((prev) => ({
+          keyTakeaways: parsed.keyTakeaways || prev?.keyTakeaways || [],
+          chapterSummaries: parsed.chapterSummaries || prev?.chapterSummaries || [],
+          fullSummary: parsed.fullSummary || prev?.fullSummary || '',
+          infographic: parsed.infographic || prev?.infographic || null,
+        }));
+      }
+    } catch {}
+  }, [videoId]);
+
+  const isAITab = (tab: string | null) =>
+    tab === 'infographic' || tab === 'summary' || tab === 'takeaways' || tab === 'chapters';
+
+  /**
+   * Automatically triggers AI generation for landed tool intent (e.g. ?tab=infographic or ?tab=summary)
+   * if the section is not already present in state or sessionStorage cache.
+   */
+  const triggerAutoGeneration = async (
+    targetTabToGen: string,
+    transcriptText: string,
+    videoTitle: string
+  ) => {
+    if (!isAITab(targetTabToGen)) return;
+
+    const triggerKey = `${videoId}-${targetTabToGen}`;
+    if (autoTriggeredRef.current[triggerKey]) return;
+    autoTriggeredRef.current[triggerKey] = true;
+
+    // Check if section is already cached in sessionStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = sessionStorage.getItem(`yt-summary-${videoId}`);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (targetTabToGen === 'infographic' && parsed.infographic) return;
+          if (targetTabToGen === 'summary' && parsed.fullSummary) return;
+          if (targetTabToGen === 'takeaways' && parsed.keyTakeaways?.length) return;
+          if (targetTabToGen === 'chapters' && parsed.chapterSummaries?.length) return;
+        }
+      } catch {}
+    }
+
+    // Auto-generate immediately
+    await handleGenerateSection(targetTabToGen, transcriptText, videoTitle);
+  };
 
   /**
    * Client-side data fetch — runs on mount when no initial data was provided
@@ -150,6 +252,15 @@ export function SummaryClientView({
           setWarning(data.transcriptWarning);
         }
         setIsLoadingData(false);
+
+        // Auto-trigger AI generation for landed tool intent (e.g. from /youtube-infographic or /youtube-summary)
+        const tabToTrigger =
+          requestedTab ||
+          (typeof window !== 'undefined' ? resolveTabFromToolOrPath(window.location.hash) : null);
+
+        if (tabToTrigger && isAITab(tabToTrigger)) {
+          triggerAutoGeneration(tabToTrigger, data.formattedTranscript || '', data.metadata?.title || '');
+        }
       } catch (err: any) {
         if (cancelled) return;
         setError(err.message || 'Failed to fetch video data');
@@ -158,25 +269,17 @@ export function SummaryClientView({
     }
 
     fetchVideoData();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [videoId, hasInitialData]);
 
-  // Hydrate cached sections from sessionStorage on mount / videoId change
+  // When initial data was provided by server, auto-trigger if an AI tab was requested
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      const cached = sessionStorage.getItem(`yt-summary-${videoId}`);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        setSummary((prev) => ({
-          keyTakeaways: parsed.keyTakeaways || prev?.keyTakeaways || [],
-          chapterSummaries: parsed.chapterSummaries || prev?.chapterSummaries || [],
-          fullSummary: parsed.fullSummary || prev?.fullSummary || '',
-          infographic: parsed.infographic || prev?.infographic || null,
-        }));
-      }
-    } catch {}
-  }, [videoId]);
+    if (hasInitialData && requestedTab && isAITab(requestedTab)) {
+      triggerAutoGeneration(requestedTab, formattedTranscript, metadata?.title);
+    }
+  }, [hasInitialData, requestedTab]);
 
   const handleSettingsSave = (newSettings: AISettings) => {
     setSettings(newSettings);
@@ -212,11 +315,28 @@ export function SummaryClientView({
   };
 
   /**
+   * Deep-linking handler when user changes tabs: updates the browser URL
+   * with ?tab=... using replaceState so it can be bookmarked or shared without reloading.
+   */
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', newTab);
+      window.history.replaceState(null, '', url.toString());
+    }
+  };
+
+  /**
    * On-demand generation and regeneration for any tab section.
    * Generates only the requested tab to conserve tokens and reduce latency.
    * Results are persisted in state and cached in sessionStorage.
    */
-  const handleGenerateSection = async (section: string) => {
+  const handleGenerateSection = async (
+    section: string,
+    overrideTranscript?: string,
+    overrideTitle?: string
+  ) => {
     if (regeneratingSection) return;
 
     if (section === 'transcript') {
@@ -242,14 +362,19 @@ export function SummaryClientView({
 
     setRegeneratingSection(section);
     try {
+      const transcriptToUse =
+        overrideTranscript !== undefined ? overrideTranscript : formattedTranscript;
+      const titleToUse =
+        overrideTitle !== undefined ? overrideTitle : (metadata?.title || '');
+
       const res = await fetch('/api/regenerate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           section,
-          transcript: formattedTranscript,
+          transcript: transcriptToUse,
           videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
-          title: metadata?.title || '',
+          title: titleToUse,
           ...getProviderPayload(),
         }),
       });
@@ -537,7 +662,8 @@ export function SummaryClientView({
                   onRegenerateSection={handleGenerateSection}
                   onGenerateSection={handleGenerateSection}
                   regeneratingSection={regeneratingSection}
-                  initialTab={transcript.length > 0 ? 'transcript' : 'takeaways'}
+                  initialTab={activeTab}
+                  onTabChange={handleTabChange}
                 />
               )}
             </div>

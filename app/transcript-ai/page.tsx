@@ -27,6 +27,8 @@ export const metadata: Metadata = {
 export default function TranscriptAiPage() {
   return (
     <SeoPageLayout
+      toolSlug="transcript-ai"
+      targetTab="takeaways"
       badge="Conversational Video AI"
       badgeEmoji="💬"
       headlinePrefix="Interactive"
