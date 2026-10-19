@@ -32,6 +32,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: 'Video Summary & Key Takeaways | YouTube Summarizer',
     description:
       'AI-generated summary, key takeaways, and timestamped transcript analysis for this YouTube video.',
+    robots: {
+      index: false,
+      follow: false,
+    },
     alternates: {
       canonical: canonicalUrl,
     },

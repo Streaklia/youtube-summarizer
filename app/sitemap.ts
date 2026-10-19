@@ -4,19 +4,6 @@ import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/lib/i18n';
 import { getPublishedPages } from '@/lib/pagesStore';
 import { TOOL_SLUGS } from '@/lib/toolTranslations';
 
-/**
- * Returns a list of known or featured video IDs to seed the sitemap.
- */
-async function getIndexedVideoIds(): Promise<string[]> {
-  return [
-    'wkf-U9ccODzI',
-    'dQw4w9WgXcQ',
-    'jNQXAC9IVRw',
-    'kJQP7kiw5Fk',
-    'fJ9rUzIMcZQ',
-  ];
-}
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.mytranscript.pro';
   const currentDate = new Date();
@@ -113,17 +100,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
       });
     }
-  }
-
-  // Dynamic /summary/[videoId] programmatic SEO entries
-  const videoIds = await getIndexedVideoIds();
-  for (const id of videoIds) {
-    routes.push({
-      url: `${baseUrl}/summary/${id}`,
-      lastModified: currentDate,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    });
   }
 
   // Admin-managed pages at /p/[slug]
