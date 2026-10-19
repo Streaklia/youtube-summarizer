@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { getLocalizedFeaturesForSlug, getLocalizedFaqsForSlug } from './localizedFeaturesFaqs.mjs';
 
 const SLUG_INFO = {
   'youtube-transcript': {
@@ -1854,6 +1855,9 @@ for (const slug of Object.keys(SLUG_INFO)) {
     const inputPlaceholder = item.placeholder[lang] || item.placeholder.en;
     const buttonLabel = item.buttonLabel[lang] || item.buttonLabel.en;
 
+    const localizedFeatures = getLocalizedFeaturesForSlug(slug, lang, item.features);
+    const localizedFaqs = getLocalizedFaqsForSlug(slug, lang, item.faqs);
+
     fileContent += `    '${lang}': {\n`;
     fileContent += `      title: ${JSON.stringify(title)},\n`;
     fileContent += `      metaDescription: ${JSON.stringify(metaDescription)},\n`;
@@ -1865,8 +1869,8 @@ for (const slug of Object.keys(SLUG_INFO)) {
     fileContent += `      description: ${JSON.stringify(description)},\n`;
     fileContent += `      inputPlaceholder: ${JSON.stringify(inputPlaceholder)},\n`;
     fileContent += `      buttonLabel: ${JSON.stringify(buttonLabel)},\n`;
-    fileContent += `      features: ${JSON.stringify(item.features)},\n`;
-    fileContent += `      faqs: ${JSON.stringify(item.faqs)},\n`;
+    fileContent += `      features: ${JSON.stringify(localizedFeatures)},\n`;
+    fileContent += `      faqs: ${JSON.stringify(localizedFaqs)},\n`;
     fileContent += `    },\n`;
   }
   fileContent += `  },\n`;

@@ -5,6 +5,9 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Loader2, Sparkles, Search, AlertCircle } from 'lucide-react';
 import { extractVideoId } from '@/lib/youtube';
 import { extractLangFromPath, getSavedLanguage, persistLanguage, resolveTabFromToolOrPath } from '@/lib/localizedUrl';
+import { getSeoUiStrings } from '@/lib/seoUiTranslations';
+import { RelatedToolsSection } from '@/components/RelatedToolsSection';
+import { SupportedLanguage } from '@/lib/i18n';
 
 export interface SeoLandingToolProps {
   badge?: string;
@@ -45,6 +48,15 @@ export function SeoLandingTool({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const activeLang =
+    (lang as SupportedLanguage) ||
+    extractLangFromPath(pathname) ||
+    (typeof window !== 'undefined' ? (getSavedLanguage() as SupportedLanguage) : 'en') ||
+    'en';
+
+  const isRtl = activeLang === 'ar';
+  const ui = getSeoUiStrings(activeLang);
+
   const handleSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!url.trim() || loading) return;
@@ -52,17 +64,11 @@ export function SeoLandingTool({
     setError(null);
     const videoId = extractVideoId(url);
     if (!videoId) {
-      setError('Please provide a valid YouTube URL (e.g. youtube.com/watch?v=... or youtu.be/...)');
+      setError(ui.invalidUrlError);
       return;
     }
 
-    const activeLang =
-      lang ||
-      extractLangFromPath(pathname) ||
-      (typeof window !== 'undefined' ? getSavedLanguage() : 'en');
-
     persistLanguage(activeLang);
-
     setLoading(true);
 
     // Resolve context-aware target tab based on explicit prop or active route pathname
@@ -82,7 +88,7 @@ export function SeoLandingTool({
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Hero Headline */}
       <div className="text-center mb-10 max-w-2xl mx-auto">
         {/* Pill Badge */}
@@ -107,15 +113,22 @@ export function SeoLandingTool({
         <form onSubmit={handleSubmit} className="glow-border-wrapper">
           <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-black/90 backdrop-blur-xl transition-all duration-300">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-500" />
+              <Search
+                className={`absolute top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-500 pointer-events-none ${
+                  isRtl ? 'right-4' : 'left-4'
+                }`}
+              />
               <input
                 type="url"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder={inputPlaceholder}
-                className="w-full pl-12 pr-4 py-3.5 bg-transparent text-white placeholder-gray-600 focus:outline-none text-sm sm:text-base"
+                className={`w-full py-3.5 bg-transparent text-white placeholder-gray-600 focus:outline-none text-sm sm:text-base ${
+                  isRtl ? 'pr-12 pl-4 text-right' : 'pl-12 pr-4 text-left'
+                }`}
                 disabled={loading}
                 aria-label="YouTube video URL"
+                dir={isRtl ? 'rtl' : 'ltr'}
               />
             </div>
             <button
@@ -142,8 +155,8 @@ export function SeoLandingTool({
           </div>
         )}
 
-        <p className="mt-3 text-center text-xs text-gray-600">
-          Instant extraction • No sign-up required • 100% Free
+        <p className="mt-3 text-center text-xs text-gray-500">
+          {ui.trustBadge}
         </p>
       </div>
 
@@ -153,11 +166,13 @@ export function SeoLandingTool({
           {features.map((feat, i) => (
             <div
               key={i}
-              className="glass p-5 rounded-2xl hover:border-white/[0.1] transition-all duration-200"
+              className={`glass p-5 rounded-2xl hover:border-white/[0.1] transition-all duration-200 ${
+                isRtl ? 'text-right' : 'text-left'
+              }`}
             >
               <div className="text-2xl mb-3">{feat.icon}</div>
               <h3 className="text-white font-semibold text-sm mb-1">{feat.title}</h3>
-              <p className="text-gray-500 text-xs leading-relaxed">{feat.description}</p>
+              <p className="text-gray-400 text-xs leading-relaxed">{feat.description}</p>
             </div>
           ))}
         </div>
@@ -167,11 +182,14 @@ export function SeoLandingTool({
       {faqs && faqs.length > 0 && (
         <div className="mt-16 pt-10 border-t border-white/[0.06] max-w-2xl mx-auto">
           <h2 className="text-lg font-bold text-white mb-6 text-center">
-            Frequently Asked Questions
+            {ui.faqTitle}
           </h2>
           <div className="space-y-4">
             {faqs.map((faq, i) => (
-              <div key={i} className="glass p-4 rounded-xl">
+              <div
+                key={i}
+                className={`glass p-4 rounded-xl ${isRtl ? 'text-right' : 'text-left'}`}
+              >
                 <h3 className="text-white font-medium text-sm mb-1">{faq.question}</h3>
                 <p className="text-gray-400 text-xs leading-relaxed">{faq.answer}</p>
               </div>
@@ -179,6 +197,9 @@ export function SeoLandingTool({
           </div>
         </div>
       )}
+
+      {/* Programmatic Internal Linking Section */}
+      <RelatedToolsSection currentSlug={toolSlug} lang={activeLang} />
 
       {seoBottomContent && (
         <div className="mt-12 text-gray-400 text-xs leading-relaxed max-w-2xl mx-auto">

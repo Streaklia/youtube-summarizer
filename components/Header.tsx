@@ -27,6 +27,93 @@ const baseToolLinks = [
   { path: '/podcast-transcript', label: 'Podcasts', emoji: '🎙️' },
 ];
 
+const TOOL_NAV_TRANSLATIONS: Record<string, Record<string, string>> = {
+  '/': {
+    en: 'Summarizer',
+    ar: 'الملخص',
+    es: 'Resumidor',
+    fr: 'Résumeur',
+    'zh-CN': '智能摘要',
+    ja: 'AI要約',
+    ko: '요약기',
+    'pt-BR': 'Resumidor',
+    vi: 'Tóm tắt',
+    th: 'สรุปย่อ',
+    de: 'Summarizer',
+    pt: 'Resumidor',
+  },
+  '/youtube-transcript': {
+    en: 'Transcript',
+    ar: 'التفريغ النصي',
+    es: 'Transcripción',
+    fr: 'Transcription',
+    'zh-CN': '字幕提取',
+    ja: '文字起こし',
+    ko: '자막 추출',
+    'pt-BR': 'Transcrição',
+    vi: 'Phụ đề',
+    th: 'ถอดเสียง',
+    de: 'Transkript',
+    pt: 'Transcrição',
+  },
+  '/youtube-summary': {
+    en: 'AI Summary',
+    ar: 'ملخص الفيديو',
+    es: 'Resumen IA',
+    fr: 'Résumé IA',
+    'zh-CN': 'AI总结',
+    ja: 'AIサマリー',
+    ko: 'AI 요약',
+    'pt-BR': 'Resumo IA',
+    vi: 'Tóm tắt AI',
+    th: 'สรุปด้วย AI',
+    de: 'KI-Zusammenfassung',
+    pt: 'Resumo IA',
+  },
+  '/youtube-infographic': {
+    en: 'Infographic',
+    ar: 'إنفوجرافيك',
+    es: 'Infografía',
+    fr: 'Infographie',
+    'zh-CN': '概念图解',
+    ja: '図解',
+    ko: '인포그래픽',
+    'pt-BR': 'Infográfico',
+    vi: 'Đồ họa',
+    th: 'อินโฟกราฟิก',
+    de: 'Infografik',
+    pt: 'Infográfico',
+  },
+  '/youtube-to-text': {
+    en: 'To Text',
+    ar: 'تحويل لنص',
+    es: 'A Texto',
+    fr: 'En Texte',
+    'zh-CN': '转文本',
+    ja: 'テキスト化',
+    ko: '텍스트 변환',
+    'pt-BR': 'Para Texto',
+    vi: 'Thành văn bản',
+    th: 'แปลงเป็นข้อความ',
+    de: 'Zu Text',
+    pt: 'Para Texto',
+  },
+  '/podcast-transcript': {
+    en: 'Podcasts',
+    ar: 'بودكاست',
+    es: 'Podcasts',
+    fr: 'Podcasts',
+    'zh-CN': '播客转录',
+    ja: 'ポッドキャスト',
+    ko: '팟캐스트',
+    'pt-BR': 'Podcasts',
+    vi: 'Podcast',
+    th: 'พอดแคสต์',
+    de: 'Podcasts',
+    pt: 'Podcasts',
+  },
+};
+
 const resultNavItems = [
   { id: 'home', label: 'Search', icon: '🔍' },
   { id: 'summary', label: 'Summary', icon: '📝' },
@@ -61,12 +148,18 @@ export function Header({
 
   const homeHref = localizedUrl('/', activeLang);
 
-  const toolLinks = baseToolLinks.map((tool) => ({
-    href: localizedUrl(tool.path, activeLang),
-    label: tool.label,
-    emoji: tool.emoji,
-    badge: tool.badge,
-  }));
+  const toolLinks = baseToolLinks.map((tool) => {
+    const localizedLabel =
+      TOOL_NAV_TRANSLATIONS[tool.path]?.[activeLang] ||
+      TOOL_NAV_TRANSLATIONS[tool.path]?.en ||
+      tool.label;
+    return {
+      href: localizedUrl(tool.path, activeLang),
+      label: localizedLabel,
+      emoji: tool.emoji,
+      badge: tool.badge,
+    };
+  });
 
   return (
     <header className="sticky top-0 z-50 border-b border-zinc-800 bg-black/80 backdrop-blur-md px-4 py-3 sm:px-6">
@@ -82,9 +175,9 @@ export function Header({
               </div>
             </div>
             <div className="flex items-baseline font-bold text-base sm:text-lg tracking-tight select-none">
-              <span className="text-white">YouTube</span>
+              <span className="text-white">My</span>
               <span className="bg-gradient-to-r from-red-500 via-rose-400 to-orange-400 bg-clip-text text-transparent">
-                Summarizer
+                Transcript
               </span>
             </div>
           </Link>
