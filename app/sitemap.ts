@@ -1,8 +1,9 @@
 import { MetadataRoute } from 'next';
+import { BLOG_POSTS } from '@/lib/contentData';
+import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/lib/i18n';
 
 /**
  * Returns a list of known or featured video IDs to seed the sitemap.
- * Can be connected to any Redis / Postgres / KV store database in the future.
  */
 async function getIndexedVideoIds(): Promise<string[]> {
   return [
@@ -27,14 +28,72 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: '/youtube-to-text', priority: 0.9, changeFrequency: 'weekly' as const },
     { path: '/podcast-transcript', priority: 0.9, changeFrequency: 'weekly' as const },
     { path: '/transcript-ai', priority: 0.9, changeFrequency: 'weekly' as const },
+    // Resources & Legal
+    { path: '/blog', priority: 0.8, changeFrequency: 'weekly' as const },
+    { path: '/faq', priority: 0.8, changeFrequency: 'weekly' as const },
+    { path: '/privacy', priority: 0.5, changeFrequency: 'monthly' as const },
+    { path: '/terms', priority: 0.5, changeFrequency: 'monthly' as const },
   ];
 
-  const routes: MetadataRoute.Sitemap = dedicatedSeoPages.map((page) => ({
-    url: `${baseUrl}${page.path}`,
-    lastModified: currentDate,
-    changeFrequency: page.changeFrequency,
-    priority: page.priority,
-  }));
+  const routes: MetadataRoute.Sitemap = [];
+
+  // Add primary English routes
+  for (const page of dedicatedSeoPages) {
+    routes.push({
+      url: `${baseUrl}${page.path}`,
+      lastModified: currentDate,
+      changeFrequency: page.changeFrequency,
+      priority: page.priority,
+    });
+  }
+
+  // Add individual blog articles
+  for (const post of BLOG_POSTS) {
+    routes.push({
+      url: `${baseUrl}/blog/${post.slug}`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    });
+  }
+
+  // Multi-Language routes for non-English locales
+  const nonEnglishLangs = (Object.keys(SUPPORTED_LANGUAGES) as SupportedLanguage[]).filter(
+    (l) => l !== 'en'
+  );
+
+  for (const lang of nonEnglishLangs) {
+    routes.push({
+      url: `${baseUrl}/${lang}`,
+      lastModified: currentDate,
+      changeFrequency: 'daily' as const,
+      priority: 0.9,
+    });
+    routes.push({
+      url: `${baseUrl}/${lang}/blog`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    });
+    routes.push({
+      url: `${baseUrl}/${lang}/faq`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    });
+    routes.push({
+      url: `${baseUrl}/${lang}/privacy`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly' as const,
+      priority: 0.4,
+    });
+    routes.push({
+      url: `${baseUrl}/${lang}/terms`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly' as const,
+      priority: 0.4,
+    });
+  }
 
   // Dynamic /summary/[videoId] programmatic SEO entries
   const videoIds = await getIndexedVideoIds();

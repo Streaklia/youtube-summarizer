@@ -9,6 +9,7 @@ import { SummaryTabs } from '@/components/SummaryTabs';
 import { ChatWithVideo } from '@/components/ChatWithVideo';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { SettingsModal } from '@/components/SettingsModal';
+import { Footer } from '@/components/Footer';
 import { AlertCircle } from 'lucide-react';
 import {
   VideoMetadata,
@@ -336,19 +337,10 @@ export default function Home() {
               </div>
             )}
           </div>
-
-          {/* Footer */}
-          <footer className="mt-20 pb-8 text-center">
-            <div className="flex items-center justify-center gap-2 text-xs text-gray-700">
-              <span>Powered by</span>
-              <span className="text-gray-500">
-                {settings.provider === 'openrouter' ? 'OpenRouter' : 'Google Gemini AI'}
-              </span>
-              <span className="text-gray-800">·</span>
-              <span>Built with Next.js & Tailwind CSS</span>
-            </div>
-          </footer>
         </div>
+
+        {/* Structured Footer with Cody attribution & internal links */}
+        <Footer currentLang="en" />
       </div>
     </main>
   );

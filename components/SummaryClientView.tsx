@@ -8,6 +8,7 @@ import { SettingsModal } from '@/components/SettingsModal';
 import { VideoPlayerColumn } from '@/components/VideoPlayerColumn';
 import { SummaryTabs } from '@/components/SummaryTabs';
 import { ChatRightColumn } from '@/components/ChatRightColumn';
+import { Footer } from '@/components/Footer';
 import {
   VideoMetadata,
   SummaryResult,
@@ -397,6 +398,9 @@ export function SummaryClientView({
             </div>
           </div>
         </div>
+
+        {/* Structured Footer with Cody attribution & internal links */}
+        <Footer currentLang="en" />
       </div>
     </main>
   );

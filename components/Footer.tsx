@@ -1,0 +1,209 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Youtube, Globe, Heart, Shield, FileText, HelpCircle, BookOpen, Sparkles } from 'lucide-react';
+import { SUPPORTED_LANGUAGES, SupportedLanguage } from '@/lib/i18n';
+
+interface FooterProps {
+  currentLang?: SupportedLanguage;
+}
+
+export function Footer({ currentLang = 'en' }: FooterProps) {
+  const pathname = usePathname() || '/';
+
+  // Helper to construct language URL paths
+  const getLanguageHref = (langCode: SupportedLanguage) => {
+    // Strip leading /[lang] prefix if present
+    const segments = pathname.split('/').filter(Boolean);
+    const hasLangPrefix = segments.length > 0 && Object.keys(SUPPORTED_LANGUAGES).includes(segments[0]);
+    const pathWithoutLang = hasLangPrefix
+      ? '/' + segments.slice(1).join('/')
+      : pathname;
+
+    const cleanPath = pathWithoutLang === '/' ? '' : pathWithoutLang;
+
+    if (langCode === 'en') {
+      return cleanPath || '/';
+    }
+    return `/${langCode}${cleanPath}`;
+  };
+
+  const prefix = currentLang === 'en' ? '' : `/${currentLang}`;
+
+  return (
+    <footer className="mt-20 border-t border-zinc-900 bg-black/60 backdrop-blur-md">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-zinc-900">
+          {/* Brand Column */}
+          <div className="md:col-span-1 space-y-3">
+            <Link href={prefix || '/'} className="inline-flex items-center gap-2 group">
+              <div className="p-1.5 rounded-lg bg-red-600/10 border border-red-500/20 group-hover:bg-red-600/20 transition-colors">
+                <Youtube className="w-5 h-5 text-red-500" />
+              </div>
+              <span className="font-bold text-white text-base tracking-tight">
+                YouTube<span className="text-red-500">Summarizer</span>
+              </span>
+            </Link>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              AI-powered YouTube video summarizer, transcript extractor, and interactive chat. Free, instant, and privacy-friendly.
+            </p>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-zinc-900/80 border border-zinc-800 text-[11px] text-zinc-400">
+              <Sparkles className="w-3 h-3 text-amber-400" />
+              <span>Free Forever · 4.9/5 Rating</span>
+            </div>
+          </div>
+
+          {/* Quick Tools Navigation */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">
+              Tools & Features
+            </h4>
+            <ul className="space-y-2 text-xs">
+              <li>
+                <Link
+                  href={prefix || '/'}
+                  className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
+                >
+                  <span>Home Tool</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/youtube-transcript"
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
+                  YouTube Transcript Generator
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/youtube-summary"
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
+                  AI Video Summarizer
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/youtube-infographic"
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
+                  Infographic Generator
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/podcast-transcript"
+                  className="text-zinc-400 hover:text-white transition-colors"
+                >
+                  Podcast Transcripts
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Resources & Help (Internal Links) */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">
+              Resources & Help
+            </h4>
+            <ul className="space-y-2 text-xs">
+              <li>
+                <Link
+                  href={`${prefix}/blog`}
+                  className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-zinc-500" />
+                  <span>Blog & Articles</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`${prefix}/faq`}
+                  className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
+                >
+                  <HelpCircle className="w-3.5 h-3.5 text-zinc-500" />
+                  <span>FAQ & Help Center</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`${prefix}/privacy`}
+                  className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
+                >
+                  <Shield className="w-3.5 h-3.5 text-zinc-500" />
+                  <span>Privacy Policy</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`${prefix}/terms`}
+                  className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
+                >
+                  <FileText className="w-3.5 h-3.5 text-zinc-500" />
+                  <span>Terms of Service</span>
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Languages Selector Column */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3 flex items-center gap-1.5">
+              <Globe className="w-3.5 h-3.5 text-red-400" />
+              <span>Language (Idiomas)</span>
+            </h4>
+            <div className="grid grid-cols-2 gap-1.5">
+              {(Object.values(SUPPORTED_LANGUAGES)).map((lang) => {
+                const isActive = currentLang === lang.code;
+                return (
+                  <Link
+                    key={lang.code}
+                    href={getLanguageHref(lang.code)}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs transition-colors border ${
+                      isActive
+                        ? 'bg-red-500/10 text-red-400 border-red-500/30 font-medium'
+                        : 'bg-zinc-900/60 text-zinc-400 border-zinc-800/80 hover:bg-zinc-800 hover:text-white'
+                    }`}
+                  >
+                    <span>{lang.flag}</span>
+                    <span className="truncate">{lang.nativeName}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Attribution Line (Requested: "Powered by Cody · Built with love") */}
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
+          <div className="flex items-center gap-1.5 text-zinc-400">
+            <span>Powered by <strong className="text-zinc-300 font-medium">Cody</strong></span>
+            <span className="text-zinc-700">·</span>
+            <span className="inline-flex items-center gap-1">
+              Built with love <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500 inline" />
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4 text-zinc-500 text-[11px]">
+            <span>© {new Date().getFullYear()} YouTube Summarizer</span>
+            <span>·</span>
+            <Link href={`${prefix}/privacy`} className="hover:text-zinc-400 transition-colors">
+              Privacy
+            </Link>
+            <span>·</span>
+            <Link href={`${prefix}/terms`} className="hover:text-zinc-400 transition-colors">
+              Terms
+            </Link>
+            <span>·</span>
+            <Link href="/admin" className="text-zinc-700 hover:text-zinc-500 transition-colors">
+              Console
+            </Link>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}

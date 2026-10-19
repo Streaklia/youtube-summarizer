@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { SettingsModal } from '@/components/SettingsModal';
 import { SeoLandingTool, SeoLandingToolProps } from '@/components/SeoLandingTool';
+import { Footer } from '@/components/Footer';
 import { AISettings } from '@/lib/types';
 
 const DEFAULT_SETTINGS: AISettings = {
@@ -63,19 +64,10 @@ export function SeoPageLayout(props: SeoLandingToolProps) {
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
           <SeoLandingTool {...props} />
-
-          {/* Footer */}
-          <footer className="mt-24 pb-8 text-center">
-            <div className="flex items-center justify-center gap-2 text-xs text-gray-700">
-              <span>Powered by</span>
-              <span className="text-gray-500">
-                {settings.provider === 'openrouter' ? 'OpenRouter' : 'Google Gemini AI'}
-              </span>
-              <span className="text-gray-800">·</span>
-              <span>Built with Next.js & Tailwind CSS</span>
-            </div>
-          </footer>
         </div>
+
+        {/* Structured Footer with Cody attribution & internal links */}
+        <Footer currentLang="en" />
       </div>
     </main>
   );
