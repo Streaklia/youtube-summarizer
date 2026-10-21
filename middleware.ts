@@ -73,8 +73,9 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Match all routes except static assets and Next.js internals
+  // Match all routes except static assets, Next.js internals and the sitemap
+  // files (sitemap.xml, sitemap_index.xml, sitemap-main.xml, sitemap-tools-N.xml)
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)',
+    '/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap).*)',
   ],
 };

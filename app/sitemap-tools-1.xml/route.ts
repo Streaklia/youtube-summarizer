@@ -1,49 +1,28 @@
 import { NextResponse } from 'next/server';
-import { ALL_SUPPORTED_LANGUAGES } from '@/lib/i18n';
-import { TOOL_SLUGS } from '@/lib/toolTranslations';
+import { buildToolEntries, chunk, renderUrlset, SITEMAP_HEADERS } from '@/lib/sitemap';
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.mytranscript.pro';
+/**
+ * /sitemap-tools-1.xml — tool pages, chunk 1 (root tool routes + localized
+ * tools). Sitemaps are capped at SITEMAP_CHUNK_SIZE URLs per file; if the
+ * tool catalogue ever grows past one chunk, chunk 2 (and 3) take over and
+ * the master index lists whichever chunks exist.
+ */
+export const dynamic = 'force-static';
 
-function urlEntry(
-  loc: string,
-  lastmod: string,
-  changefreq: string,
-  priority: string
-): string {
-  return `  <url>
-    <loc>${loc}</loc>
-    <lastmod>${lastmod}</lastmod>
-    <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
-  </url>`;
-}
+const CHUNK_INDEX = 0;
 
 export function GET() {
-  const today = new Date().toISOString().split('T')[0];
-  const entries: string[] = [];
+  const slice = chunk(buildToolEntries())[CHUNK_INDEX];
 
-  // Root tool pages (non-localized)
-  for (const slug of TOOL_SLUGS) {
-    entries.push(urlEntry(`${BASE_URL}/${slug}`, today, 'weekly', '0.9'));
+  if (!slice) {
+    return new NextResponse('Not found', {
+      status: 404,
+      headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+    });
   }
 
-  // Localized tool pages: /[lang]/[slug]
-  for (const lang of ALL_SUPPORTED_LANGUAGES) {
-    for (const slug of TOOL_SLUGS) {
-      entries.push(urlEntry(`${BASE_URL}/${lang}/${slug}`, today, 'weekly', '0.8'));
-    }
-  }
-
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${entries.join('\n')}
-</urlset>`;
-
-  return new NextResponse(xml, {
+  return new NextResponse(renderUrlset(slice), {
     status: 200,
-    headers: {
-      'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=43200, s-maxage=43200',
-    },
+    headers: SITEMAP_HEADERS,
   });
 }

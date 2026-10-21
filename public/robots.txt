@@ -7,3 +7,4 @@ Disallow: /admin/
 Disallow: /summary/
 
 Sitemap: https://www.mytranscript.pro/sitemap.xml
+Sitemap: https://www.mytranscript.pro/sitemap_index.xml
