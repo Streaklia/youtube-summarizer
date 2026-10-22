@@ -3,8 +3,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Youtube, Settings, Sparkles } from 'lucide-react';
-import { extractLangFromPath, getSavedLanguage, localizedUrl } from '@/lib/localizedUrl';
-import { isSupportedLanguage } from '@/lib/i18n';
 
 interface HeaderProps {
   onOpenSettings?: () => void;
@@ -13,108 +11,16 @@ interface HeaderProps {
   activeSection?: string;
   onNavigate?: (section: string) => void;
   hasResults?: boolean;
-  currentLang?: string;
   showAiSettings?: boolean;
 }
 
-// Core navigation tools targeting high-volume keywords
-const baseToolLinks = [
-  { path: '/', label: 'Summarizer', emoji: '⚡' },
-  { path: '/youtube-transcript', label: 'Transcript', emoji: '📄' },
-  { path: '/youtube-summary', label: 'AI Summary', emoji: '📝' },
-  { path: '/youtube-infographic', label: 'Infographic', emoji: '📊', badge: 'New' },
-  { path: '/youtube-to-text', label: 'To Text', emoji: '✍️' },
-  { path: '/podcast-transcript', label: 'Podcasts', emoji: '🎙️' },
+const NAV_LINKS = [
+  { href: '/', label: 'Summarizer', emoji: '🤖' },
+  { href: '/articles/', label: 'Articles', emoji: '📖' },
+  { href: '/about-us', label: 'About', emoji: 'ℹ️' },
 ];
 
-const TOOL_NAV_TRANSLATIONS: Record<string, Record<string, string>> = {
-  '/': {
-    en: 'Summarizer',
-    ar: 'الملخص',
-    es: 'Resumidor',
-    fr: 'Résumeur',
-    'zh-CN': '智能摘要',
-    ja: 'AI要約',
-    ko: '요약기',
-    'pt-BR': 'Resumidor',
-    vi: 'Tóm tắt',
-    th: 'สรุปย่อ',
-    de: 'Summarizer',
-    pt: 'Resumidor',
-  },
-  '/youtube-transcript': {
-    en: 'Transcript',
-    ar: 'التفريغ النصي',
-    es: 'Transcripción',
-    fr: 'Transcription',
-    'zh-CN': '字幕提取',
-    ja: '文字起こし',
-    ko: '자막 추출',
-    'pt-BR': 'Transcrição',
-    vi: 'Phụ đề',
-    th: 'ถอดเสียง',
-    de: 'Transkript',
-    pt: 'Transcrição',
-  },
-  '/youtube-summary': {
-    en: 'AI Summary',
-    ar: 'ملخص الفيديو',
-    es: 'Resumen IA',
-    fr: 'Résumé IA',
-    'zh-CN': 'AI总结',
-    ja: 'AIサマリー',
-    ko: 'AI 요약',
-    'pt-BR': 'Resumo IA',
-    vi: 'Tóm tắt AI',
-    th: 'สรุปด้วย AI',
-    de: 'KI-Zusammenfassung',
-    pt: 'Resumo IA',
-  },
-  '/youtube-infographic': {
-    en: 'Infographic',
-    ar: 'إنفوجرافيك',
-    es: 'Infografía',
-    fr: 'Infographie',
-    'zh-CN': '概念图解',
-    ja: '図解',
-    ko: '인포그래픽',
-    'pt-BR': 'Infográfico',
-    vi: 'Đồ họa',
-    th: 'อินโฟกราฟิก',
-    de: 'Infografik',
-    pt: 'Infográfico',
-  },
-  '/youtube-to-text': {
-    en: 'To Text',
-    ar: 'تحويل لنص',
-    es: 'A Texto',
-    fr: 'En Texte',
-    'zh-CN': '转文本',
-    ja: 'テキスト化',
-    ko: '텍스트 변환',
-    'pt-BR': 'Para Texto',
-    vi: 'Thành văn bản',
-    th: 'แปลงเป็นข้อความ',
-    de: 'Zu Text',
-    pt: 'Para Texto',
-  },
-  '/podcast-transcript': {
-    en: 'Podcasts',
-    ar: 'بودكاست',
-    es: 'Podcasts',
-    fr: 'Podcasts',
-    'zh-CN': '播客转录',
-    ja: 'ポッドキャスト',
-    ko: '팟캐스트',
-    'pt-BR': 'Podcasts',
-    vi: 'Podcast',
-    th: 'พอดแคสต์',
-    de: 'Podcasts',
-    pt: 'Podcasts',
-  },
-};
-
-const resultNavItems = [
+const RESULT_NAV_ITEMS = [
   { id: 'home', label: 'Search', icon: '🔍' },
   { id: 'summary', label: 'Summary', icon: '📝' },
   { id: 'chat', label: 'Chat', icon: '💬' },
@@ -127,17 +33,9 @@ export function Header({
   activeSection = 'home',
   onNavigate,
   hasResults = false,
-  currentLang,
   showAiSettings = false,
 }: HeaderProps) {
   const pathname = usePathname();
-
-  // Dynamically resolve active language: explicit prop -> path segment -> client saved storage -> 'en'
-  const pathLang = extractLangFromPath(pathname);
-  const activeLang =
-    (currentLang && isSupportedLanguage(currentLang) ? currentLang : null) ||
-    pathLang ||
-    (typeof window !== 'undefined' ? getSavedLanguage() : 'en');
 
   const providerLabel =
     activeProvider === 'openrouter'
@@ -146,76 +44,49 @@ export function Header({
         : 'OpenRouter'
       : 'Gemini';
 
-  const homeHref = localizedUrl('/', activeLang);
-
-  const toolLinks = baseToolLinks.map((tool) => {
-    const localizedLabel =
-      TOOL_NAV_TRANSLATIONS[tool.path]?.[activeLang] ||
-      TOOL_NAV_TRANSLATIONS[tool.path]?.en ||
-      tool.label;
-    return {
-      href: localizedUrl(tool.path, activeLang),
-      label: localizedLabel,
-      emoji: tool.emoji,
-      badge: tool.badge,
-    };
-  });
-
   return (
-    <header className="sticky top-0 z-50 border-b border-zinc-800 bg-black/80 backdrop-blur-md px-4 py-3 sm:px-6">
-      <div className="max-w-7xl mx-auto flex flex-col justify-center">
-        {/* Main Header Flex Row: Left (Logo) | Center (Pill Nav) | Right (Actions) */}
-        <div className="flex items-center justify-between gap-4">
-          {/* Left section: Brand Logo + Name */}
-          <Link href={homeHref} className="flex items-center gap-3 flex-shrink-0 group">
-            <div className="relative flex items-center justify-center">
-              <div className="absolute inset-0 bg-red-500/25 rounded-xl blur-md group-hover:bg-red-500/35 transition-all" />
-              <div className="relative p-2 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl shadow-md shadow-red-500/20">
-                <Youtube className="w-5 h-5 text-white" />
-              </div>
+    <header className="sticky top-0 z-50 border-b border-zinc-800/80 bg-black/80 backdrop-blur-xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14 gap-4">
+
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 flex-shrink-0 group">
+            <div className="p-1.5 rounded-lg bg-red-600/10 border border-red-500/20 group-hover:bg-red-600/20 transition-colors">
+              <Youtube className="w-4 h-4 text-red-500" />
             </div>
-            <div className="flex items-baseline font-bold text-base sm:text-lg tracking-tight select-none">
-              <span className="text-white">My</span>
-              <span className="bg-gradient-to-r from-red-500 via-rose-400 to-orange-400 bg-clip-text text-transparent">
-                Transcript
-              </span>
-            </div>
+            <span className="font-bold text-white text-sm tracking-tight hidden sm:block">
+              My<span className="text-red-500">Transcript</span>
+            </span>
           </Link>
 
-          {/* Center section: Sleek pill-shaped navigation container */}
+          {/* Desktop nav */}
           <nav className="hidden md:flex items-center p-1 bg-zinc-900/80 border border-zinc-800/90 rounded-full shadow-inner gap-1">
-            {toolLinks.map((tool) => {
-              const isActive = pathname === tool.href;
+            {NAV_LINKS.map((link) => {
+              const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
               return (
                 <Link
-                  key={tool.href}
-                  href={tool.href}
-                  className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150 whitespace-nowrap ${
+                  key={link.href}
+                  href={link.href}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-150 whitespace-nowrap ${
                     isActive
                       ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700/60 font-semibold'
                       : 'text-zinc-400 hover:text-white hover:bg-zinc-800/40 border border-transparent'
                   }`}
                 >
-                  <span className="text-xs leading-none">{tool.emoji}</span>
-                  <span>{tool.label}</span>
-                  {tool.badge && (
-                    <span className="px-1.5 py-0.2 bg-gradient-to-r from-red-500 to-rose-500 text-[9px] font-bold text-white uppercase rounded-full shadow-sm">
-                      {tool.badge}
-                    </span>
-                  )}
+                  <span className="text-xs leading-none">{link.emoji}</span>
+                  <span>{link.label}</span>
                 </Link>
               );
             })}
           </nav>
 
-          {/* Right section: Action buttons (Model badge + Settings gear) - hidden from public by default */}
+          {/* Right: AI Settings badge (admin/dashboard only via showAiSettings) */}
           {showAiSettings && (
             <div className="flex items-center gap-2 flex-shrink-0">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/80 border border-zinc-800 text-xs font-medium text-zinc-300 shadow-sm">
                 <Sparkles className="w-3.5 h-3.5 text-red-400 flex-shrink-0" />
                 <span className="truncate max-w-[90px] sm:max-w-[120px]">{providerLabel}</span>
               </div>
-
               {onOpenSettings && (
                 <button
                   type="button"
@@ -231,36 +102,31 @@ export function Header({
           )}
         </div>
 
-        {/* Mobile Navigation bar: clean horizontal pill row without ugly scrollbars */}
-        <div className="flex md:hidden items-center gap-1.5 pt-2 pb-0.5 overflow-x-auto no-scrollbar border-t border-zinc-800/50 -mx-4 px-4 mt-2">
-          {toolLinks.map((tool) => {
-            const isActive = pathname === tool.href;
+        {/* Mobile nav */}
+        <div className="flex md:hidden items-center gap-1.5 pt-2 pb-1 overflow-x-auto no-scrollbar border-t border-zinc-800/50 -mx-4 px-4 mt-1">
+          {NAV_LINKS.map((link) => {
+            const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
             return (
               <Link
-                key={tool.href}
-                href={tool.href}
+                key={link.href}
+                href={link.href}
                 className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all ${
                   isActive
                     ? 'bg-zinc-800 text-white border border-zinc-700 font-semibold'
                     : 'bg-zinc-900/60 text-zinc-400 hover:text-white border border-zinc-800/80'
                 }`}
               >
-                <span className="text-xs">{tool.emoji}</span>
-                <span>{tool.label}</span>
-                {tool.badge && (
-                  <span className="px-1 py-0.2 bg-gradient-to-r from-red-500 to-rose-500 text-[8px] font-bold text-white uppercase rounded-full">
-                    {tool.badge}
-                  </span>
-                )}
+                <span className="text-xs">{link.emoji}</span>
+                <span>{link.label}</span>
               </Link>
             );
           })}
         </div>
 
-        {/* In-Page Result navigation tabs (visible on summary view if hasResults is enabled) */}
+        {/* In-page result nav tabs (shown when hasResults) */}
         {hasResults && (
-          <nav className="-mb-px flex gap-1 pb-0 border-t border-zinc-800/60 pt-1 mt-2">
-            {resultNavItems.map((item) => (
+          <nav className="flex gap-1 border-t border-zinc-800/60 pt-1 mt-1">
+            {RESULT_NAV_ITEMS.map((item) => (
               <button
                 key={item.id}
                 type="button"

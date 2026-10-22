@@ -181,7 +181,6 @@ export function LocalizedHomeClient({ langConfig }: LocalizedHomeClientProps) {
           activeSection={activeSection}
           onNavigate={(sec) => setActiveSection(sec)}
           hasResults={Boolean(summary || transcript.length > 0)}
-          currentLang={langConfig.code}
         />
 
         <SettingsModal
@@ -271,7 +270,7 @@ export function LocalizedHomeClient({ langConfig }: LocalizedHomeClientProps) {
           </div>
         </div>
 
-        <Footer currentLang={langConfig.code} />
+        <Footer />
       </div>
     </main>
   );

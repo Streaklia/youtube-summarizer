@@ -1,19 +1,57 @@
 import { NextResponse } from 'next/server';
-import { buildAllEntries, renderUrlset, SITEMAP_HEADERS } from '@/lib/sitemap';
+import { BLOG_POSTS } from '@/lib/contentData';
 
-/**
- * /sitemap.xml — the complete, flat sitemap (every indexable URL).
- *
- * Prerendered at build time and served from the CDN, so Search Console
- * always gets a fast static XML response. The response is a plain XML string:
- * no HTML wrapper, no client-side script, and an explicit
- * "application/xml; charset=utf-8" content type.
- */
+const BASE_URL = 'https://www.mytranscript.pro';
+
 export const dynamic = 'force-static';
 
+function urlEntry(
+  loc: string,
+  lastmod: string,
+  changefreq: string,
+  priority: string
+): string {
+  return `  <url>
+    <loc>${loc}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+  </url>`;
+}
+
 export function GET() {
-  return new NextResponse(renderUrlset(buildAllEntries()), {
+  const today = new Date().toISOString().split('T')[0];
+
+  const entries: string[] = [
+    // Homepage
+    urlEntry(`${BASE_URL}/`, today, 'weekly', '1.0'),
+    // Web App
+    urlEntry(`${BASE_URL}/app/`, today, 'monthly', '0.8'),
+    // Articles index
+    urlEntry(`${BASE_URL}/articles/`, today, 'monthly', '0.7'),
+    // Article detail pages
+    ...BLOG_POSTS.map((post) =>
+      urlEntry(`${BASE_URL}/articles/${post.slug}`, today, 'monthly', '0.6')
+    ),
+    // Legal & corporate pages
+    urlEntry(`${BASE_URL}/about-us`, today, 'monthly', '0.4'),
+    urlEntry(`${BASE_URL}/contact-us`, today, 'monthly', '0.4'),
+    urlEntry(`${BASE_URL}/privacy-policy`, today, 'monthly', '0.4'),
+    urlEntry(`${BASE_URL}/terms-of-service`, today, 'monthly', '0.4'),
+    urlEntry(`${BASE_URL}/disclaimer`, today, 'monthly', '0.4'),
+    urlEntry(`${BASE_URL}/copyright-policy`, today, 'monthly', '0.4'),
+  ];
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${entries.join('\n')}
+</urlset>`;
+
+  return new NextResponse(xml, {
     status: 200,
-    headers: SITEMAP_HEADERS,
+    headers: {
+      'Content-Type': 'application/xml; charset=utf-8',
+      'Cache-Control': 'public, max-age=43200, s-maxage=43200',
+    },
   });
 }

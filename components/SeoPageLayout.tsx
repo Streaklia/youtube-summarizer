@@ -58,7 +58,6 @@ export function SeoPageLayout({ lang = 'en', dir = 'ltr', ...props }: SeoPageLay
           onOpenSettings={() => setSettingsOpen(true)}
           activeProvider={settings.provider}
           activeModel={settings.openrouterModel}
-          currentLang={lang}
         />
 
         <SettingsModal
@@ -73,7 +72,7 @@ export function SeoPageLayout({ lang = 'en', dir = 'ltr', ...props }: SeoPageLay
         </div>
 
         {/* Structured Footer with Cody attribution & internal links */}
-        <Footer currentLang={lang as any} />
+        <Footer />
       </div>
     </main>
   );

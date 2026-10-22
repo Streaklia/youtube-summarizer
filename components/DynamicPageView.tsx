@@ -47,7 +47,6 @@ export function DynamicPageView({ page }: DynamicPageViewProps) {
           onOpenSettings={() => setSettingsOpen(true)}
           activeProvider={settings.provider}
           activeModel={settings.openrouterModel}
-          currentLang={activeLang}
         />
 
         <SettingsModal
@@ -130,7 +129,7 @@ export function DynamicPageView({ page }: DynamicPageViewProps) {
           </div>
         </article>
 
-        <Footer currentLang={activeLang} />
+        <Footer />
       </div>
     </main>
   );

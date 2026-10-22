@@ -34,7 +34,6 @@ export function PrivacyClient({ lang }: PrivacyClientProps) {
           onOpenSettings={() => setSettingsOpen(true)}
           activeProvider={settings.provider}
           activeModel={settings.openrouterModel}
-          currentLang={lang}
         />
 
         <SettingsModal
@@ -102,7 +101,7 @@ export function PrivacyClient({ lang }: PrivacyClientProps) {
           </div>
         </div>
 
-        <Footer currentLang={lang} />
+        <Footer />
       </div>
     </main>
   );

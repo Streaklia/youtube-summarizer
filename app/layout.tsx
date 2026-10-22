@@ -57,16 +57,7 @@ export const metadata: Metadata = {
     google: '2DWnYjHyIzauCAhOmv7_BqjX9L8iECzcOdyU1oAOC2c',
   },
   alternates: {
-    canonical: '/',
-    languages: {
-      'en': '/',
-      'es': '/es',
-      'de': '/de',
-      'fr': '/fr',
-      'pt': '/pt',
-      'ar': '/ar',
-      'x-default': '/',
-    },
+    canonical: 'https://www.mytranscript.pro/',
   },
 };
 

@@ -40,7 +40,6 @@ export function BlogPostClient({ post, lang }: BlogPostClientProps) {
           onOpenSettings={() => setSettingsOpen(true)}
           activeProvider={settings.provider}
           activeModel={settings.openrouterModel}
-          currentLang={lang}
         />
 
         <SettingsModal
@@ -138,7 +137,7 @@ export function BlogPostClient({ post, lang }: BlogPostClientProps) {
           </div>
         </article>
 
-        <Footer currentLang={lang} />
+        <Footer />
       </div>
     </main>
   );

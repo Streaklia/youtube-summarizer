@@ -464,7 +464,6 @@ export function SummaryClientView({
           onOpenSettings={() => setSettingsOpen(true)}
           activeProvider={settings.provider}
           activeModel={settings.openrouterModel}
-          currentLang={activeLang}
         />
 
         <SettingsModal
@@ -684,7 +683,7 @@ export function SummaryClientView({
         </div>
 
         {/* Structured Footer with Cody attribution & internal links */}
-        <Footer currentLang={activeLang} />
+        <Footer />
       </div>
     </main>
   );
