@@ -144,7 +144,7 @@ export function RelatedToolsSection({ currentSlug = 'youtube-transcript', lang =
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {relatedSlugs.map((slug) => {
           const tool = getToolDefinition(slug, activeLang);
-          const href = `/${activeLang}/${slug}`;
+          const href = `/${slug}`;
           // Distinct localized anchor text
           const anchorText = `${tool.headlinePrefix} ${tool.headlineGradient} ${tool.headlineSuffix}`.trim();
 
@@ -175,7 +175,7 @@ export function RelatedToolsSection({ currentSlug = 'youtube-transcript', lang =
               </div>
 
               <div className="mt-3 pt-2.5 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-zinc-500 group-hover:text-zinc-300">
-                <span className="font-mono text-[10px] text-zinc-600 truncate">/{activeLang}/{slug}</span>
+                <span className="font-mono text-[10px] text-zinc-600 truncate">/{slug}</span>
                 <span className="text-red-400 font-medium inline-flex items-center gap-1">
                   {ui.exploreTool}
                 </span>

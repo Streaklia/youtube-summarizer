@@ -10,7 +10,7 @@ export function Footer() {
   return (
     <footer className="mt-20 border-t border-zinc-900 bg-black/60 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-10 border-b border-zinc-900">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-zinc-900">
 
           {/* Brand Column */}
           <div className="space-y-3">
@@ -26,6 +26,45 @@ export function Footer() {
               Free AI-powered YouTube transcript extractor and video summarizer. Get instant
               key takeaways and chapter breakdowns from any video.
             </p>
+          </div>
+
+          {/* Tools */}
+          <div>
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">
+              Tools &amp; Features
+            </h4>
+            <ul className="space-y-2 text-xs">
+              <li>
+                <Link href="/youtube-transcript" className="text-zinc-400 hover:text-white transition-colors">
+                  YouTube Transcript
+                </Link>
+              </li>
+              <li>
+                <Link href="/youtube-summary" className="text-zinc-400 hover:text-white transition-colors">
+                  YouTube Summary
+                </Link>
+              </li>
+              <li>
+                <Link href="/youtube-to-text" className="text-zinc-400 hover:text-white transition-colors">
+                  YouTube to Text
+                </Link>
+              </li>
+              <li>
+                <Link href="/podcast-transcript" className="text-zinc-400 hover:text-white transition-colors">
+                  Podcast Transcripts
+                </Link>
+              </li>
+              <li>
+                <Link href="/download-youtube-transcript" className="text-zinc-400 hover:text-white transition-colors">
+                  Download Transcripts
+                </Link>
+              </li>
+              <li>
+                <Link href="/youtube-subtitle-downloader" className="text-zinc-400 hover:text-white transition-colors">
+                  Subtitle Downloader
+                </Link>
+              </li>
+            </ul>
           </div>
 
           {/* Resources */}

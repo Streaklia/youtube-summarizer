@@ -14,10 +14,13 @@ interface HeaderProps {
   showAiSettings?: boolean;
 }
 
-const NAV_LINKS = [
-  { href: '/', label: 'Summarizer', emoji: '🤖' },
+const TOOL_LINKS = [
+  { href: '/youtube-transcript', label: 'Transcript', emoji: '📄' },
+  { href: '/youtube-summary', label: 'AI Summary', emoji: '🤖' },
+  { href: '/youtube-to-text', label: 'To Text', emoji: '✍️' },
+  { href: '/podcast-transcript', label: 'Podcasts', emoji: '🎙️' },
+  { href: '/download-youtube-transcript', label: 'Download', emoji: '📥' },
   { href: '/articles/', label: 'Articles', emoji: '📖' },
-  { href: '/about-us', label: 'About', emoji: 'ℹ️' },
 ];
 
 const RESULT_NAV_ITEMS = [
@@ -59,9 +62,9 @@ export function Header({
             </span>
           </Link>
 
-          {/* Desktop nav */}
+          {/* Desktop nav with key English tool variations */}
           <nav className="hidden md:flex items-center p-1 bg-zinc-900/80 border border-zinc-800/90 rounded-full shadow-inner gap-1">
-            {NAV_LINKS.map((link) => {
+            {TOOL_LINKS.map((link) => {
               const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
               return (
                 <Link
@@ -80,7 +83,7 @@ export function Header({
             })}
           </nav>
 
-          {/* Right: AI Settings badge (admin/dashboard only via showAiSettings) */}
+          {/* Right: AI Settings badge */}
           {showAiSettings && (
             <div className="flex items-center gap-2 flex-shrink-0">
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/80 border border-zinc-800 text-xs font-medium text-zinc-300 shadow-sm">
@@ -104,7 +107,7 @@ export function Header({
 
         {/* Mobile nav */}
         <div className="flex md:hidden items-center gap-1.5 pt-2 pb-1 overflow-x-auto no-scrollbar border-t border-zinc-800/50 -mx-4 px-4 mt-1">
-          {NAV_LINKS.map((link) => {
+          {TOOL_LINKS.map((link) => {
             const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
             return (
               <Link

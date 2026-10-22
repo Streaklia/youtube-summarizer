@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { BLOG_POSTS } from '@/lib/contentData';
+import { TOOL_SLUGS } from '@/lib/toolTranslations';
 
 const BASE_URL = 'https://www.mytranscript.pro';
 
@@ -27,6 +28,10 @@ export function GET() {
     urlEntry(`${BASE_URL}/`, today, 'weekly', '1.0'),
     // Web App
     urlEntry(`${BASE_URL}/app/`, today, 'monthly', '0.8'),
+    // English Programmatic Tool Slugs
+    ...TOOL_SLUGS.map((slug) =>
+      urlEntry(`${BASE_URL}/${slug}`, today, 'weekly', '0.9')
+    ),
     // Articles index
     urlEntry(`${BASE_URL}/articles/`, today, 'monthly', '0.7'),
     // Article detail pages

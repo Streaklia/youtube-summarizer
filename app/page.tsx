@@ -100,7 +100,7 @@ export default function Home() {
     if (videoId) {
       setLoading(true);
       setError(null);
-      router.push(`/app/?v=${videoId}`);
+      router.push(`/summary/${videoId}`);
       return;
     }
 
