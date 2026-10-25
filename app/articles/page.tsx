@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { BLOG_POSTS } from '@/lib/contentData';
-import { Footer } from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Articles & Guides — YouTube Transcript & AI Summarizer | MyTranscript',
@@ -63,7 +62,6 @@ export default function ArticlesPage() {
           ))}
         </div>
       </div>
-      <Footer />
     </main>
   );
 }

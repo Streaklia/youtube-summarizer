@@ -1,10 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Header } from '@/components/Header';
 import { SettingsModal } from '@/components/SettingsModal';
 import { SeoLandingTool, SeoLandingToolProps } from '@/components/SeoLandingTool';
-import { Footer } from '@/components/Footer';
 import { AISettings } from '@/lib/types';
 
 const DEFAULT_SETTINGS: AISettings = {
@@ -54,12 +52,6 @@ export function SeoPageLayout({ lang = 'en', dir = 'ltr', ...props }: SeoPageLay
       />
 
       <div className="relative z-10">
-        <Header
-          onOpenSettings={() => setSettingsOpen(true)}
-          activeProvider={settings.provider}
-          activeModel={settings.openrouterModel}
-        />
-
         <SettingsModal
           isOpen={settingsOpen}
           onClose={() => setSettingsOpen(false)}
@@ -70,9 +62,6 @@ export function SeoPageLayout({ lang = 'en', dir = 'ltr', ...props }: SeoPageLay
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
           <SeoLandingTool lang={lang} {...props} />
         </div>
-
-        {/* Structured Footer with Cody attribution & internal links */}
-        <Footer />
       </div>
     </main>
   );

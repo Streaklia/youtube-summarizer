@@ -3,12 +3,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Header } from '@/components/Header';
 import { SettingsModal } from '@/components/SettingsModal';
 import { VideoPlayerColumn } from '@/components/VideoPlayerColumn';
 import { SummaryTabs } from '@/components/SummaryTabs';
 import { ChatRightColumn } from '@/components/ChatRightColumn';
-import { Footer } from '@/components/Footer';
 import { SummaryJsonLd } from '@/components/SummaryJsonLd';
 import {
   extractLangFromPath,
@@ -460,12 +458,6 @@ export function SummaryClientView({
       />
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        <Header
-          onOpenSettings={() => setSettingsOpen(true)}
-          activeProvider={settings.provider}
-          activeModel={settings.openrouterModel}
-        />
-
         <SettingsModal
           isOpen={settingsOpen}
           onClose={() => setSettingsOpen(false)}
@@ -681,9 +673,6 @@ export function SummaryClientView({
             </div>
           </div>
         </div>
-
-        {/* Structured Footer with Cody attribution & internal links */}
-        <Footer />
       </div>
     </main>
   );

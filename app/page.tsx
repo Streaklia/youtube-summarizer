@@ -2,14 +2,12 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Header } from '@/components/Header';
 import { URLInput } from '@/components/URLInput';
 import { VideoInfo } from '@/components/VideoInfo';
 import { SummaryTabs } from '@/components/SummaryTabs';
 import { ChatWithVideo } from '@/components/ChatWithVideo';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { SettingsModal } from '@/components/SettingsModal';
-import { Footer } from '@/components/Footer';
 import { AlertCircle } from 'lucide-react';
 import {
   VideoMetadata,
@@ -215,15 +213,6 @@ export default function Home() {
 
       {/* Content */}
       <div className="relative z-10">
-        <Header
-          onOpenSettings={() => setSettingsOpen(true)}
-          activeProvider={settings.provider}
-          activeModel={settings.openrouterModel}
-          activeSection={activeSection}
-          onNavigate={handleNavigate}
-          hasResults={hasResults}
-        />
-
         <SettingsModal
           isOpen={settingsOpen}
           onClose={() => setSettingsOpen(false)}
@@ -340,9 +329,6 @@ export default function Home() {
             )}
           </div>
         </div>
-
-        {/* Structured Footer with Cody attribution & internal links */}
-        <Footer />
       </div>
     </main>
   );

@@ -3,20 +3,17 @@ import {
   DEFAULT_SITE_SEO_SETTINGS,
   DEFAULT_MONETIZATION_SETTINGS,
   DEFAULT_PAGES_AND_POSTS,
-  DEFAULT_LANGUAGES,
   DEFAULT_KEYWORD_TOOLS,
   DEFAULT_TELEMETRY,
 } from '@/lib/adminStore';
 import { writePages } from '@/lib/pagesStore';
-import { writeLanguagesToStorage } from '@/lib/languagesStore';
-import { PageOrPost, LanguageSetting } from '@/lib/adminTypes';
+import { PageOrPost } from '@/lib/adminTypes';
 
 // In-memory cache for server runtime
 let store = {
   seo: { ...DEFAULT_SITE_SEO_SETTINGS },
   monetization: { ...DEFAULT_MONETIZATION_SETTINGS },
   pages: [...DEFAULT_PAGES_AND_POSTS],
-  languages: [...DEFAULT_LANGUAGES],
   tools: [...DEFAULT_KEYWORD_TOOLS],
   telemetry: { ...DEFAULT_TELEMETRY },
 };
@@ -45,7 +42,6 @@ export async function POST(req: NextRequest) {
         seo: { ...DEFAULT_SITE_SEO_SETTINGS },
         monetization: { ...DEFAULT_MONETIZATION_SETTINGS },
         pages: [...DEFAULT_PAGES_AND_POSTS],
-        languages: [...DEFAULT_LANGUAGES],
         tools: [...DEFAULT_KEYWORD_TOOLS],
         telemetry: { ...DEFAULT_TELEMETRY },
       };
@@ -58,21 +54,10 @@ export async function POST(req: NextRequest) {
       store.monetization = { ...store.monetization, ...payload };
     } else if (action === 'save_pages' && payload) {
       store.pages = payload as PageOrPost[];
-      // Also persist to data/pages.json so the public dynamic renderer
-      // always reads the latest admin-managed pages without relying on
-      // the in-memory store (which resets on every serverless cold start).
       try {
         writePages(payload as PageOrPost[]);
       } catch (writeErr) {
         console.warn('[admin/settings] Could not persist pages.json:', writeErr);
-        // Non-fatal: in-memory store still updated above
-      }
-    } else if (action === 'save_languages' && payload) {
-      store.languages = payload as LanguageSetting[];
-      try {
-        writeLanguagesToStorage(payload as LanguageSetting[]);
-      } catch (langErr) {
-        console.warn('[admin/settings] Could not persist languages.json:', langErr);
       }
     } else if (action === 'save_tools' && payload) {
       store.tools = payload;

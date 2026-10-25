@@ -3,13 +3,13 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Shield, FileText, Info, BookOpen, Mail, Copyright, AlertCircle } from 'lucide-react';
+import { Shield, FileText, Info, BookOpen, Mail, Copyright, AlertCircle, Layout } from 'lucide-react';
 
 export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-20 border-t border-zinc-900 bg-black/60 backdrop-blur-md">
+    <footer className="mt-20 border-t border-zinc-900 bg-black/70 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-zinc-900">
 
@@ -35,7 +35,7 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Tools */}
+          {/* Tools & Core Variations */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">
               Tools &amp; Features
@@ -74,21 +74,22 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Resources */}
+          {/* Resources & Navigation */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">
-              Resources
+              Resources &amp; Company
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <Link href="/app/" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">
+                <Link href="/app" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">
+                  <Layout className="w-3.5 h-3.5 text-zinc-500" />
                   <span>Web App</span>
                 </Link>
               </li>
               <li>
-                <Link href="/articles/" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">
+                <Link href="/articles" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">
                   <BookOpen className="w-3.5 h-3.5 text-zinc-500" />
-                  <span>Articles &amp; Guides</span>
+                  <span>Articles Index</span>
                 </Link>
               </li>
               <li>
@@ -106,10 +107,10 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Legal */}
+          {/* Canonical Legal Pages */}
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-3">
-              Legal
+              Legal &amp; Policies
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
@@ -140,7 +141,7 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom bar */}
+        {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
           <div className="flex items-center gap-1.5 text-zinc-400">
             <span>Powered by <strong className="text-zinc-300 font-medium">Cody</strong></span>
@@ -148,9 +149,9 @@ export function Footer() {
           <div className="flex items-center gap-4 text-zinc-500 text-[11px]">
             <span>© {year} MyTranscript</span>
             <span>·</span>
-            <Link href="/privacy-policy" className="hover:text-zinc-400 transition-colors">Privacy</Link>
+            <Link href="/privacy-policy" className="hover:text-zinc-400 transition-colors">Privacy Policy</Link>
             <span>·</span>
-            <Link href="/terms-of-service" className="hover:text-zinc-400 transition-colors">Terms</Link>
+            <Link href="/terms-of-service" className="hover:text-zinc-400 transition-colors">Terms of Service</Link>
           </div>
         </div>
       </div>

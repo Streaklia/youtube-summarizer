@@ -73,6 +73,6 @@ export interface TelemetryData {
   conversionRate: number;
   trafficChannels: { channel: string; visitors: number; share: number }[];
   visitorCountries: { country: string; visitors: number; share: number; flag: string }[];
-  languagePerformance: { language: string; visits: number; convRate: number; flag: string }[];
+  languagePerformance?: { language: string; visits: number; convRate: number; flag: string }[];
   activityStream: ActivityLog[];
 }

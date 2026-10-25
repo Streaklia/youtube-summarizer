@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Footer } from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'About Us | MyTranscript — AI YouTube Summarizer',
@@ -44,7 +43,6 @@ export default function AboutUsPage() {
           </p>
         </div>
       </div>
-      <Footer />
     </main>
   );
 }

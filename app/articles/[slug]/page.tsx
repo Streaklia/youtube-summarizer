@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { BLOG_POSTS } from '@/lib/contentData';
-import { Footer } from '@/components/Footer';
 import { Sparkles, ArrowRight, Clock, Calendar, CheckCircle2, Youtube } from 'lucide-react';
 
 interface Props {
@@ -287,8 +286,6 @@ export default function ArticleDetailPage({ params }: Props) {
           </section>
         )}
       </div>
-
-      <Footer />
     </main>
   );
 }
