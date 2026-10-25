@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { SeoPageLayout } from '@/components/SeoPageLayout';
-import { TOOL_SLUGS, ToolSlug, getToolDefinition } from '@/lib/toolTranslations';
+import { TOOL_SLUGS, ToolSlug } from '@/lib/toolTranslations';
+import { getSlugConfig } from '@/lib/slugConfig';
 
 interface PageProps {
   params: {
@@ -20,26 +21,35 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'MyTranscript — YouTube Transcript & AI Summarizer' };
   }
 
-  const toolDef = getToolDefinition(slug, 'en');
+  const config = getSlugConfig(slug);
   const canonicalUrl = `https://www.mytranscript.pro/${slug}`;
 
   return {
-    title: toolDef.title,
-    description: toolDef.metaDescription,
+    title: config.title,
+    description: config.metaDescription,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
-      title: toolDef.title,
-      description: toolDef.metaDescription,
+      title: config.title,
+      description: config.metaDescription,
       url: canonicalUrl,
       siteName: 'MyTranscript',
       type: 'website',
+      images: [
+        {
+          url: 'https://www.mytranscript.pro/logo.png',
+          width: 800,
+          height: 600,
+          alt: `${config.h1} - mytranscript.pro`,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: toolDef.title,
-      description: toolDef.metaDescription,
+      title: config.title,
+      description: config.metaDescription,
+      images: ['https://www.mytranscript.pro/logo.png'],
     },
   };
 }
@@ -51,32 +61,23 @@ export default function ToolPage({ params }: PageProps) {
     notFound();
   }
 
-  const toolDef = getToolDefinition(slug, 'en');
-
-  // Determine target tab based on slug keywords
-  let targetTab = 'summary';
-  if (slug.includes('transcript') || slug.includes('subtitle') || slug.includes('to-text')) {
-    targetTab = 'transcript';
-  } else if (slug.includes('infographic')) {
-    targetTab = 'infographic';
-  }
+  const config = getSlugConfig(slug);
 
   return (
     <SeoPageLayout
       lang="en"
       dir="ltr"
       toolSlug={slug}
-      targetTab={targetTab}
-      badge={toolDef.badge}
-      badgeEmoji={toolDef.badgeEmoji}
-      headlinePrefix={toolDef.headlinePrefix}
-      headlineGradient={toolDef.headlineGradient}
-      headlineSuffix={toolDef.headlineSuffix}
-      description={toolDef.description}
-      inputPlaceholder={toolDef.inputPlaceholder}
-      buttonLabel={toolDef.buttonLabel}
-      features={toolDef.features}
-      faqs={toolDef.faqs}
+      targetTab={config.targetTab}
+      badge={config.badge}
+      badgeEmoji={config.badgeEmoji}
+      h1={config.h1}
+      subheadline={config.subheadline}
+      description={config.subheadline}
+      inputPlaceholder={config.inputPlaceholder}
+      buttonLabel={config.buttonLabel}
+      features={config.features}
+      faqs={config.faqs}
     />
   );
 }

@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Youtube, Shield, FileText, Info, BookOpen, Mail, Copyright, AlertCircle } from 'lucide-react';
+import Image from 'next/image';
+import { Shield, FileText, Info, BookOpen, Mail, Copyright, AlertCircle } from 'lucide-react';
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -12,19 +13,25 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-zinc-900">
 
-          {/* Brand Column */}
+          {/* Brand Column with Logo */}
           <div className="space-y-3">
-            <Link href="/" className="inline-flex items-center gap-2 group">
-              <div className="p-1.5 rounded-lg bg-red-600/10 border border-red-500/20 group-hover:bg-red-600/20 transition-colors">
-                <Youtube className="w-5 h-5 text-red-500" />
+            <Link href="/" className="inline-flex items-center gap-2.5 group">
+              <div className="relative w-7 h-7 flex-shrink-0 transition-transform group-hover:scale-105 duration-200">
+                <Image
+                  src="/logo.png"
+                  alt="mytranscript.pro logo"
+                  width={28}
+                  height={28}
+                  className="w-full h-full object-contain"
+                />
               </div>
               <span className="font-bold text-white text-base tracking-tight">
-                My<span className="text-red-500">Transcript</span>
+                My<span className="text-red-500">Transcript</span><span className="text-zinc-400 font-normal">.pro</span>
               </span>
             </Link>
             <p className="text-xs text-zinc-400 leading-relaxed">
               Free AI-powered YouTube transcript extractor and video summarizer. Get instant
-              key takeaways and chapter breakdowns from any video.
+              key takeaways, transcripts, and chapter breakdowns from any video.
             </p>
           </div>
 
@@ -75,7 +82,6 @@ export function Footer() {
             <ul className="space-y-2 text-xs">
               <li>
                 <Link href="/app/" className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5">
-                  <Youtube className="w-3.5 h-3.5 text-zinc-500" />
                   <span>Web App</span>
                 </Link>
               </li>

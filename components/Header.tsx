@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Youtube, Settings, Sparkles } from 'lucide-react';
+import { Settings, Sparkles } from 'lucide-react';
 
 interface HeaderProps {
   onOpenSettings?: () => void;
@@ -52,13 +53,20 @@ export function Header({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 gap-4">
 
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0 group">
-            <div className="p-1.5 rounded-lg bg-red-600/10 border border-red-500/20 group-hover:bg-red-600/20 transition-colors">
-              <Youtube className="w-4 h-4 text-red-500" />
+          {/* Website Logo with Official Brand Asset */}
+          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 group">
+            <div className="relative w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 transition-transform group-hover:scale-105 duration-200">
+              <Image
+                src="/logo.png"
+                alt="mytranscript.pro logo"
+                width={32}
+                height={32}
+                priority
+                className="w-full h-full object-contain"
+              />
             </div>
-            <span className="font-bold text-white text-sm tracking-tight hidden sm:block">
-              My<span className="text-red-500">Transcript</span>
+            <span className="font-bold text-white text-base tracking-tight">
+              My<span className="text-red-500">Transcript</span><span className="text-zinc-400 font-normal">.pro</span>
             </span>
           </Link>
 

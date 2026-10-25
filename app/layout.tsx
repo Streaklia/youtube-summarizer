@@ -8,25 +8,36 @@ const inter = Inter({
   variable: '--font-inter',
 });
 
+const SITE_URL = 'https://www.mytranscript.pro';
+
 export const metadata: Metadata = {
-  title: 'YouTube Summarizer — AI-Powered Video Summary & Analysis',
+  title: 'MyTranscript – Free YouTube Transcript Generator & AI Summarizer',
   description:
-    'Get instant AI-generated summaries, key takeaways, chapter breakdowns, and infographic prompts from any YouTube video. Chat with video content using Gemini AI or OpenRouter.',
+    'Extract full YouTube transcripts with accurate timestamps, generate fast AI summaries, and convert video dialogue to text instantly with no sign-up.',
   keywords: [
+    'youtube transcript',
+    'youtube transcript generator',
     'youtube summarizer',
     'ai video summary',
-    'youtube transcript',
-    'video analysis',
-    'gemini ai',
-    'youtube key takeaways',
-    'video chapter summary',
     'youtube to text',
-    'ai video notes',
-    'youtube infographic',
+    'podcast transcript generator',
+    'download youtube transcript',
+    'chat with youtube video',
+    'gemini ai youtube',
   ],
-  authors: [{ name: 'YouTube Summarizer' }],
-  creator: 'YouTube Summarizer',
-  publisher: 'YouTube Summarizer',
+  authors: [{ name: 'MyTranscript' }],
+  creator: 'MyTranscript',
+  publisher: 'MyTranscript',
+  icons: {
+    icon: [
+      { url: '/icon.png', sizes: 'any' },
+      { url: '/logo.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: ['/icon.png'],
+  },
   robots: {
     index: true,
     follow: true,
@@ -41,23 +52,33 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    title: 'YouTube Summarizer — AI-Powered Video Summary & Analysis',
+    title: 'MyTranscript – Free YouTube Transcript Generator & AI Summarizer',
     description:
-      'Paste any YouTube URL and get instant AI summaries, key takeaways, timestamped chapters, and infographic prompts. Powered by Gemini AI.',
-    siteName: 'YouTube Summarizer',
+      'Extract full YouTube transcripts, generate AI summaries, and convert video dialogue to clean text instantly.',
+    siteName: 'MyTranscript',
+    url: SITE_URL,
+    images: [
+      {
+        url: `${SITE_URL}/logo.png`,
+        width: 800,
+        height: 600,
+        alt: 'mytranscript.pro logo',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'YouTube Summarizer — AI Video Analysis',
+    title: 'MyTranscript – YouTube Transcript Generator & AI Summarizer',
     description:
-      'Instant AI summaries, key takeaways & chapter breakdowns from any YouTube video.',
+      'Extract full YouTube transcripts, generate AI summaries, and convert video dialogue to clean text instantly.',
+    images: [`${SITE_URL}/logo.png`],
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.mytranscript.pro'),
+  metadataBase: new URL(SITE_URL),
   verification: {
     google: '2DWnYjHyIzauCAhOmv7_BqjX9L8iECzcOdyU1oAOC2c',
   },
   alternates: {
-    canonical: 'https://www.mytranscript.pro/',
+    canonical: `${SITE_URL}/`,
   },
 };
 
@@ -81,25 +102,73 @@ export default function RootLayout({
             `,
           }}
         />
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>" />
+        <link rel="icon" href="/icon.png" sizes="any" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="google-site-verification" content="2DWnYjHyIzauCAhOmv7_BqjX9L8iECzcOdyU1oAOC2c" />
         <meta name="theme-color" content="#000000" />
         <meta name="color-scheme" content="dark" />
       </head>
       <body className={`${inter.className} min-h-screen`}>
-        {/* Structured Data for SEO: SoftwareApplication with AggregateRating & Free Offer */}
+        {/* Organization Schema for Google Search Knowledge Panels */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Organization',
+              name: 'MyTranscript',
+              url: SITE_URL,
+              logo: `${SITE_URL}/logo.png`,
+              image: `${SITE_URL}/logo.png`,
+              sameAs: [
+                'https://www.mytranscript.pro',
+              ],
+              contactPoint: {
+                '@type': 'ContactPoint',
+                contactType: 'customer support',
+                email: 'support@mytranscript.pro',
+                url: `${SITE_URL}/contact-us`,
+              },
+            }),
+          }}
+        />
+
+        {/* WebSite Schema with Sitelinks Searchbox */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'MyTranscript',
+              alternateName: 'MyTranscript.pro',
+              url: SITE_URL,
+              publisher: {
+                '@type': 'Organization',
+                name: 'MyTranscript',
+                logo: {
+                  '@type': 'ImageObject',
+                  url: `${SITE_URL}/logo.png`,
+                },
+              },
+            }),
+          }}
+        />
+
+        {/* SoftwareApplication Schema with AggregateRating & Free Offer */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'SoftwareApplication',
-              name: 'YouTube Summarizer',
+              name: 'MyTranscript',
               applicationCategory: 'MultimediaApplication',
               operatingSystem: 'All',
-              url: 'https://www.mytranscript.pro',
+              url: SITE_URL,
+              image: `${SITE_URL}/logo.png`,
               description:
-                'AI-powered YouTube video summarizer, transcript extractor, and interactive chat. Get instant key takeaways, chapters, and infographics from any video.',
+                'AI-powered YouTube video transcript generator, summarizer, and video Q&A. Extract timestamped text, chapters, and infographics from any video.',
               aggregateRating: {
                 '@type': 'AggregateRating',
                 ratingValue: '4.9',
@@ -115,11 +184,13 @@ export default function RootLayout({
               },
               author: {
                 '@type': 'Organization',
-                name: 'YouTube Summarizer',
+                name: 'MyTranscript',
+                logo: `${SITE_URL}/logo.png`,
               },
             }),
           }}
         />
+
         {children}
       </body>
     </html>

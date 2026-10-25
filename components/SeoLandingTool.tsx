@@ -6,16 +6,18 @@ import { Loader2, Sparkles, Search, AlertCircle } from 'lucide-react';
 import { extractVideoId } from '@/lib/youtube';
 import { extractLangFromPath, getSavedLanguage, persistLanguage, resolveTabFromToolOrPath } from '@/lib/localizedUrl';
 import { getSeoUiStrings } from '@/lib/seoUiTranslations';
-import { RelatedToolsSection } from '@/components/RelatedToolsSection';
+import { RelatedTools } from '@/components/RelatedTools';
 import { SupportedLanguage } from '@/lib/i18n';
 
 export interface SeoLandingToolProps {
   badge?: string;
   badgeEmoji?: string;
-  headlinePrefix: string;
-  headlineGradient: string;
+  h1?: string;
+  subheadline?: string;
+  headlinePrefix?: string;
+  headlineGradient?: string;
   headlineSuffix?: string;
-  description: string;
+  description?: string;
   inputPlaceholder?: string;
   buttonLabel?: string;
   features?: { title: string; description: string; icon: string }[];
@@ -28,11 +30,13 @@ export interface SeoLandingToolProps {
 
 export function SeoLandingTool({
   badge = 'Free AI Tool',
-  badgeEmoji = '⚡',
-  headlinePrefix,
-  headlineGradient,
+  badgeEmoji = '🚀',
+  h1,
+  subheadline,
+  headlinePrefix = 'Free',
+  headlineGradient = 'YouTube Tool',
   headlineSuffix = '',
-  description,
+  description = '',
   inputPlaceholder = 'https://www.youtube.com/watch?v=...',
   buttonLabel = 'Process Video',
   features,
@@ -71,13 +75,8 @@ export function SeoLandingTool({
     persistLanguage(activeLang);
     setLoading(true);
 
-    // Resolve context-aware target tab based on explicit prop or active route pathname
     const determinedTab = targetTab || resolveTabFromToolOrPath(toolSlug || pathname);
-
     const params = new URLSearchParams();
-    if (activeLang && activeLang !== 'en') {
-      params.set('lang', activeLang);
-    }
     if (determinedTab) {
       params.set('tab', determinedTab);
     }
@@ -86,6 +85,8 @@ export function SeoLandingTool({
     const targetUrl = `/summary/${videoId}${queryStr ? `?${queryStr}` : ''}`;
     router.push(targetUrl);
   };
+
+  const displayDescription = subheadline || description;
 
   return (
     <div className="w-full" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -97,15 +98,23 @@ export function SeoLandingTool({
           <span>{badge}</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
-          {headlinePrefix}{' '}
-          <span className="text-gradient">{headlineGradient}</span>{' '}
-          {headlineSuffix}
-        </h1>
+        {h1 ? (
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
+            {h1}
+          </h1>
+        ) : (
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
+            {headlinePrefix}{' '}
+            <span className="text-gradient">{headlineGradient}</span>{' '}
+            {headlineSuffix}
+          </h1>
+        )}
 
-        <p className="mt-4 text-gray-400 text-sm sm:text-base leading-relaxed">
-          {description}
-        </p>
+        {displayDescription && (
+          <p className="mt-4 text-gray-400 text-sm sm:text-base leading-relaxed">
+            {displayDescription}
+          </p>
+        )}
       </div>
 
       {/* Modern URL Input Container */}
@@ -198,8 +207,8 @@ export function SeoLandingTool({
         </div>
       )}
 
-      {/* Programmatic Internal Linking Section */}
-      <RelatedToolsSection currentSlug={toolSlug} lang={activeLang} />
+      {/* Internal Linking Footer Component for Link Equity Crawling */}
+      <RelatedTools currentSlug={toolSlug} />
 
       {seoBottomContent && (
         <div className="mt-12 text-gray-400 text-xs leading-relaxed max-w-2xl mx-auto">
