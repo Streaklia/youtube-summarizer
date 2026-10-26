@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Youtube,
   Lock,
@@ -342,8 +343,15 @@ export default function AdminPage() {
       <div className="min-h-screen bg-[#09090b] flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-zinc-900/90 border border-zinc-800 rounded-2xl shadow-2xl p-8 space-y-6">
           <div className="text-center space-y-2">
-            <div className="w-12 h-12 mx-auto bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-lg shadow-red-500/20">
-              <Youtube className="w-6 h-6 text-white" />
+            <div className="relative w-14 h-14 mx-auto flex items-center justify-center p-2 rounded-2xl bg-zinc-950 border border-zinc-800 shadow-lg">
+              <Image
+                src="/logo.png"
+                alt="MyTranscript logo"
+                width={48}
+                height={48}
+                priority
+                className="w-full h-full object-contain"
+              />
             </div>
             <h1 className="text-xl font-bold text-white tracking-tight">
               MyTranscript <span className="text-red-500 font-semibold">Command Console</span>
@@ -434,8 +442,15 @@ export default function AdminPage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             {/* Left: Brand Identity & Active Status */}
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl shadow-sm">
-                <Youtube className="w-4 h-4 text-white" />
+              <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-zinc-900 border border-zinc-800 p-1 flex items-center justify-center">
+                <Image
+                  src="/logo.png"
+                  alt="MyTranscript logo"
+                  width={24}
+                  height={24}
+                  priority
+                  className="w-full h-full object-contain"
+                />
               </div>
               <div>
                 <div className="flex items-center gap-2">
