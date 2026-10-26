@@ -1,32 +1,55 @@
-# MyTranscript
+# MyTranscript.pro
 
-> MyTranscript (https://www.mytranscript.pro) is a fast, free, and privacy-friendly AI platform for YouTube transcription and intelligent video summarization. Paste any YouTube video or Shorts URL to instantly extract clean timestamped subtitles, generate key takeaways, chapter breakdowns, and interact directly with video content without registration or extensions.
+> MyTranscript (https://www.mytranscript.pro) is a high-performance, privacy-friendly AI web platform designed for automated YouTube transcription, plain-text extraction, subtitle downloads, and intelligent video summarization.
 
-## Core Features & Tools
+## Core Tools & Intent Routes
 
-- [Homepage](https://www.mytranscript.pro/): Paste any YouTube URL to extract transcripts and generate AI summaries instantly.
-- [Web App](https://www.mytranscript.pro/app/): Access the clean, full-screen transcript extraction and analysis workspace.
+- [Homepage](https://www.mytranscript.pro/): Instant transcript extraction and AI video summarization engine.
+- [YouTube Transcript Generator](https://www.mytranscript.pro/youtube-transcript): Extract and view accurate YouTube transcripts instantly online.
+- [Free YouTube Transcript Generator](https://www.mytranscript.pro/youtube-transcript-generator): Generate full transcripts with timestamps, speaker text, and clean export.
+- [AI YouTube Video Summarizer](https://www.mytranscript.pro/youtube-summary): Generate instant AI video summaries, bulleted key takeaways, and chapter breakdowns.
+- [YouTube Summarizer](https://www.mytranscript.pro/youtube-summarizer): AI video notes, executive briefs, and chapter summaries in seconds.
+- [YouTube to Text Converter](https://www.mytranscript.pro/youtube-to-text): Convert YouTube video and audio into clean plain text for notes and research.
+- [Podcast Transcript Generator](https://www.mytranscript.pro/podcast-transcript): Generate clean transcripts from YouTube video podcasts.
+- [Download YouTube Transcripts](https://www.mytranscript.pro/download-youtube-transcript): Export and download YouTube captions in TXT, SRT, or PDF formats.
+- [YouTube Subtitle Downloader](https://www.mytranscript.pro/youtube-subtitle-downloader): Free online downloader for closed captions and subtitles.
+- [YouTube Transcript Chatbot](https://www.mytranscript.pro/youtube-transcript-chatbot): Chat directly with any YouTube video transcript using AI.
+- [YouTube Transcript Without Timestamps](https://www.mytranscript.pro/youtube-transcript-without-timestamps): Clean text extraction without timecodes for pasting into notes or AI models.
+- [YouTube Transcript Not Working](https://www.mytranscript.pro/youtube-transcript-not-working): Troubleshoot and extract transcripts when YouTube player captions fail.
+- [YouTube to Infographic](https://www.mytranscript.pro/youtube-infographic): Transform video dialogue into visual stat cards and memorable quotes.
+- [Transcript AI Assistant](https://www.mytranscript.pro/transcript-ai): Interactive video Q&A and transcript comprehension assistant.
+- [Web App Interface](https://www.mytranscript.pro/app/): Full-screen workspace for transcription processing and AI analysis.
 
-## Articles & Guides
+## Key Articles & Guides
 
-- [Articles & Knowledge Base](https://www.mytranscript.pro/articles/): Practical guides on YouTube transcription, AI summarization benchmarks, and subtitle extraction.
+- [Articles Knowledge Base](https://www.mytranscript.pro/articles/): Practical guides and tutorials on video transcription and AI summarization.
+- [How to Get a YouTube Transcript](https://www.mytranscript.pro/articles/how-to-get-youtube-transcript): Step-by-step tutorial for desktop and mobile devices.
+- [Why YouTube Transcript Is Not Showing & Fixes](https://www.mytranscript.pro/articles/why-youtube-transcript-not-showing-fix): Troubleshooting missing captions on YouTube.
+- [How to Summarize Long YouTube Videos](https://www.mytranscript.pro/articles/how-to-summarize-youtube-videos-ai): Guide to extracting key takeaways with AI.
+- [Download YouTube Subtitles as TXT/SRT](https://www.mytranscript.pro/articles/download-youtube-subtitles-srt-txt): How to export video subtitles for editors and creators.
+- [Extract Transcripts from Video Podcasts](https://www.mytranscript.pro/articles/extract-podcast-transcript-youtube): Turning long video podcasts into readable notes.
+- [AI Summarization Techniques](https://www.mytranscript.pro/articles/how-to-summarize-youtube-videos-with-ai): Comprehensive guide to summarizing video content with modern LLMs.
+- [YouTube Transcript to Text Best Practices](https://www.mytranscript.pro/articles/youtube-transcript-to-text-best-practices): Professional workflows for repurposing video dialogue into blog posts and documentation.
+- [Gemini vs OpenRouter for Video Analysis](https://www.mytranscript.pro/articles/gemini-vs-openrouter-for-video-analysis): Benchmarks comparing AI models on long-context video comprehension.
+- [YouTube Caption Accuracy Study (2026)](https://www.mytranscript.pro/articles/youtube-caption-accuracy-study-2026): In-depth research on automatic speech recognition (ASR) accuracy.
 
 ## Technical Architecture & Privacy
 
-- **Framework**: Next.js 14 App Router, React 18, and Tailwind CSS.
-- **AI Engine**: Integrated with Google Gemini 2.5 Flash and OpenRouter LLM gateways for rapid, high-context comprehension.
-- **Privacy First**: Zero persistent user tracking, no sign-up or cookies required.
+- **Framework**: Next.js App Router, React, and Tailwind CSS.
+- **AI Capabilities**: Powered by high-context LLMs (Google Gemini 2.5 Flash and OpenRouter) for rapid video comprehension and structured transcript formatting.
+- **Privacy First**: Zero persistent user tracking, no mandatory registration, and zero data retention.
 
-## Legal & Corporate
+## Legal & Information
 
 - [About Us](https://www.mytranscript.pro/about-us): Mission, technology, and background.
 - [Contact Us](https://www.mytranscript.pro/contact-us): Support, inquiries, and feedback.
 - [Privacy Policy](https://www.mytranscript.pro/privacy-policy): Privacy practices and zero-retention policy.
 - [Terms of Service](https://www.mytranscript.pro/terms-of-service): Terms and acceptable use guidelines.
-- [Disclaimer](https://www.mytranscript.pro/disclaimer): AI content warranty and liability information.
-- [Copyright Policy](https://www.mytranscript.pro/copyright-policy): Intellectual property handling and DMCA notices.
+- [Disclaimer](https://www.mytranscript.pro/disclaimer): AI content liability information.
+- [Copyright Policy](https://www.mytranscript.pro/copyright-policy): IP handling and DMCA notices.
 
-## Reference Endpoints
+## Machine-Readable Resources
 
-- [XML Sitemap](https://www.mytranscript.pro/sitemap.xml): Machine-readable XML sitemap.
-- [Robots Configuration](https://www.mytranscript.pro/robots.txt): Crawler rules and indexing directives.
+- [XML Sitemap](https://www.mytranscript.pro/sitemap.xml): Primary sitemap index.
+- [Robots.txt](https://www.mytranscript.pro/robots.txt): Crawler rules and indexing directives.
+- [LLMs Manifest](https://www.mytranscript.pro/llms.txt): Machine-readable summary for AI agents and LLMs.
