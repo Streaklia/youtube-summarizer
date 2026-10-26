@@ -105,6 +105,7 @@ export default function RootLayout({
         />
         <link rel="icon" href="/icon.png" sizes="any" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="alternate" type="application/rss+xml" title="MyTranscript.pro Articles" href="/feed.xml" />
         <meta name="google-site-verification" content="2DWnYjHyIzauCAhOmv7_BqjX9L8iECzcOdyU1oAOC2c" />
         <meta name="theme-color" content="#000000" />
         <meta name="color-scheme" content="dark" />

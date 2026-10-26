@@ -51,5 +51,6 @@
 ## Machine-Readable Resources
 
 - [XML Sitemap](https://www.mytranscript.pro/sitemap.xml): Primary sitemap index.
+- [RSS Feed](https://www.mytranscript.pro/feed.xml): Automated RSS 2.0 articles and tutorials feed.
 - [Robots.txt](https://www.mytranscript.pro/robots.txt): Crawler rules and indexing directives.
 - [LLMs Manifest](https://www.mytranscript.pro/llms.txt): Machine-readable summary for AI agents and LLMs.
