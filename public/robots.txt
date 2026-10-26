@@ -1,5 +1,11 @@
-User-Agent: *
+User-agent: *
 Allow: /
 Disallow: /api/
 
+# Core Sitemaps & Machine-Readable Feeds
 Sitemap: https://www.mytranscript.pro/sitemap.xml
+Feed: https://www.mytranscript.pro/feed.xml
+
+# AI & LLM Documentation Endpoints
+LLM: https://www.mytranscript.pro/llms.txt
+LLM-Full: https://www.mytranscript.pro/llms-full.txt

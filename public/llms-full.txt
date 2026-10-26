@@ -1,0 +1,116 @@
+# MyTranscript.pro — Comprehensive Platform Documentation & Knowledge Base
+
+> MyTranscript (https://www.mytranscript.pro) is a high-performance, privacy-friendly AI web platform designed for automated YouTube transcription, plain-text extraction, subtitle downloads, and intelligent video summarization.
+
+---
+
+## 1. Core Tools & Intent Routes
+
+### YouTube Transcript Generator
+- **URL**: https://www.mytranscript.pro/youtube-transcript
+- **Description**: Extract and view accurate YouTube transcripts instantly online with synchronized timestamps. Jump to key moments in the video with exact time offsets, or copy full dialogue to clipboard.
+
+### Free YouTube Transcript Generator
+- **URL**: https://www.mytranscript.pro/youtube-transcript-generator
+- **Description**: Free online tool to generate full transcripts from YouTube videos with timestamps, speaker text, and clean export.
+
+### AI YouTube Video Summarizer
+- **URL**: https://www.mytranscript.pro/youtube-summary
+- **Description**: Generate instant AI video summaries, bulleted key takeaways, and chapter breakdowns using high-context LLMs.
+
+### YouTube Summarizer
+- **URL**: https://www.mytranscript.pro/youtube-summarizer
+- **Description**: Summarize any YouTube video instantly with AI. Read bullet points, executive summaries, and action items without watching hours of video.
+
+### YouTube to Text Converter
+- **URL**: https://www.mytranscript.pro/youtube-to-text
+- **Description**: Easily convert YouTube video dialogue into clean plain text for notes, articles, research, or documentation.
+
+### Podcast Transcript Generator
+- **URL**: https://www.mytranscript.pro/podcast-transcript
+- **Description**: Generate clean transcripts for video podcasts on YouTube. Extract full audio transcripts effortlessly for studying or show notes.
+
+### Download YouTube Transcripts
+- **URL**: https://www.mytranscript.pro/download-youtube-transcript
+- **Description**: Export and download full transcripts from YouTube videos in TXT, SRT, or PDF formats with accurate timestamps.
+
+### YouTube Subtitle Downloader
+- **URL**: https://www.mytranscript.pro/youtube-subtitle-downloader
+- **Description**: Free online captions extractor to download subtitles in SRT, VTT, and plain text formats.
+
+### YouTube Transcript Chatbot
+- **URL**: https://www.mytranscript.pro/youtube-transcript-chatbot
+- **Description**: Interactive Q&A chat assistant. Ask questions and chat directly with any YouTube video transcript using AI.
+
+### YouTube Transcript Without Timestamps
+- **URL**: https://www.mytranscript.pro/youtube-transcript-without-timestamps
+- **Description**: Clean text extraction without timecodes for clean copying, reading, or pasting into AI models.
+
+### YouTube Transcript Not Working Fix
+- **URL**: https://www.mytranscript.pro/youtube-transcript-not-working
+- **Description**: Troubleshooting guide and tool to extract captions even when YouTube player fails to show transcripts.
+
+### YouTube to Infographic
+- **URL**: https://www.mytranscript.pro/youtube-infographic
+- **Description**: Transform video dialogue into visual stat cards, memorable quotes, and infographic summary points.
+
+### Transcript AI Assistant
+- **URL**: https://www.mytranscript.pro/transcript-ai
+- **Description**: In-depth conversational AI assistant for questioning, clarifying, and analyzing video transcripts.
+
+### Web App Interface
+- **URL**: https://www.mytranscript.pro/app/
+- **Description**: Full-screen distraction-free workspace for transcription processing and AI analysis.
+
+---
+
+## 2. Articles & Educational Guides
+
+### How to Get a YouTube Transcript on Desktop and Mobile
+- **URL**: https://www.mytranscript.pro/articles/how-to-get-youtube-transcript
+- **Summary**: Comprehensive step-by-step guide for extracting YouTube video transcripts on desktop browsers, iPhone, and Android devices using native YouTube features and online tools.
+
+### Why YouTube Transcript Is Not Showing and How to Fix It
+- **URL**: https://www.mytranscript.pro/articles/why-youtube-transcript-not-showing-fix
+- **Summary**: Diagnosing common caption issues including missing creator subtitles, unindexed auto-generated captions, browser extensions, and regional availability.
+
+### How to Summarize Long YouTube Videos in Seconds Using AI
+- **URL**: https://www.mytranscript.pro/articles/how-to-summarize-youtube-videos-ai
+- **Summary**: Tutorial on using AI models to extract executive summaries, key takeaways, and chapter breakdowns from hour-long lectures and interviews.
+
+### How to Download YouTube Subtitles as TXT or SRT Files
+- **URL**: https://www.mytranscript.pro/articles/download-youtube-subtitles-srt-txt
+- **Summary**: Exporting clean plain text transcripts and timecoded SRT subtitle files for video editors, students, and language learners.
+
+### Extract Transcripts from Video Podcasts on YouTube
+- **URL**: https://www.mytranscript.pro/articles/extract-podcast-transcript-youtube
+- **Summary**: Turning long-form video podcasts into structured reading material, quote databases, and searchable study notes.
+
+---
+
+## 3. Technical Architecture & Privacy
+
+- **Next.js App Router**: Built on modern Next.js 14 serverless architecture.
+- **AI Processing Pipeline**: Google Gemini 2.5 Flash and OpenRouter LLM infrastructure for low-latency video comprehension.
+- **Privacy-by-Default**: Zero user account requirements, zero permanent database storage of submitted URLs, and client-side storage for user preferences.
+
+---
+
+## 4. Legal & Corporate Policies
+
+- **About Us**: https://www.mytranscript.pro/about-us
+- **Contact Us**: https://www.mytranscript.pro/contact-us
+- **Privacy Policy**: https://www.mytranscript.pro/privacy-policy
+- **Terms of Service**: https://www.mytranscript.pro/terms-of-service
+- **Disclaimer**: https://www.mytranscript.pro/disclaimer
+- **Copyright Policy**: https://www.mytranscript.pro/copyright-policy
+
+---
+
+## 5. Machine-Readable Feeds & Indices
+
+- **Sitemap Index**: https://www.mytranscript.pro/sitemap.xml
+- **RSS Feed (2.0)**: https://www.mytranscript.pro/feed.xml
+- **Robots Directives**: https://www.mytranscript.pro/robots.txt
+- **LLMs Summary**: https://www.mytranscript.pro/llms.txt
+- **LLMs Full**: https://www.mytranscript.pro/llms-full.txt
