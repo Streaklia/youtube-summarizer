@@ -20,6 +20,7 @@ import {
   FileText,
   Sliders,
   BarChart3,
+  Activity,
   Sparkles,
   Settings,
   Code,
@@ -630,8 +631,8 @@ export default function AdminPage() {
                   <div className="text-3xl font-extrabold text-white mt-1">
                     {telemetryData.uniqueVisitors.toLocaleString()}
                   </div>
-                  <span className="text-xs text-emerald-400 font-medium mt-1 inline-flex items-center gap-1">
-                    Direct &amp; Organic Search
+                  <span className="text-xs text-zinc-500 font-medium mt-1 inline-flex items-center gap-1">
+                    {telemetryData.uniqueVisitors > 0 ? 'Direct & Organic Search' : 'Awaiting live traffic'}
                   </span>
                 </div>
 
@@ -642,8 +643,8 @@ export default function AdminPage() {
                   <div className="text-3xl font-extrabold text-white mt-1">
                     {telemetryData.mediaExtractions.toLocaleString()}
                   </div>
-                  <span className="text-xs text-rose-400 font-medium mt-1 inline-flex items-center gap-1">
-                    Transcripts &amp; Summaries Processed
+                  <span className="text-xs text-zinc-500 font-medium mt-1 inline-flex items-center gap-1">
+                    {telemetryData.mediaExtractions > 0 ? 'Transcripts & Summaries Processed' : '0 extractions recorded'}
                   </span>
                 </div>
 
@@ -651,11 +652,11 @@ export default function AdminPage() {
                   <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
                     Completed Downloads
                   </span>
-                  <div className="text-3xl font-extrabold text-emerald-400 mt-1">
+                  <div className="text-3xl font-extrabold text-white mt-1">
                     {telemetryData.completedDownloads.toLocaleString()}
                   </div>
-                  <span className="text-xs text-zinc-400 font-mono mt-1 block">
-                    TXT, PDF, SRT Downloads
+                  <span className="text-xs text-zinc-500 font-mono mt-1 block">
+                    {telemetryData.completedDownloads > 0 ? 'TXT, PDF, SRT Exports' : '0 files exported'}
                   </span>
                 </div>
 
@@ -664,10 +665,10 @@ export default function AdminPage() {
                     Overall Conversion Rate
                   </span>
                   <div className="text-3xl font-extrabold text-white mt-1">
-                    {telemetryData.conversionRate}%
+                    {Number(telemetryData.conversionRate || 0).toFixed(1)}%
                   </div>
-                  <span className="text-xs text-zinc-400 mt-1 block">
-                    Visitors to Completed Downloads
+                  <span className="text-xs text-zinc-500 mt-1 block">
+                    {telemetryData.conversionRate > 0 ? 'Visitors to Completed Downloads' : 'No conversion events yet'}
                   </span>
                 </div>
               </div>
@@ -677,67 +678,97 @@ export default function AdminPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Traffic Channels */}
               <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 shadow-xl space-y-4">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-emerald-400" />
-                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-                    Traffic Channels
-                  </h3>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <TrendingUp className="w-4 h-4 text-emerald-400" />
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                      Traffic Channels
+                    </h3>
+                  </div>
+                  <span className="text-[11px] font-mono text-zinc-500">
+                    {telemetryData.trafficChannels.length} active
+                  </span>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-zinc-800 text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">
-                        <th className="pb-2">Channel</th>
-                        <th className="pb-2">Visitors</th>
-                        <th className="pb-2 text-right">Share %</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-800/60">
-                      {telemetryData.trafficChannels.map((tc, idx) => (
-                        <tr key={idx} className="hover:bg-zinc-800/30">
-                          <td className="py-2.5 font-medium text-zinc-200">{tc.channel}</td>
-                          <td className="py-2.5 text-zinc-400">{tc.visitors.toLocaleString()}</td>
-                          <td className="py-2.5 text-right font-bold text-rose-400">{tc.share}%</td>
+                {telemetryData.trafficChannels.length === 0 ? (
+                  <div className="py-10 px-4 text-center border border-dashed border-zinc-800/80 rounded-xl bg-zinc-950/40">
+                    <TrendingUp className="w-8 h-8 text-zinc-600 mx-auto mb-2 opacity-50" />
+                    <p className="text-xs font-semibold text-zinc-300">No traffic channel data recorded yet</p>
+                    <p className="text-[11px] text-zinc-500 mt-1 max-w-sm mx-auto">
+                      Traffic sources (Organic Search, Direct, YouTube Referrals) will display here once incoming visits are captured.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-zinc-800 text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">
+                          <th className="pb-2">Channel</th>
+                          <th className="pb-2">Visitors</th>
+                          <th className="pb-2 text-right">Share %</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-800/60">
+                        {telemetryData.trafficChannels.map((tc, idx) => (
+                          <tr key={idx} className="hover:bg-zinc-800/30">
+                            <td className="py-2.5 font-medium text-zinc-200">{tc.channel}</td>
+                            <td className="py-2.5 text-zinc-400">{tc.visitors.toLocaleString()}</td>
+                            <td className="py-2.5 text-right font-bold text-rose-400">{tc.share}%</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
 
               {/* Top Visitor Countries */}
               <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 shadow-xl space-y-4">
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-blue-400" />
-                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-                    Top Visitor Countries
-                  </h3>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-blue-400" />
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                      Top Visitor Countries
+                    </h3>
+                  </div>
+                  <span className="text-[11px] font-mono text-zinc-500">
+                    {telemetryData.visitorCountries.length} regions
+                  </span>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-zinc-800 text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">
-                        <th className="pb-2">Country</th>
-                        <th className="pb-2">Visitors</th>
-                        <th className="pb-2 text-right">Share %</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-zinc-800/60">
-                      {telemetryData.visitorCountries.map((vc, idx) => (
-                        <tr key={idx} className="hover:bg-zinc-800/30">
-                          <td className="py-2.5 font-medium text-zinc-200 flex items-center gap-2">
-                            <span>{vc.flag}</span>
-                            <span>{vc.country}</span>
-                          </td>
-                          <td className="py-2.5 text-zinc-400">{vc.visitors.toLocaleString()}</td>
-                          <td className="py-2.5 text-right font-bold text-indigo-400">{vc.share}%</td>
+                {telemetryData.visitorCountries.length === 0 ? (
+                  <div className="py-10 px-4 text-center border border-dashed border-zinc-800/80 rounded-xl bg-zinc-950/40">
+                    <Globe className="w-8 h-8 text-zinc-600 mx-auto mb-2 opacity-50" />
+                    <p className="text-xs font-semibold text-zinc-300">No geographic traffic recorded yet</p>
+                    <p className="text-[11px] text-zinc-500 mt-1 max-w-sm mx-auto">
+                      Geographic breakdown and country distribution will appear here as international visitors access the service.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-zinc-800 text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">
+                          <th className="pb-2">Country</th>
+                          <th className="pb-2">Visitors</th>
+                          <th className="pb-2 text-right">Share %</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-800/60">
+                        {telemetryData.visitorCountries.map((vc, idx) => (
+                          <tr key={idx} className="hover:bg-zinc-800/30">
+                            <td className="py-2.5 font-medium text-zinc-200 flex items-center gap-2">
+                              <span>{vc.flag}</span>
+                              <span>{vc.country}</span>
+                            </td>
+                            <td className="py-2.5 text-zinc-400">{vc.visitors.toLocaleString()}</td>
+                            <td className="py-2.5 text-right font-bold text-indigo-400">{vc.share}%</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -745,38 +776,58 @@ export default function AdminPage() {
             <div className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className={`w-2 h-2 rounded-full ${telemetryData.activityStream.length > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-zinc-600'}`} />
                   <h3 className="text-xs font-bold text-white uppercase tracking-wider">
                     Recent Extraction &amp; Download Activity
                   </h3>
                 </div>
-                <span className="font-mono text-[11px] text-zinc-400 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800">
+                <span className="font-mono text-[11px] text-zinc-500 bg-zinc-950 px-2 py-0.5 rounded border border-zinc-800">
                   channel: live_stream
                 </span>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-zinc-800 text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">
-                      <th className="pb-2">Userhandle</th>
-                      <th className="pb-2">Format</th>
-                      <th className="pb-2">Country</th>
-                      <th className="pb-2 text-right">Logged Time</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-zinc-800/60 font-mono text-[11px]">
-                    {telemetryData.activityStream.map((act) => (
-                      <tr key={act.id} className="hover:bg-zinc-800/30">
-                        <td className="py-3 text-zinc-200 font-medium">{act.userHandle}</td>
-                        <td className="py-3 text-zinc-400">{act.format}</td>
-                        <td className="py-3 text-zinc-400">{act.country}</td>
-                        <td className="py-3 text-right text-zinc-500">{act.loggedTime}</td>
+              {telemetryData.activityStream.length === 0 ? (
+                <div className="py-10 px-4 text-center border border-dashed border-zinc-800/80 rounded-xl bg-zinc-950/40">
+                  <Activity className="w-8 h-8 text-zinc-600 mx-auto mb-2 opacity-50" />
+                  <p className="text-xs font-semibold text-zinc-300">No activity recorded yet</p>
+                  <p className="text-[11px] text-zinc-500 mt-1 max-w-md mx-auto">
+                    Live video parsing events, transcript generations, and file downloads will stream into this console in real time as users interact with the app.
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-zinc-800 text-[11px] uppercase tracking-wider text-zinc-400 font-semibold">
+                        <th className="pb-2">Userhandle</th>
+                        <th className="pb-2">Format</th>
+                        <th className="pb-2">Country</th>
+                        <th className="pb-2 text-right">Logged Time</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-800/60 font-mono text-[11px]">
+                      {telemetryData.activityStream.map((act) => (
+                        <tr key={act.id} className="hover:bg-zinc-800/30">
+                          <td className="py-3 text-zinc-200 font-medium">{act.userHandle}</td>
+                          <td className="py-3 text-zinc-400">{act.format}</td>
+                          <td className="py-3 text-zinc-400">{act.country}</td>
+                          <td className="py-3 text-right text-zinc-500">{act.loggedTime}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Tracking Integration Info */}
+            <div className="p-4 rounded-xl bg-zinc-950/60 border border-zinc-800/80 flex flex-wrap items-center justify-between gap-3 text-xs text-zinc-400">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="font-semibold text-zinc-300">Tracking Engine:</span>
+                <span>Google Analytics 4 (<code className="text-zinc-300 font-mono">G-Z79HZ87TPV</code>) &amp; Production Telemetry</span>
               </div>
+              <span className="text-[11px] text-zinc-500 font-mono">Status: Connected &amp; Listening</span>
             </div>
           </div>
         )}
