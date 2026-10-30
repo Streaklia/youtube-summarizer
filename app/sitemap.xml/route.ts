@@ -26,10 +26,14 @@ export function GET() {
   const entries: string[] = [
     // Homepage
     urlEntry(`${BASE_URL}/`, today, 'weekly', '1.0'),
+    // Top GSC Intent Landing Pages
+    urlEntry(`${BASE_URL}/download-youtube-transcript`, today, 'weekly', '1.0'),
+    urlEntry(`${BASE_URL}/youtube-to-srt`, today, 'weekly', '1.0'),
+    urlEntry(`${BASE_URL}/youtube-to-text-no-timestamps`, today, 'weekly', '1.0'),
     // Web App
     urlEntry(`${BASE_URL}/app/`, today, 'monthly', '0.8'),
     // English Programmatic Tool Slugs
-    ...TOOL_SLUGS.map((slug) =>
+    ...TOOL_SLUGS.filter(s => s !== 'download-youtube-transcript').map((slug) =>
       urlEntry(`${BASE_URL}/${slug}`, today, 'weekly', '0.9')
     ),
     // Articles index

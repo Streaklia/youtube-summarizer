@@ -12,6 +12,8 @@
 - [YouTube to Text Converter](https://www.mytranscript.pro/youtube-to-text): Convert YouTube video and audio into clean plain text for notes and research.
 - [Podcast Transcript Generator](https://www.mytranscript.pro/podcast-transcript): Generate clean transcripts from YouTube video podcasts.
 - [Download YouTube Transcripts](https://www.mytranscript.pro/download-youtube-transcript): Export and download YouTube captions in TXT, SRT, or PDF formats.
+- [YouTube to SRT Converter](https://www.mytranscript.pro/youtube-to-srt): Convert YouTube videos to standard SubRip (.srt) subtitle files with millisecond timecodes for Premiere Pro, DaVinci Resolve, and Final Cut.
+- [YouTube to Text Without Timestamps](https://www.mytranscript.pro/youtube-to-text-no-timestamps): Extract continuous plain text dialogue without timecodes for ChatGPT, Claude, and study notes.
 - [YouTube Subtitle Downloader](https://www.mytranscript.pro/youtube-subtitle-downloader): Free online downloader for closed captions and subtitles.
 - [YouTube Transcript Chatbot](https://www.mytranscript.pro/youtube-transcript-chatbot): Chat directly with any YouTube video transcript using AI.
 - [YouTube Transcript Without Timestamps](https://www.mytranscript.pro/youtube-transcript-without-timestamps): Clean text extraction without timecodes for pasting into notes or AI models.
