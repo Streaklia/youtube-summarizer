@@ -32,10 +32,25 @@ export function SummaryJsonLd({
       `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
       `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
     ],
-    uploadDate: new Date().toISOString(), // Standard fallback
+    uploadDate: metadata.publishDate || new Date().toISOString(),
     contentUrl: watchUrl,
     embedUrl: embedUrl,
   };
+
+  if (metadata.category) {
+    videoSchema.genre = metadata.category;
+  }
+
+  if (metadata.viewCount) {
+    const numericViews = parseInt(metadata.viewCount.replace(/[^0-9]/g, ''), 10);
+    if (!isNaN(numericViews) && numericViews > 0) {
+      videoSchema.interactionStatistic = {
+        '@type': 'InteractionCounter',
+        interactionType: { '@type': 'WatchAction' },
+        userInteractionCount: numericViews,
+      };
+    }
+  }
 
   if (metadata.duration) {
     // Convert duration like "10:30" or "1:15:30" to ISO 8601 duration "PT10M30S"

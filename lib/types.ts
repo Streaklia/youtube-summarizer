@@ -4,6 +4,11 @@ export interface VideoMetadata {
   channelName: string;
   duration: string;
   videoId: string;
+  publishDate?: string;
+  formattedPublishDate?: string;
+  category?: string;
+  viewCount?: string;
+  formattedViews?: string;
 }
 
 export interface TranscriptEntry {

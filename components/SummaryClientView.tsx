@@ -134,6 +134,10 @@ export function SummaryClientView({
 
   // Loading state for initial client-side data fetch
   const [isLoadingData, setIsLoadingData] = useState(!hasInitialData);
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [isGeneratingTakeaways, setIsGeneratingTakeaways] = useState<boolean>(
+    !hasInitialData && !initialSummary?.keyTakeaways?.length
+  );
 
   const [summarizing, setSummarizing] = useState(false);
   const [error, setError] = useState<string | null>(initialError ?? null);
@@ -151,6 +155,28 @@ export function SummaryClientView({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<AISettings>(DEFAULT_SETTINGS);
   const [regeneratingSection, setRegeneratingSection] = useState<string | null>(null);
+
+  // Immediate fast metadata fetch (< 200ms) to populate title, channel, duration, views & category
+  useEffect(() => {
+    if (hasInitialData) return;
+    let cancelled = false;
+
+    fetch(`/api/metadata?videoId=${videoId}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.metadata) {
+          setMetadata((prev) => ({
+            ...prev,
+            ...data.metadata,
+          }));
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [videoId, hasInitialData]);
 
   // Track auto-triggered generations so we never fire multiple times in a loop
   const autoTriggeredRef = useRef<Record<string, boolean>>({});
@@ -227,6 +253,7 @@ export function SummaryClientView({
 
     async function fetchVideoData() {
       try {
+        setIsGeneratingTakeaways(true);
         const res = await fetch('/api/transcript', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -240,10 +267,16 @@ export function SummaryClientView({
         if (!res.ok) {
           setError(data.error || 'Failed to fetch video data');
           setIsLoadingData(false);
+          setIsGeneratingTakeaways(false);
           return;
         }
 
-        setMetadata(data.metadata);
+        if (data.metadata) {
+          setMetadata((prev) => ({
+            ...prev,
+            ...data.metadata,
+          }));
+        }
         setTranscript(data.transcript || []);
         setFormattedTranscript(data.formattedTranscript || '');
         if (data.transcriptWarning) {
@@ -251,19 +284,28 @@ export function SummaryClientView({
         }
         setIsLoadingData(false);
 
-        // Auto-trigger Key Takeaways (or requested AI tab) right after transcript is fetched!
+        // Phase 2: Asynchronously generate Key Takeaways in the background without blocking player
         const tabToTrigger =
           requestedTab ||
           (typeof window !== 'undefined' ? resolveTabFromToolOrPath(window.location.hash) : null) ||
           'takeaways';
 
         if (isAITab(tabToTrigger)) {
-          triggerAutoGeneration(tabToTrigger, data.formattedTranscript || '', data.metadata?.title || '');
+          triggerAutoGeneration(
+            tabToTrigger,
+            data.formattedTranscript || '',
+            data.metadata?.title || metadata.title
+          ).finally(() => {
+            if (!cancelled) setIsGeneratingTakeaways(false);
+          });
+        } else {
+          setIsGeneratingTakeaways(false);
         }
       } catch (err: any) {
         if (cancelled) return;
         setError(err.message || 'Failed to fetch video data');
         setIsLoadingData(false);
+        setIsGeneratingTakeaways(false);
       }
     }
 
@@ -604,71 +646,39 @@ export function SummaryClientView({
         <div className="flex-1 max-w-[1720px] w-full mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
             {/* -------------------------------------------------------------
-                LEFT COLUMN (3.5 cols on desktop): Video Player & Details
+                LEFT COLUMN (3.5 cols on desktop): Video Player & Rich Metadata
                ------------------------------------------------------------- */}
             <div className="lg:col-span-4 xl:col-span-3.5 space-y-4">
-              {isLoadingData ? (
-                <div className="glass p-3 space-y-3.5">
-                  {/* Skeleton: Video Player */}
-                  <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black/60 border border-white/[0.08]">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
-                      title="Loading video..."
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="absolute inset-0 w-full h-full border-0"
-                    />
-                  </div>
-                  {/* Skeleton: Title & channel */}
-                  <div className="space-y-2">
-                    <div className="h-5 w-3/4 bg-white/[0.06] rounded animate-pulse" />
-                    <div className="h-4 w-1/2 bg-white/[0.04] rounded animate-pulse" />
-                  </div>
-                </div>
-              ) : (
-                <VideoPlayerColumn videoId={videoId} metadata={metadata} />
-              )}
+              <VideoPlayerColumn
+                videoId={videoId}
+                metadata={metadata}
+                onTimeUpdate={(t) => setCurrentTime(t)}
+              />
             </div>
 
             {/* -------------------------------------------------------------
-                MIDDLE COLUMN (5 cols on desktop): Interactive Tabs & Content
+                MIDDLE COLUMN (5.5 cols on desktop): Interactive Tabs & Content
                ------------------------------------------------------------- */}
             <div className="lg:col-span-5 xl:col-span-5.5 min-w-0">
-              {isLoadingData ? (
-                <div className="glass p-4 space-y-4">
-                  {/* Skeleton: Tab bar */}
-                  <div className="flex gap-1 bg-white/[0.02] p-1 rounded-xl border border-white/[0.06]">
-                    {[...Array(5)].map((_, i) => (
-                      <div key={i} className="flex-1 h-9 rounded-lg bg-white/[0.04] animate-pulse" />
-                    ))}
-                  </div>
-                  {/* Skeleton: Content area */}
-                  <div className="space-y-3">
-                    <div className="h-4 w-full bg-white/[0.04] rounded animate-pulse" />
-                    <div className="h-4 w-5/6 bg-white/[0.04] rounded animate-pulse" />
-                    <div className="h-4 w-4/6 bg-white/[0.04] rounded animate-pulse" />
-                    <div className="h-4 w-full bg-white/[0.04] rounded animate-pulse" />
-                    <div className="h-4 w-3/4 bg-white/[0.04] rounded animate-pulse" />
-                    <div className="h-4 w-5/6 bg-white/[0.04] rounded animate-pulse" />
-                    <div className="h-4 w-2/3 bg-white/[0.04] rounded animate-pulse" />
-                  </div>
-                  <p className="text-center text-xs text-gray-500 pt-2 animate-pulse">
-                    Fetching transcript & video data…
-                  </p>
-                </div>
-              ) : (
-                <SummaryTabs
-                  summary={summary}
-                  transcript={transcript}
-                  metadata={metadata}
-                  loading={Boolean(regeneratingSection)}
-                  onRegenerateSection={handleGenerateSection}
-                  onGenerateSection={handleGenerateSection}
-                  regeneratingSection={regeneratingSection}
-                  initialTab={activeTab}
-                  onTabChange={handleTabChange}
-                />
-              )}
+              <SummaryTabs
+                summary={summary}
+                transcript={transcript}
+                metadata={metadata}
+                loading={Boolean(regeneratingSection) || isGeneratingTakeaways}
+                onRegenerateSection={handleGenerateSection}
+                onGenerateSection={handleGenerateSection}
+                regeneratingSection={regeneratingSection}
+                initialTab={activeTab}
+                onTabChange={handleTabChange}
+                currentTime={currentTime}
+                onSeek={(seconds) => {
+                  if (typeof window !== 'undefined') {
+                    window.dispatchEvent(
+                      new CustomEvent('yt-seek-to', { detail: { seconds } })
+                    );
+                  }
+                }}
+              />
             </div>
 
             {/* -------------------------------------------------------------

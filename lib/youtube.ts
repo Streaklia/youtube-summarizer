@@ -27,7 +27,48 @@ export function extractVideoId(url: string): string | null {
   return null;
 }
 
+const metadataCache = new Map<string, { data: VideoMetadata; expires: number }>();
+
+function formatViewCount(raw: string | number): { rawViews: string; formattedViews: string } {
+  const num = typeof raw === 'number' ? raw : parseInt(String(raw).replace(/[^0-9]/g, ''), 10);
+  if (isNaN(num) || num <= 0) return { rawViews: '', formattedViews: '' };
+
+  const rawViews = num.toLocaleString('en-US');
+  let formattedViews = '';
+  if (num >= 1_000_000_000) {
+    formattedViews = `${(num / 1e9).toFixed(1).replace(/\.0$/, '')}B views`;
+  } else if (num >= 1_000_000) {
+    formattedViews = `${(num / 1e6).toFixed(1).replace(/\.0$/, '')}M views`;
+  } else if (num >= 1_000) {
+    formattedViews = `${(num / 1e3).toFixed(1).replace(/\.0$/, '')}K views`;
+  } else {
+    formattedViews = `${num} views`;
+  }
+  return { rawViews, formattedViews };
+}
+
+function formatPublishDate(rawDate: string): { isoDate: string; formattedDate: string } {
+  if (!rawDate) return { isoDate: '', formattedDate: '' };
+  try {
+    const d = new Date(rawDate);
+    if (isNaN(d.getTime())) return { isoDate: rawDate, formattedDate: rawDate };
+    const formattedDate = d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+    return { isoDate: d.toISOString().split('T')[0], formattedDate };
+  } catch {
+    return { isoDate: rawDate, formattedDate: rawDate };
+  }
+}
+
 export async function getVideoMetadata(videoId: string): Promise<VideoMetadata> {
+  const cached = metadataCache.get(videoId);
+  if (cached && cached.expires > Date.now()) {
+    return cached.data;
+  }
+
   const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
 
   try {
@@ -40,6 +81,13 @@ export async function getVideoMetadata(videoId: string): Promise<VideoMetadata> 
     const data = await response.json();
 
     let duration = '';
+    let publishDate = '';
+    let formattedPublishDate = '';
+    let category = '';
+    let viewCount = '';
+    let formattedViews = '';
+    let channelName = data.author_name || 'YouTube Channel';
+
     try {
       const pageRes = await fetch(`https://www.youtube.com/watch?v=${videoId}`, {
         headers: {
@@ -51,6 +99,8 @@ export async function getVideoMetadata(videoId: string): Promise<VideoMetadata> 
         signal: AbortSignal.timeout(4000),
       });
       const html = await pageRes.text();
+
+      // Duration
       const durationMatch = html.match(/"lengthSeconds":"(\d+)"/);
       if (durationMatch) {
         const totalSeconds = parseInt(durationMatch[1], 10);
@@ -62,25 +112,78 @@ export async function getVideoMetadata(videoId: string): Promise<VideoMetadata> 
             ? `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
             : `${minutes}:${seconds.toString().padStart(2, '0')}`;
       }
+
+      // Views
+      const viewMatch =
+        html.match(/"viewCount":"(\d+)"/) ||
+        html.match(/itemprop="interactionCount" content="(\d+)"/);
+      if (viewMatch) {
+        const vInfo = formatViewCount(viewMatch[1]);
+        viewCount = vInfo.rawViews;
+        formattedViews = vInfo.formattedViews;
+      }
+
+      // Publish Date
+      const dateMatch =
+        html.match(/"publishDate":"([^"]+)"/) ||
+        html.match(/"uploadDate":"([^"]+)"/) ||
+        html.match(/itemprop="datePublished" content="([^"]+)"/);
+      if (dateMatch) {
+        const dInfo = formatPublishDate(dateMatch[1]);
+        publishDate = dInfo.isoDate;
+        formattedPublishDate = dInfo.formattedDate;
+      }
+
+      // Category
+      const catMatch =
+        html.match(/"category":"([^"]+)"/) ||
+        html.match(/itemprop="genre" content="([^"]+)"/);
+      if (catMatch) {
+        category = decodeHtmlEntities(catMatch[1]);
+      }
+
+      // Channel fallback
+      if (!channelName || channelName === 'YouTube Channel') {
+        const chanMatch =
+          html.match(/<link itemprop="name" content="([^"]+)"/) ||
+          html.match(/"ownerChannelName":"([^"]+)"/);
+        if (chanMatch) {
+          channelName = decodeHtmlEntities(chanMatch[1]);
+        }
+      }
     } catch {
-      // Best-effort
+      // Best-effort enrichment
     }
 
-    return {
+    const result: VideoMetadata = {
       title: data.title || 'YouTube Video',
       thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
-      channelName: data.author_name || 'YouTube Channel',
+      channelName,
       duration,
       videoId,
+      publishDate,
+      formattedPublishDate,
+      category,
+      viewCount,
+      formattedViews,
     };
+
+    // Cache metadata for 1 hour
+    metadataCache.set(videoId, {
+      data: result,
+      expires: Date.now() + 60 * 60 * 1000,
+    });
+
+    return result;
   } catch (err: any) {
-    return {
+    const fallback: VideoMetadata = {
       title: 'YouTube Video',
       thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
       channelName: 'YouTube Channel',
       duration: '',
       videoId,
     };
+    return fallback;
   }
 }
 

@@ -16,6 +16,9 @@ import {
   Loader2,
   Brain,
   Zap,
+  Play,
+  Volume2,
+  ArrowRight,
 } from 'lucide-react';
 import { SummaryResult, TranscriptEntry, VideoMetadata } from '@/lib/types';
 
@@ -29,6 +32,8 @@ interface SummaryTabsProps {
   regeneratingSection?: string | null;
   initialTab?: string;
   onTabChange?: (tab: string) => void;
+  currentTime?: number;
+  onSeek?: (seconds: number) => void;
 }
 
 const tabs = [
@@ -42,7 +47,7 @@ const tabs = [
 
 const LOADING_MESSAGES_BY_SECTION: Record<string, string[]> = {
   takeaways: [
-    '✨ Distilling key insights with AI... Please hold on a moment',
+    '✨ AI is distilling key insights... (You can watch the video or read subtitles below)',
     '🧠 Synthesizing video highlights & core takeaways...',
     '⚡ Extracting actionable knowledge and practical takeaways...',
     '📝 Formatting clear, bulleted takeaways for fast reading...',
@@ -70,11 +75,19 @@ const LOADING_MESSAGES_BY_SECTION: Record<string, string[]> = {
 
 function FriendlyAILoadingState({
   section,
+  transcript,
+  currentTime,
+  onSeek,
+  onSwitchTab,
 }: {
   section: string;
+  transcript?: TranscriptEntry[];
+  currentTime?: number;
+  onSeek?: (offsetMs: number) => void;
+  onSwitchTab?: (tab: string) => void;
 }) {
   const messages = LOADING_MESSAGES_BY_SECTION[section] || [
-    '✨ Distilling key insights with AI... Please hold on a moment',
+    '✨ AI is distilling key insights... (You can watch the video or read subtitles below)',
     '🧠 Synthesizing video highlights...',
     '⚡ Analyzing spoken transcript dialogue...',
   ];
@@ -88,32 +101,50 @@ function FriendlyAILoadingState({
     return () => clearInterval(timer);
   }, [messages.length]);
 
+  const hasSubtitles = Boolean(transcript && transcript.length > 0);
+
+  // Compute live snippet of transcript around currentTime
+  const currentTimeMs = (currentTime || 0) * 1000;
+  let activeIndex = hasSubtitles
+    ? transcript!.findIndex((e, idx) => {
+        const next = transcript![idx + 1];
+        const end = next ? next.offset : e.offset + (e.duration || 5000);
+        return currentTimeMs >= e.offset && currentTimeMs < end;
+      })
+    : -1;
+  if (activeIndex === -1 && hasSubtitles) activeIndex = 0;
+
+  const startIdx = Math.max(0, activeIndex - 1);
+  const snippet = hasSubtitles ? transcript!.slice(startIdx, startIdx + 4) : [];
+
   return (
-    <div className="py-6 px-3 sm:px-6 space-y-6 max-w-2xl mx-auto">
+    <div className="py-5 px-2 sm:px-4 space-y-5 max-w-2xl mx-auto">
       {/* Friendly engaging central banner */}
-      <div className="relative overflow-hidden p-6 sm:p-7 rounded-2xl bg-gradient-to-b from-red-500/[0.08] via-zinc-900/60 to-zinc-950 border border-red-500/25 shadow-xl text-center space-y-4 animate-fade-in">
+      <div className="relative overflow-hidden p-6 sm:p-7 rounded-2xl bg-gradient-to-b from-red-500/[0.1] via-zinc-900/80 to-zinc-950 border border-red-500/30 shadow-2xl text-center space-y-4 animate-fade-in">
         {/* Glow backdrop */}
-        <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-24 bg-red-500/20 blur-2xl rounded-full pointer-events-none" />
+        <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-60 h-28 bg-red-500/25 blur-3xl rounded-full pointer-events-none" />
 
         {/* Animated Icon Ring */}
         <div className="relative w-14 h-14 mx-auto flex items-center justify-center">
           <div className="absolute inset-0 rounded-2xl border-2 border-red-500/30 border-t-red-500 animate-spin" />
-          <div className="w-11 h-11 rounded-xl bg-zinc-900/90 border border-red-500/40 flex items-center justify-center shadow-lg shadow-red-500/20">
+          <div className="w-11 h-11 rounded-xl bg-zinc-900/90 border border-red-500/40 flex items-center justify-center shadow-lg shadow-red-500/25">
             <Sparkles className="w-5 h-5 text-red-400 animate-pulse" />
           </div>
         </div>
 
-        {/* Dynamic Rotating Message */}
+        {/* Primary Animated Status Indicator matching specification */}
         <div className="space-y-1.5">
-          <div className="min-h-[28px] flex items-center justify-center">
-            <p className="text-sm sm:text-base font-semibold text-white tracking-tight animate-fade-in transition-all duration-300">
+          <h4 className="text-base sm:text-lg font-bold text-white tracking-tight">
+            ✨ AI is distilling key insights...
+          </h4>
+          <p className="text-xs sm:text-sm text-gray-300 font-medium">
+            (You can watch the video or read subtitles below)
+          </p>
+          <div className="min-h-[24px] flex items-center justify-center pt-1">
+            <p className="text-xs text-rose-300/90 font-mono animate-fade-in transition-all duration-300">
               {messages[messageIndex]}
             </p>
           </div>
-          <p className="text-xs text-zinc-400 flex items-center justify-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
-            <span>AI Engine analyzing transcript · Ready in moments</span>
-          </p>
         </div>
 
         {/* Animated Progress Bar */}
@@ -121,39 +152,96 @@ function FriendlyAILoadingState({
           <div className="h-full bg-gradient-to-r from-red-500 via-rose-400 to-teal-400 rounded-full animate-pulse w-full" />
         </div>
 
-        <p className="text-[11px] text-zinc-500 pt-1">
-          💡 You can click the <strong>Transcript</strong> tab to read the full video text while AI synthesizes this section.
-        </p>
-      </div>
-
-      {/* Shimmer Skeleton Cards */}
-      <div className="space-y-3 pt-2">
-        <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.04] space-y-2.5 animate-pulse">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-red-400/50" />
-            <div className="h-3.5 w-1/4 rounded bg-white/[0.08]" />
-          </div>
-          <div className="h-3 w-11/12 rounded bg-white/[0.04]" />
-          <div className="h-3 w-4/5 rounded bg-white/[0.03]" />
-        </div>
-
-        <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.04] space-y-2.5 animate-pulse">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-teal-400/50" />
-            <div className="h-3.5 w-1/3 rounded bg-white/[0.08]" />
-          </div>
-          <div className="h-3 w-full rounded bg-white/[0.04]" />
-          <div className="h-3 w-2/3 rounded bg-white/[0.03]" />
-        </div>
-
-        <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.04] space-y-2.5 animate-pulse">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-rose-400/50" />
-            <div className="h-3.5 w-1/5 rounded bg-white/[0.08]" />
-          </div>
-          <div className="h-3 w-5/6 rounded bg-white/[0.04]" />
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-1 text-[11px] text-zinc-400">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
+            <span>AI generating asynchronously</span>
+          </span>
+          <span className="text-zinc-600">·</span>
+          <span>Zero player interruption</span>
         </div>
       </div>
+
+      {/* Progressive Watch & Read Subtitle Stream (Beside Player) */}
+      {hasSubtitles ? (
+        <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.06] space-y-3 shadow-lg">
+          <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] pb-2.5">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-semibold text-white flex items-center gap-1.5">
+                <Volume2 className="w-3.5 h-3.5 text-teal-400 animate-pulse" />
+                <span>Live Subtitles Stream</span>
+              </span>
+              <span className="text-[11px] text-emerald-400 font-mono bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                {transcript!.length} lines ready
+              </span>
+            </div>
+
+            {onSwitchTab && (
+              <button
+                type="button"
+                onClick={() => onSwitchTab('transcript')}
+                className="inline-flex items-center gap-1 text-xs text-red-400 hover:text-red-300 font-medium transition-colors cursor-pointer"
+              >
+                <span>Full Transcript</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+
+          <p className="text-[11px] text-gray-400">
+            Click any sentence below to jump the video to that moment:
+          </p>
+
+          <div className="space-y-1 font-mono text-xs">
+            {snippet.map((entry, idx) => {
+              const isCurrent = startIdx + idx === activeIndex;
+              return (
+                <div
+                  key={idx}
+                  onClick={() => onSeek && onSeek(entry.offset)}
+                  className={`flex items-start gap-2.5 p-2 rounded-xl transition-all cursor-pointer ${
+                    isCurrent
+                      ? 'bg-red-500/[0.14] border border-red-500/40 text-white shadow-sm'
+                      : 'hover:bg-white/[0.04] text-gray-400 hover:text-gray-200 border border-transparent'
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSeek && onSeek(entry.offset);
+                    }}
+                    className={`flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded transition-colors ${
+                      isCurrent
+                        ? 'bg-red-500 text-white font-bold'
+                        : 'bg-white/[0.06] text-red-400'
+                    }`}
+                  >
+                    <Play className="w-2.5 h-2.5 fill-current" />
+                    <span>{formatTimestamp(entry.offset)}</span>
+                  </button>
+                  <span className={`text-xs leading-relaxed flex-1 ${isCurrent ? 'text-white font-medium' : ''}`}>
+                    {entry.text}
+                  </span>
+                  {isCurrent && (
+                    <span className="text-[9px] uppercase font-bold text-red-400 bg-red-500/20 px-1 rounded flex-shrink-0">
+                      Sync
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04] flex items-center justify-between text-xs text-gray-400 animate-pulse">
+          <span className="flex items-center gap-2">
+            <Loader2 className="w-3.5 h-3.5 animate-spin text-teal-400" />
+            <span>Fetching instant transcript stream from video...</span>
+          </span>
+          <span className="text-gray-500 font-mono text-[11px]">Ready in seconds</span>
+        </div>
+      )}
     </div>
   );
 }
@@ -222,11 +310,16 @@ export function SummaryTabs({
   regeneratingSection,
   initialTab,
   onTabChange,
+  currentTime,
+  onSeek,
 }: SummaryTabsProps) {
   const [activeTab, setActiveTab] = useState<string>(
-    initialTab || (transcript.length > 0 ? 'transcript' : 'takeaways')
+    initialTab || 'takeaways'
   );
   const [copied, setCopied] = useState(false);
+  const [autoScroll, setAutoScroll] = useState(true);
+  const transcriptScrollRef = useRef<HTMLDivElement | null>(null);
+  const activeTranscriptItemRef = useRef<HTMLDivElement | null>(null);
   const [promptFormat, setPromptFormat] = useState<'infographic' | 'comic'>('infographic');
   const [promptSeed, setPromptSeed] = useState(0);
 
@@ -236,6 +329,34 @@ export function SummaryTabs({
       setActiveTab(initialTab);
     }
   }, [initialTab]);
+
+  // Find active subtitle index matching current playback position
+  const currentTimeMs = (currentTime || 0) * 1000;
+  const activeTranscriptIndex = transcript.findIndex((entry, idx) => {
+    const next = transcript[idx + 1];
+    const end = next ? next.offset : entry.offset + (entry.duration || 5000);
+    return currentTimeMs >= entry.offset && currentTimeMs < end;
+  });
+
+  // Auto-scroll the subtitle list to keep current speaking segment in view
+  useEffect(() => {
+    if (autoScroll && activeTranscriptItemRef.current && transcriptScrollRef.current) {
+      activeTranscriptItemRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [activeTranscriptIndex, autoScroll]);
+
+  const handleSeekToOffset = (offsetMs: number) => {
+    const seconds = offsetMs / 1000;
+    if (onSeek) onSeek(seconds);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(
+        new CustomEvent('yt-seek-to', { detail: { seconds } })
+      );
+    }
+  };
 
   // Per-section loaded check (Cached state)
   const hasTakeaways = Boolean(summary?.keyTakeaways && summary.keyTakeaways.length > 0);
@@ -689,8 +810,17 @@ export function SummaryTabs({
           {/* ─── Key Takeaways Tab: First Tab by Default ─── */}
           {activeTab === 'takeaways' && (
             <>
-              {isCurrentSectionRegenerating ? (
-                <FriendlyAILoadingState section="takeaways" />
+              {isCurrentSectionRegenerating || (loading && !hasTakeaways) ? (
+                <FriendlyAILoadingState
+                  section="takeaways"
+                  transcript={transcript}
+                  currentTime={currentTime}
+                  onSeek={handleSeekToOffset}
+                  onSwitchTab={(tab) => {
+                    setActiveTab(tab);
+                    if (onTabChange) onTabChange(tab);
+                  }}
+                />
               ) : hasTakeaways ? (
                 <ul className="space-y-3">
                   {summary!.keyTakeaways.map((takeaway, i) => (
@@ -719,20 +849,82 @@ export function SummaryTabs({
           {activeTab === 'transcript' && (
             <>
               {transcript.length > 0 ? (
-                <div>
-                  <div className="mb-3 flex items-center justify-between text-xs text-gray-500 pb-2 border-b border-white/[0.04]">
-                    <span>{transcript.length} transcript segments loaded</span>
-                    <span className="text-emerald-400">● Instant ready</span>
+                <div className="space-y-3">
+                  {/* Header with live sync status & auto-scroll toggle */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-400 pb-2.5 border-b border-white/[0.06]">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-gray-200">{transcript.length} timestamped subtitle segments</span>
+                      <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 font-mono">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>Subtitles Ready</span>
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setAutoScroll((prev) => !prev)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
+                          autoScroll
+                            ? 'bg-teal-500/15 text-teal-300 border border-teal-500/30 shadow-sm'
+                            : 'bg-white/[0.04] text-gray-400 hover:text-white border border-white/[0.06]'
+                        }`}
+                        title="Toggle auto-scroll to follow along with the video"
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${autoScroll ? 'bg-teal-400 animate-pulse' : 'bg-gray-500'}`} />
+                        <span>Auto-Scroll Sync: {autoScroll ? 'ON' : 'OFF'}</span>
+                      </button>
+                    </div>
                   </div>
-                  <div className="max-h-[520px] overflow-y-auto space-y-0.5 font-mono text-sm pr-2">
-                    {transcript.map((entry, i) => (
-                      <div key={i} className="flex gap-3 py-1.5 hover:bg-white/[0.02] rounded-lg px-2 -mx-2 transition-colors">
-                        <span className="text-red-500/50 flex-shrink-0 select-none text-xs mt-0.5">
-                          {formatTimestamp(entry.offset)}
-                        </span>
-                        <span className="text-gray-300 leading-relaxed">{entry.text}</span>
-                      </div>
-                    ))}
+
+                  {/* Timestamped Subtitle List with Live Playback Highlighting and Seek-on-Click */}
+                  <div
+                    ref={transcriptScrollRef}
+                    className="max-h-[580px] overflow-y-auto space-y-1.5 font-mono text-xs sm:text-sm pr-2 scroll-smooth"
+                  >
+                    {transcript.map((entry, i) => {
+                      const isActive = i === activeTranscriptIndex;
+                      return (
+                        <div
+                          key={i}
+                          ref={isActive ? activeTranscriptItemRef : null}
+                          onClick={() => handleSeekToOffset(entry.offset)}
+                          className={`group flex items-start gap-3 p-2.5 rounded-xl transition-all duration-150 cursor-pointer ${
+                            isActive
+                              ? 'bg-gradient-to-r from-red-500/15 via-rose-500/10 to-transparent border border-red-500/40 text-white shadow-md shadow-red-500/10 scale-[1.005]'
+                              : 'hover:bg-white/[0.03] text-gray-300 border border-transparent'
+                          }`}
+                        >
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSeekToOffset(entry.offset);
+                            }}
+                            className={`flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-md flex-shrink-0 transition-colors cursor-pointer ${
+                              isActive
+                                ? 'bg-red-500 text-white font-bold shadow-sm'
+                                : 'bg-white/[0.05] text-red-400/90 group-hover:bg-red-500/20 group-hover:text-red-300'
+                            }`}
+                            title="Play from this timestamp"
+                          >
+                            <Play className="w-2.5 h-2.5 fill-current" />
+                            <span>{formatTimestamp(entry.offset)}</span>
+                          </button>
+
+                          <span className={`leading-relaxed flex-1 ${isActive ? 'text-white font-medium' : 'text-gray-300'}`}>
+                            {entry.text}
+                          </span>
+
+                          {isActive && (
+                            <span className="flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold text-red-400 bg-red-500/20 px-2 py-0.5 rounded-full flex-shrink-0 animate-pulse border border-red-500/30">
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                              <span>Sync</span>
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ) : (
@@ -750,7 +942,7 @@ export function SummaryTabs({
                     <button
                       type="button"
                       onClick={() => setActiveTab('takeaways')}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-sm hover:opacity-90 transition-opacity"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
                     >
                       <span>📌 View Key Takeaways</span>
                     </button>

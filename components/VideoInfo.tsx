@@ -1,4 +1,4 @@
-import { User, Clock, ExternalLink } from 'lucide-react';
+import { User, Clock, ExternalLink, Calendar, Eye, Tag } from 'lucide-react';
 import { VideoMetadata } from '@/lib/types';
 
 interface VideoInfoProps {
@@ -7,7 +7,7 @@ interface VideoInfoProps {
 
 export function VideoInfo({ metadata }: VideoInfoProps) {
   return (
-    <div className="animate-fade-in-up glass p-1.5">
+    <div className="animate-fade-in-up glass p-3">
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Thumbnail with overlay */}
         <div className="relative group flex-shrink-0 sm:w-56">
@@ -37,21 +37,36 @@ export function VideoInfo({ metadata }: VideoInfoProps) {
         </div>
 
         {/* Info */}
-        <div className="flex flex-col justify-center min-w-0 px-2 pb-2 sm:px-0 sm:pb-0 sm:py-2">
+        <div className="flex flex-col justify-center min-w-0 px-2 pb-2 sm:px-0 sm:pb-0 sm:py-1 space-y-2">
           <h2 className="text-base sm:text-lg font-semibold text-white line-clamp-2 leading-snug">
             {metadata.title}
           </h2>
-          <div className="flex items-center gap-3 mt-2.5">
-            <span className="flex items-center gap-1.5 text-sm text-gray-400">
-              <div className="w-5 h-5 rounded-full bg-white/[0.08] flex items-center justify-center">
-                <User className="w-3 h-3 text-gray-400" />
+          <div className="flex flex-wrap items-center gap-2.5 text-xs text-gray-400">
+            <span className="flex items-center gap-1.5 font-medium text-gray-300">
+              <div className="w-4 h-4 rounded-full bg-red-500/15 flex items-center justify-center">
+                <User className="w-2.5 h-2.5 text-red-400" />
               </div>
               {metadata.channelName}
             </span>
-            {metadata.duration && (
-              <span className="flex items-center gap-1.5 text-sm text-gray-500">
-                <Clock className="w-3.5 h-3.5" />
-                {metadata.duration}
+
+            {(metadata.formattedViews || metadata.viewCount) && (
+              <span className="flex items-center gap-1 text-gray-400">
+                <Eye className="w-3 h-3 text-teal-400" />
+                <span>{metadata.formattedViews || metadata.viewCount}</span>
+              </span>
+            )}
+
+            {(metadata.formattedPublishDate || metadata.publishDate) && (
+              <span className="flex items-center gap-1 text-gray-400">
+                <Calendar className="w-3 h-3 text-amber-400" />
+                <span>{metadata.formattedPublishDate || metadata.publishDate}</span>
+              </span>
+            )}
+
+            {metadata.category && (
+              <span className="flex items-center gap-1 text-gray-400">
+                <Tag className="w-3 h-3 text-rose-400" />
+                <span>{metadata.category}</span>
               </span>
             )}
           </div>
