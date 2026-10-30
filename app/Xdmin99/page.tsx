@@ -26,6 +26,8 @@ import {
   Code,
   Eye,
   X,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { SettingsModal } from '@/components/SettingsModal';
 import { AISettings } from '@/lib/types';
@@ -85,16 +87,30 @@ export default function AdminPage() {
     openrouterModel: '',
   });
 
+  // Theme State: Dark by default, switchable to Light Modern Design
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
-        const stored = localStorage.getItem('yt-summarizer-settings');
-        if (stored) {
-          setAiSettings(JSON.parse(stored));
+        const savedTheme = localStorage.getItem('admin-dashboard-theme') as 'dark' | 'light';
+        if (savedTheme === 'light' || savedTheme === 'dark') {
+          setTheme(savedTheme);
         }
       } catch {}
     }
   }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('admin-dashboard-theme', nextTheme);
+      } catch {}
+    }
+    showToast(`Switched to ${nextTheme === 'dark' ? 'Dark Mode' : 'Light Modern Design'}`);
+  };
 
   const handleSaveAiSettings = (newSettings: AISettings) => {
     setAiSettings(newSettings);
@@ -428,7 +444,131 @@ export default function AdminPage() {
 
   // Authenticated Command Console Dashboard
   return (
-    <div className="min-h-screen bg-[#09090b] text-zinc-100 font-sans antialiased pb-16">
+    <div className={`min-h-screen ${theme === 'light' ? 'light-theme' : ''} bg-[#09090b] text-zinc-100 font-sans antialiased pb-16 transition-colors duration-200`}>
+      {/* Light Theme Stylesheet Injection */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .light-theme {
+          background-color: #f8fafc !important;
+          color: #0f172a !important;
+        }
+        .light-theme header {
+          background-color: rgba(255, 255, 255, 0.95) !important;
+          border-color: #e2e8f0 !important;
+        }
+        .light-theme .bg-zinc-950,
+        .light-theme .bg-zinc-950\\/90,
+        .light-theme .bg-zinc-950\\/80,
+        .light-theme .bg-zinc-950\\/70,
+        .light-theme .bg-zinc-950\\/60 {
+          background-color: #ffffff !important;
+        }
+        .light-theme .bg-zinc-900,
+        .light-theme .bg-zinc-900\\/90,
+        .light-theme .bg-zinc-900\\/80,
+        .light-theme .bg-zinc-900\\/60,
+        .light-theme .bg-zinc-900\\/40,
+        .light-theme .bg-zinc-900\\/30 {
+          background-color: #ffffff !important;
+          box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+        }
+        .light-theme .border-zinc-800,
+        .light-theme .border-zinc-800\\/80,
+        .light-theme .border-zinc-700,
+        .light-theme .border-zinc-900 {
+          border-color: #e2e8f0 !important;
+        }
+        .light-theme .text-white {
+          color: #0f172a !important;
+        }
+        .light-theme .text-zinc-100 {
+          color: #1e293b !important;
+        }
+        .light-theme .text-zinc-200 {
+          color: #334155 !important;
+        }
+        .light-theme .text-zinc-300 {
+          color: #475569 !important;
+        }
+        .light-theme .text-zinc-400 {
+          color: #64748b !important;
+        }
+        .light-theme .text-zinc-500 {
+          color: #94a3b8 !important;
+        }
+        .light-theme .text-zinc-600 {
+          color: #cbd5e1 !important;
+        }
+        .light-theme .text-zinc-700 {
+          color: #e2e8f0 !important;
+        }
+        .light-theme input,
+        .light-theme textarea,
+        .light-theme select {
+          background-color: #ffffff !important;
+          color: #0f172a !important;
+          border-color: #cbd5e1 !important;
+        }
+        .light-theme input::placeholder,
+        .light-theme textarea::placeholder {
+          color: #94a3b8 !important;
+        }
+        .light-theme input:focus,
+        .light-theme textarea:focus,
+        .light-theme select:focus {
+          border-color: #ef4444 !important;
+          background-color: #ffffff !important;
+          box-shadow: 0 0 0 1px #ef4444 !important;
+        }
+        .light-theme .border-t.border-zinc-800\\/80 {
+          background-color: #f1f5f9 !important;
+          border-color: #e2e8f0 !important;
+        }
+        .light-theme .border-transparent.text-zinc-400 {
+          color: #64748b !important;
+        }
+        .light-theme .border-transparent.text-zinc-400:hover {
+          color: #0f172a !important;
+          background-color: #e2e8f0 !important;
+        }
+        .light-theme .border-red-500.bg-zinc-900\\/60 {
+          background-color: #ffffff !important;
+          color: #0f172a !important;
+        }
+        .light-theme .bg-zinc-950\\/80 {
+          background-color: #f8fafc !important;
+          border-color: #e2e8f0 !important;
+        }
+        .light-theme table thead tr {
+          background-color: #f1f5f9 !important;
+        }
+        .light-theme table thead th {
+          color: #475569 !important;
+        }
+        .light-theme table tbody tr {
+          border-color: #e2e8f0 !important;
+        }
+        .light-theme table tbody tr:hover {
+          background-color: #f8fafc !important;
+        }
+        .light-theme button.bg-zinc-900,
+        .light-theme a.bg-zinc-900 {
+          background-color: #ffffff !important;
+          border-color: #e2e8f0 !important;
+          color: #334155 !important;
+        }
+        .light-theme button.bg-zinc-900:hover,
+        .light-theme a.bg-zinc-900:hover {
+          background-color: #f1f5f9 !important;
+          color: #0f172a !important;
+        }
+        .light-theme .fixed.inset-0 .bg-zinc-900,
+        .light-theme .fixed.inset-0 .bg-zinc-950,
+        .light-theme .fixed.inset-0 .bg-\\[\\#0e0e11\\] {
+          background-color: #ffffff !important;
+          border-color: #e2e8f0 !important;
+        }
+      `}} />
+
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-5 right-5 z-[100] px-4 py-2.5 bg-zinc-800 text-white rounded-xl shadow-2xl flex items-center gap-2 text-xs font-medium animate-fade-in-up border border-zinc-700">
@@ -470,6 +610,26 @@ export default function AdminPage() {
 
             {/* Right: Actions */}
             <div className="flex items-center gap-2">
+              {/* Modern Theme Toggle (Dark by default, Light modern design) */}
+              <button
+                type="button"
+                onClick={toggleTheme}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl transition-all shadow-sm cursor-pointer border border-zinc-800 bg-zinc-900 text-zinc-300 hover:text-white hover:bg-zinc-800"
+                title={`Switch to ${theme === 'dark' ? 'Light Modern Design' : 'Dark Mode'}`}
+              >
+                {theme === 'dark' ? (
+                  <>
+                    <Sun className="w-3.5 h-3.5 text-amber-400" />
+                    <span className="hidden sm:inline">Light Mode</span>
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-3.5 h-3.5 text-indigo-400" />
+                    <span className="hidden sm:inline">Dark Mode</span>
+                  </>
+                )}
+              </button>
+
               <button
                 type="button"
                 onClick={() => setAiSettingsModalOpen(true)}
