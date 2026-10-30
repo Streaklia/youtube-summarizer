@@ -43,7 +43,7 @@ const DEFAULT_SETTINGS: AISettings = {
   openrouterModel: '',
 };
 
-const VALID_TABS = ['transcript', 'takeaways', 'chapters', 'summary', 'infographic', 'prompt'];
+const VALID_TABS = ['takeaways', 'transcript', 'chapters', 'summary', 'infographic', 'prompt'];
 
 /**
  * Placeholder metadata used during the initial client-side fetch.
@@ -102,9 +102,9 @@ export function SummaryClientView({
     return null;
   })();
 
-  // Track active tab state for deep linking
+  // Track active tab state for deep linking - Key Takeaways is the default first tab
   const [activeTab, setActiveTab] = useState<string>(
-    requestedTab || (initialTranscript && initialTranscript.length > 0 ? 'transcript' : 'takeaways')
+    requestedTab || 'takeaways'
   );
 
   // Sync activeTab if query params change
@@ -251,12 +251,13 @@ export function SummaryClientView({
         }
         setIsLoadingData(false);
 
-        // Auto-trigger AI generation for landed tool intent (e.g. from /youtube-infographic or /youtube-summary)
+        // Auto-trigger Key Takeaways (or requested AI tab) right after transcript is fetched!
         const tabToTrigger =
           requestedTab ||
-          (typeof window !== 'undefined' ? resolveTabFromToolOrPath(window.location.hash) : null);
+          (typeof window !== 'undefined' ? resolveTabFromToolOrPath(window.location.hash) : null) ||
+          'takeaways';
 
-        if (tabToTrigger && isAITab(tabToTrigger)) {
+        if (isAITab(tabToTrigger)) {
           triggerAutoGeneration(tabToTrigger, data.formattedTranscript || '', data.metadata?.title || '');
         }
       } catch (err: any) {
@@ -272,10 +273,16 @@ export function SummaryClientView({
     };
   }, [videoId, hasInitialData]);
 
-  // When initial data was provided by server, auto-trigger if an AI tab was requested
+  // When initial data was provided by server, auto-trigger Key Takeaways immediately
   useEffect(() => {
-    if (hasInitialData && requestedTab && isAITab(requestedTab)) {
-      triggerAutoGeneration(requestedTab, formattedTranscript, metadata?.title);
+    if (hasInitialData) {
+      const tabToTrigger =
+        requestedTab ||
+        (typeof window !== 'undefined' ? resolveTabFromToolOrPath(window.location.hash) : null) ||
+        'takeaways';
+      if (isAITab(tabToTrigger)) {
+        triggerAutoGeneration(tabToTrigger, formattedTranscript, metadata?.title);
+      }
     }
   }, [hasInitialData, requestedTab]);
 
@@ -322,6 +329,10 @@ export function SummaryClientView({
       const url = new URL(window.location.href);
       url.searchParams.set('tab', newTab);
       window.history.replaceState(null, '', url.toString());
+    }
+    // Auto-trigger generation if user clicks an AI tab that has not been generated yet
+    if (isAITab(newTab)) {
+      triggerAutoGeneration(newTab, formattedTranscript, metadata?.title);
     }
   };
 

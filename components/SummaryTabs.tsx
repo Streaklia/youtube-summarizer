@@ -14,6 +14,8 @@ import {
   FileDown,
   Printer,
   Loader2,
+  Brain,
+  Zap,
 } from 'lucide-react';
 import { SummaryResult, TranscriptEntry, VideoMetadata } from '@/lib/types';
 
@@ -30,46 +32,126 @@ interface SummaryTabsProps {
 }
 
 const tabs = [
+  { id: 'takeaways', label: 'Key Takeaways', emoji: '📌', badge: 'AI' },
   { id: 'transcript', label: 'Transcript', emoji: '📄', badge: 'Instant' },
-  { id: 'takeaways', label: 'Key Takeaways', emoji: '📌', badge: null },
   { id: 'chapters', label: 'Chapters', emoji: '⏱️', badge: null },
   { id: 'summary', label: 'Full Summary', emoji: '📝', badge: null },
   { id: 'infographic', label: 'Infographic', emoji: '📊', badge: 'New' },
   { id: 'prompt', label: 'Prompt', emoji: '✨', badge: null },
 ] as const;
 
-function SkeletonCard({ label }: { label?: string }) {
+const LOADING_MESSAGES_BY_SECTION: Record<string, string[]> = {
+  takeaways: [
+    '✨ Distilling key insights with AI... Please hold on a moment',
+    '🧠 Synthesizing video highlights & core takeaways...',
+    '⚡ Extracting actionable knowledge and practical takeaways...',
+    '📝 Formatting clear, bulleted takeaways for fast reading...',
+  ],
+  chapters: [
+    '⏱️ Synthesizing timestamped chapters with AI... Please hold on',
+    '🎯 Mapping video timeline, topics, and scene transitions...',
+    '📌 Organizing structured chapters for instant navigation...',
+  ],
+  summary: [
+    '📝 Synthesizing comprehensive executive video summary...',
+    '✨ Distilling multi-chapter context into structured sections...',
+    '💡 Reviewing key concepts, arguments, and takeaways...',
+  ],
+  infographic: [
+    '📊 Designing visual stat cards and memorable quotes with AI...',
+    '🎨 Extracting key data points and executive highlights...',
+    '✨ Formatting interactive infographic cards for easy sharing...',
+  ],
+  prompt: [
+    '✨ Formulating visual storytelling prompts with AI...',
+    '🎨 Crafting high-context image generation prompts from video dialogue...',
+  ],
+};
+
+function FriendlyAILoadingState({
+  section,
+}: {
+  section: string;
+}) {
+  const messages = LOADING_MESSAGES_BY_SECTION[section] || [
+    '✨ Distilling key insights with AI... Please hold on a moment',
+    '🧠 Synthesizing video highlights...',
+    '⚡ Analyzing spoken transcript dialogue...',
+  ];
+
+  const [messageIndex, setMessageIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setMessageIndex((prev) => (prev + 1) % messages.length);
+    }, 2400);
+    return () => clearInterval(timer);
+  }, [messages.length]);
+
   return (
-    <div className="space-y-4 animate-pulse">
-      {/* Skeleton Status Banner */}
-      <div className="flex items-center gap-2 p-3 bg-red-500/5 border border-red-500/20 rounded-xl text-red-300 text-xs">
-        <Loader2 className="w-4 h-4 text-red-400 animate-spin" />
-        <span>{label || 'Generating with AI in the background... Read the transcript while you wait.'}</span>
-      </div>
+    <div className="py-6 px-3 sm:px-6 space-y-6 max-w-2xl mx-auto">
+      {/* Friendly engaging central banner */}
+      <div className="relative overflow-hidden p-6 sm:p-7 rounded-2xl bg-gradient-to-b from-red-500/[0.08] via-zinc-900/60 to-zinc-950 border border-red-500/25 shadow-xl text-center space-y-4 animate-fade-in">
+        {/* Glow backdrop */}
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-24 bg-red-500/20 blur-2xl rounded-full pointer-events-none" />
 
-      {/* Skeleton Header */}
-      <div className="flex items-center gap-3 pt-2">
-        <div className="w-8 h-8 rounded-lg bg-white/[0.06]" />
-        <div className="h-5 w-48 rounded bg-white/[0.08]" />
-      </div>
-
-      {/* Skeleton Content Bars */}
-      <div className="space-y-3 pt-2">
-        <div className="h-4 w-full rounded bg-white/[0.05]" />
-        <div className="h-4 w-11/12 rounded bg-white/[0.04]" />
-        <div className="h-4 w-4/5 rounded bg-white/[0.06]" />
-        <div className="h-4 w-5/6 rounded bg-white/[0.03]" />
-      </div>
-
-      {/* Grid of Skeleton Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4">
-        <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.04] space-y-2">
-          <div className="h-3 w-1/3 rounded bg-white/[0.06]" />
-          <div className="h-4 w-3/4 rounded bg-white/[0.04]" />
+        {/* Animated Icon Ring */}
+        <div className="relative w-14 h-14 mx-auto flex items-center justify-center">
+          <div className="absolute inset-0 rounded-2xl border-2 border-red-500/30 border-t-red-500 animate-spin" />
+          <div className="w-11 h-11 rounded-xl bg-zinc-900/90 border border-red-500/40 flex items-center justify-center shadow-lg shadow-red-500/20">
+            <Sparkles className="w-5 h-5 text-red-400 animate-pulse" />
+          </div>
         </div>
-        <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.04] space-y-2">
-          <div className="h-3 w-1/3 rounded bg-white/[0.06]" />
-          <div className="h-4 w-3/4 rounded bg-white/[0.04]" />
+
+        {/* Dynamic Rotating Message */}
+        <div className="space-y-1.5">
+          <div className="min-h-[28px] flex items-center justify-center">
+            <p className="text-sm sm:text-base font-semibold text-white tracking-tight animate-fade-in transition-all duration-300">
+              {messages[messageIndex]}
+            </p>
+          </div>
+          <p className="text-xs text-zinc-400 flex items-center justify-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
+            <span>AI Engine analyzing transcript · Ready in moments</span>
+          </p>
+        </div>
+
+        {/* Animated Progress Bar */}
+        <div className="w-full max-w-md mx-auto h-1.5 bg-zinc-800 rounded-full overflow-hidden relative">
+          <div className="h-full bg-gradient-to-r from-red-500 via-rose-400 to-teal-400 rounded-full animate-pulse w-full" />
+        </div>
+
+        <p className="text-[11px] text-zinc-500 pt-1">
+          💡 You can click the <strong>Transcript</strong> tab to read the full video text while AI synthesizes this section.
+        </p>
+      </div>
+
+      {/* Shimmer Skeleton Cards */}
+      <div className="space-y-3 pt-2">
+        <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.04] space-y-2.5 animate-pulse">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-red-400/50" />
+            <div className="h-3.5 w-1/4 rounded bg-white/[0.08]" />
+          </div>
+          <div className="h-3 w-11/12 rounded bg-white/[0.04]" />
+          <div className="h-3 w-4/5 rounded bg-white/[0.03]" />
+        </div>
+
+        <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.04] space-y-2.5 animate-pulse">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-teal-400/50" />
+            <div className="h-3.5 w-1/3 rounded bg-white/[0.08]" />
+          </div>
+          <div className="h-3 w-full rounded bg-white/[0.04]" />
+          <div className="h-3 w-2/3 rounded bg-white/[0.03]" />
+        </div>
+
+        <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.04] space-y-2.5 animate-pulse">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-rose-400/50" />
+            <div className="h-3.5 w-1/5 rounded bg-white/[0.08]" />
+          </div>
+          <div className="h-3 w-5/6 rounded bg-white/[0.04]" />
         </div>
       </div>
     </div>
@@ -510,9 +592,9 @@ export function SummaryTabs({
             </h3>
 
             {isCurrentSectionRegenerating ? (
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-[11px] text-red-300 font-medium">
-                <Loader2 className="w-3 h-3 animate-spin text-red-400" />
-                <span>Generating with AI...</span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-xs text-red-300 font-medium animate-pulse">
+                <Sparkles className="w-3.5 h-3.5 text-red-400" />
+                <span>AI Generating...</span>
               </span>
             ) : isCurrentTabLoaded ? (
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-400 font-medium">
@@ -520,7 +602,7 @@ export function SummaryTabs({
               </span>
             ) : isAITab ? (
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-[11px] text-gray-400">
-                ⚡ On-demand AI
+                ⚡ Auto-generates on view
               </span>
             ) : null}
           </div>
@@ -604,7 +686,36 @@ export function SummaryTabs({
         </div>
 
         <div className="p-5 sm:p-6">
-          {/* ─── Instant Transcript Tab: ALWAYS accessible immediately ─── */}
+          {/* ─── Key Takeaways Tab: First Tab by Default ─── */}
+          {activeTab === 'takeaways' && (
+            <>
+              {isCurrentSectionRegenerating ? (
+                <FriendlyAILoadingState section="takeaways" />
+              ) : hasTakeaways ? (
+                <ul className="space-y-3">
+                  {summary!.keyTakeaways.map((takeaway, i) => (
+                    <li key={i} className="flex gap-3 items-start group">
+                      <span className="mt-2 w-1.5 h-1.5 bg-red-500 rounded-full flex-shrink-0 group-hover:shadow-lg group-hover:shadow-red-500/50 transition-all" />
+                      <span className="text-gray-300 leading-relaxed text-sm">
+                        {takeaway}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <EmptyTabPlaceholder
+                  icon="📌"
+                  title="Key Takeaways"
+                  description="Extract 5-10 actionable bullet points and core insights from this video in seconds."
+                  buttonLabel="Generate Key Takeaways with AI"
+                  onGenerate={() => handleTriggerSection('takeaways')}
+                  disabled={Boolean(regeneratingSection)}
+                />
+              )}
+            </>
+          )}
+
+          {/* ─── Instant Transcript Tab ─── */}
           {activeTab === 'transcript' && (
             <>
               {transcript.length > 0 ? (
@@ -649,40 +760,11 @@ export function SummaryTabs({
             </>
           )}
 
-          {/* ─── Key Takeaways Tab ─── */}
-          {activeTab === 'takeaways' && (
-            <>
-              {isCurrentSectionRegenerating ? (
-                <SkeletonCard label="Extracting Key Takeaways with AI..." />
-              ) : hasTakeaways ? (
-                <ul className="space-y-3">
-                  {summary!.keyTakeaways.map((takeaway, i) => (
-                    <li key={i} className="flex gap-3 items-start group">
-                      <span className="mt-2 w-1.5 h-1.5 bg-red-500 rounded-full flex-shrink-0 group-hover:shadow-lg group-hover:shadow-red-500/50 transition-all" />
-                      <span className="text-gray-300 leading-relaxed text-sm">
-                        {takeaway}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <EmptyTabPlaceholder
-                  icon="📌"
-                  title="Key Takeaways"
-                  description="Extract 5-10 actionable bullet points and core insights from this video in seconds."
-                  buttonLabel="Generate Key Takeaways with AI"
-                  onGenerate={() => handleTriggerSection('takeaways')}
-                  disabled={Boolean(regeneratingSection)}
-                />
-              )}
-            </>
-          )}
-
           {/* ─── Chapters Tab ─── */}
           {activeTab === 'chapters' && (
             <>
               {isCurrentSectionRegenerating ? (
-                <SkeletonCard label="Creating timestamped chapters with AI..." />
+                <FriendlyAILoadingState section="chapters" />
               ) : hasChapters ? (
                 <div className="space-y-3">
                   {summary!.chapterSummaries.map((chapter, i) => (
@@ -718,7 +800,7 @@ export function SummaryTabs({
           {activeTab === 'summary' && (
             <>
               {isCurrentSectionRegenerating ? (
-                <SkeletonCard label="Writing full structured summary with AI..." />
+                <FriendlyAILoadingState section="summary" />
               ) : hasSummary ? (
                 <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-gray-400 prose-strong:text-gray-200 prose-a:text-red-400 prose-li:text-gray-400">
                   <ReactMarkdown>{summary!.fullSummary}</ReactMarkdown>
@@ -740,7 +822,7 @@ export function SummaryTabs({
           {activeTab === 'infographic' && (
             <>
               {isCurrentSectionRegenerating ? (
-                <SkeletonCard label="Designing visual infographic cards with AI..." />
+                <FriendlyAILoadingState section="infographic" />
               ) : hasInfographic ? (
                 <div className="space-y-6">
                   <div className="text-center">
@@ -855,7 +937,7 @@ export function SummaryTabs({
           {activeTab === 'prompt' && (
             <>
               {isCurrentSectionRegenerating ? (
-                <SkeletonCard label="Formulating visual storytelling prompts..." />
+                <FriendlyAILoadingState section="prompt" />
               ) : (
                 <div className="space-y-4">
                   <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">
