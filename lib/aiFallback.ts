@@ -82,9 +82,9 @@ export function getFallbackTargets(options?: FallbackOptions): ProviderTarget[] 
   // 3. OpenRouter Free Models (if user or server provided an OpenRouter key)
   if (userOpenRouterKey) {
     const freeModels = [
-      'meta-llama/llama-3-8b-instruct:free',
-      'mistralai/mistral-7b-instruct:free',
-      'google/gemini-2.0-flash-exp:free',
+      'openrouter/free',
+      'google/gemma-4-31b-it:free',
+      'google/gemma-4-26b-a4b-it:free',
     ];
 
     for (const freeModel of freeModels) {

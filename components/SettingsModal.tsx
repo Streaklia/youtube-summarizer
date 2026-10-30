@@ -99,7 +99,7 @@ export function SettingsModal({
     settings.openrouterApiKey || ''
   );
   const [openrouterModel, setOpenrouterModel] = useState(
-    settings.openrouterModel || 'meta-llama/llama-3-8b-instruct:free'
+    settings.openrouterModel || 'openrouter/free'
   );
 
   // Gemini models state
@@ -138,7 +138,7 @@ export function SettingsModal({
       setProvider(settings.provider || 'gemini');
       setGeminiModel(settings.geminiModel || 'gemini-2.5-flash');
       setOpenrouterApiKey(settings.openrouterApiKey || '');
-      setOpenrouterModel(settings.openrouterModel || 'meta-llama/llama-3-8b-instruct:free');
+      setOpenrouterModel(settings.openrouterModel || 'openrouter/free');
       setError('');
       setModelSearch('');
       setLiveResponse(null);
