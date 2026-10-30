@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenAI } from '@google/genai';
 
+export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
@@ -21,6 +22,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(
           {
             success: false,
+            provider: 'gemini',
             error: 'GEMINI_API_KEY is missing on server. Check .env.local or production environment variables.',
             elapsedMs: Date.now() - startTime,
           },
@@ -31,41 +33,64 @@ export async function POST(req: NextRequest) {
       const ai = new GoogleGenAI({ apiKey: geminiKey });
       const requestedModel = model || 'gemini-2.5-flash';
 
-      let reply = '';
-      let usedModel = requestedModel;
-
       try {
         const response = await ai.models.generateContent({
           model: requestedModel,
           contents: promptMessage,
         });
-        reply = response.text || 'OK (Gemini responded)';
+
+        const reply = response.text || 'OK (Gemini responded successfully)';
+        const elapsedMs = Date.now() - startTime;
+
+        return NextResponse.json({
+          success: true,
+          provider: 'gemini',
+          model: requestedModel,
+          reply: reply.trim(),
+          elapsedMs,
+        });
       } catch (geminiErr: any) {
-        // If specified model fails and it was 2.5, try 1.5-flash fallback
-        if (requestedModel !== 'gemini-1.5-flash') {
+        // Fallback to gemini-2.5-flash if a different model was requested and failed
+        if (requestedModel !== 'gemini-2.5-flash') {
           try {
-            usedModel = 'gemini-1.5-flash';
             const fallbackResp = await ai.models.generateContent({
-              model: 'gemini-1.5-flash',
+              model: 'gemini-2.5-flash',
               contents: promptMessage,
             });
-            reply = fallbackResp.text || 'OK (Gemini 1.5-flash fallback responded)';
+            const reply = fallbackResp.text || 'OK (Gemini responded via fallback)';
+            const elapsedMs = Date.now() - startTime;
+            return NextResponse.json({
+              success: true,
+              provider: 'gemini',
+              model: 'gemini-2.5-flash (fallback)',
+              reply: reply.trim(),
+              elapsedMs,
+            });
           } catch (fallbackErr: any) {
-            throw new Error(`Gemini error (${geminiErr.message || geminiErr})`);
+            return NextResponse.json(
+              {
+                success: false,
+                provider: 'gemini',
+                model: requestedModel,
+                error: geminiErr.message || String(geminiErr),
+                elapsedMs: Date.now() - startTime,
+              },
+              { status: 400 }
+            );
           }
-        } else {
-          throw geminiErr;
         }
-      }
 
-      const elapsedMs = Date.now() - startTime;
-      return NextResponse.json({
-        success: true,
-        provider: 'gemini',
-        model: usedModel,
-        reply: reply.trim(),
-        elapsedMs,
-      });
+        return NextResponse.json(
+          {
+            success: false,
+            provider: 'gemini',
+            model: requestedModel,
+            error: geminiErr.message || String(geminiErr),
+            elapsedMs: Date.now() - startTime,
+          },
+          { status: 400 }
+        );
+      }
     }
 
     // =========================================================================
@@ -77,7 +102,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: 'OpenRouter API key is required. Please paste your key in the OpenRouter API Key input above.',
+          provider: 'openrouter',
+          error: 'OpenRouter API key is required. Please paste your key in the OpenRouter API Key input.',
           elapsedMs: Date.now() - startTime,
         },
         { status: 400 }
@@ -104,19 +130,25 @@ export async function POST(req: NextRequest) {
     const elapsedMs = Date.now() - startTime;
 
     if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
+      const errData = await response.json().catch(() => ({}));
+      const errorMsg =
+        errData?.error?.message ||
+        `OpenRouter responded with HTTP ${response.status}: ${response.statusText}`;
+
       return NextResponse.json(
         {
           success: false,
-          error: err.error?.message || `HTTP ${response.status}: Failed to reach OpenRouter model`,
+          provider: 'openrouter',
+          model: openrouterModel,
+          error: errorMsg,
           elapsedMs,
         },
-        { status: response.status }
+        { status: 400 }
       );
     }
 
     const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || 'OK';
+    const reply = data.choices?.[0]?.message?.content || 'OK (OpenRouter responded)';
 
     return NextResponse.json({
       success: true,
@@ -130,7 +162,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'API test request failed',
+        error: error.message || 'Internal error while testing AI model',
         elapsedMs,
       },
       { status: 500 }

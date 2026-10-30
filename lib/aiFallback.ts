@@ -16,6 +16,7 @@ export interface ProviderTarget {
 
 export interface FallbackOptions {
   preferredProvider?: 'gemini' | 'openrouter';
+  geminiModel?: string;
   openrouterApiKey?: string;
   openrouterModel?: string;
 }
@@ -24,11 +25,10 @@ export interface FallbackOptions {
  * Builds the prioritized chain of free/standard models and providers.
  * Priority:
  * 1. User preferred model (if configured in settings)
- * 2. Primary: gemini-1.5-flash (Google Gemini)
- * 3. Secondary: gemini-2.5-flash (Google Gemini alternative)
- * 4. Tertiary: meta-llama/llama-3-8b-instruct:free (OpenRouter free)
- * 5. Quaternary: mistralai/mistral-7b-instruct:free (OpenRouter free alternative)
- * 6. Quinary: google/gemini-2.0-flash-exp:free (OpenRouter free alternative)
+ * 2. Primary: gemini-2.5-flash (Google Gemini Free Tier)
+ * 3. Secondary: gemini-3.5-flash (Google Gemini Free Tier)
+ * 4. Tertiary: gemini-3.5-flash-lite (Google Gemini Free Tier)
+ * 5. Quaternary: OpenRouter Free Models (Llama 3, Mistral)
  */
 export function getFallbackTargets(options?: FallbackOptions): ProviderTarget[] {
   const targets: ProviderTarget[] = [];
@@ -45,20 +45,36 @@ export function getFallbackTargets(options?: FallbackOptions): ProviderTarget[] 
     });
   }
 
-  // 1. Primary Gemini: gemini-1.5-flash
+  // Google Gemini Free Tier Chain (Prioritize selected model if any)
   if (geminiApiKey) {
+    const selectedGemini = options?.geminiModel || 'gemini-2.5-flash';
     targets.push({
       provider: 'gemini',
-      model: 'gemini-1.5-flash',
-      name: 'Gemini (gemini-1.5-flash)',
+      model: selectedGemini,
+      name: `Gemini (${selectedGemini})`,
       apiKey: geminiApiKey,
     });
 
-    // 2. Secondary Gemini: gemini-2.5-flash
+    if (selectedGemini !== 'gemini-2.5-flash') {
+      targets.push({
+        provider: 'gemini',
+        model: 'gemini-2.5-flash',
+        name: 'Gemini (gemini-2.5-flash)',
+        apiKey: geminiApiKey,
+      });
+    }
+
     targets.push({
       provider: 'gemini',
-      model: 'gemini-2.5-flash',
-      name: 'Gemini (gemini-2.5-flash)',
+      model: 'gemini-3.5-flash',
+      name: 'Gemini (gemini-3.5-flash)',
+      apiKey: geminiApiKey,
+    });
+
+    targets.push({
+      provider: 'gemini',
+      model: 'gemini-3.5-flash-lite',
+      name: 'Gemini (gemini-3.5-flash-lite)',
       apiKey: geminiApiKey,
     });
   }
