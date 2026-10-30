@@ -6,19 +6,22 @@ export const maxDuration = 30;
 export async function POST(req: NextRequest) {
   const startTime = Date.now();
   try {
-    const { provider = 'openrouter', model, apiKey, message } = await req.json();
-    const promptMessage = (message && typeof message === 'string' && message.trim().length > 0)
-      ? message.trim()
-      : 'Hello! Please reply in one short sentence confirming you are working.';
+    const { provider = 'gemini', model, apiKey, message } = await req.json();
+    const promptMessage =
+      message && typeof message === 'string' && message.trim().length > 0
+        ? message.trim()
+        : 'Hello! Please reply in one short sentence confirming you are working.';
 
+    // =========================================================================
     // 1. Google Gemini Provider
+    // =========================================================================
     if (provider === 'gemini') {
       const geminiKey = process.env.GEMINI_API_KEY;
       if (!geminiKey) {
         return NextResponse.json(
           {
             success: false,
-            error: 'GEMINI_API_KEY is not configured in server environment (.env.local)',
+            error: 'GEMINI_API_KEY is missing on server. Check .env.local or production environment variables.',
             elapsedMs: Date.now() - startTime,
           },
           { status: 400 }
@@ -26,43 +29,55 @@ export async function POST(req: NextRequest) {
       }
 
       const ai = new GoogleGenAI({ apiKey: geminiKey });
-      const geminiModel = model || 'gemini-2.5-flash';
+      const requestedModel = model || 'gemini-2.5-flash';
 
       let reply = '';
+      let usedModel = requestedModel;
+
       try {
         const response = await ai.models.generateContent({
-          model: geminiModel,
+          model: requestedModel,
           contents: promptMessage,
         });
         reply = response.text || 'OK (Gemini responded)';
-      } catch (geminiPrimaryErr: any) {
-        // Fallback to gemini-1.5-flash if 2.5 fails
-        const fallbackModel = 'gemini-1.5-flash';
-        const response = await ai.models.generateContent({
-          model: fallbackModel,
-          contents: promptMessage,
-        });
-        reply = response.text || 'OK (Gemini fallback responded)';
+      } catch (geminiErr: any) {
+        // If specified model fails and it was 2.5, try 1.5-flash fallback
+        if (requestedModel !== 'gemini-1.5-flash') {
+          try {
+            usedModel = 'gemini-1.5-flash';
+            const fallbackResp = await ai.models.generateContent({
+              model: 'gemini-1.5-flash',
+              contents: promptMessage,
+            });
+            reply = fallbackResp.text || 'OK (Gemini 1.5-flash fallback responded)';
+          } catch (fallbackErr: any) {
+            throw new Error(`Gemini error (${geminiErr.message || geminiErr})`);
+          }
+        } else {
+          throw geminiErr;
+        }
       }
 
       const elapsedMs = Date.now() - startTime;
       return NextResponse.json({
         success: true,
         provider: 'gemini',
-        model: geminiModel,
+        model: usedModel,
         reply: reply.trim(),
         elapsedMs,
       });
     }
 
+    // =========================================================================
     // 2. OpenRouter Provider
+    // =========================================================================
     const key = apiKey || process.env.OPENROUTER_API_KEY;
 
     if (!key) {
       return NextResponse.json(
         {
           success: false,
-          error: 'OpenRouter API key is required. Please paste your key in the field above.',
+          error: 'OpenRouter API key is required. Please paste your key in the OpenRouter API Key input above.',
           elapsedMs: Date.now() - startTime,
         },
         { status: 400 }
@@ -93,7 +108,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: err.error?.message || `HTTP ${response.status}: Failed to reach OpenRouter`,
+          error: err.error?.message || `HTTP ${response.status}: Failed to reach OpenRouter model`,
           elapsedMs,
         },
         { status: response.status }

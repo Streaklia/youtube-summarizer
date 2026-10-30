@@ -15,7 +15,7 @@ import {
   Sparkles,
   Send,
   MessageSquare,
-  Bot,
+  Cpu,
 } from 'lucide-react';
 import { AISettings } from '@/lib/types';
 
@@ -40,30 +40,57 @@ interface TestResult {
   error?: string;
 }
 
+const GEMINI_MODELS = [
+  {
+    id: 'gemini-2.5-flash',
+    name: 'Gemini 2.5 Flash',
+    desc: 'Ultra-fast, latest high-context multimodal reasoning model',
+    tag: 'RECOMMENDED',
+  },
+  {
+    id: 'gemini-1.5-flash',
+    name: 'Gemini 1.5 Flash',
+    desc: 'Balanced high-speed summarization & transcript parsing',
+    tag: 'STABLE',
+  },
+  {
+    id: 'gemini-1.5-pro',
+    name: 'Gemini 1.5 Pro',
+    desc: 'Deep analytical reasoning for lengthy 2+ hour video transcripts',
+    tag: 'ADVANCED',
+  },
+];
+
 export function SettingsModal({
   isOpen,
   onClose,
   settings,
   onSave,
 }: SettingsModalProps) {
-  const [provider, setProvider] = useState(settings.provider);
+  const [provider, setProvider] = useState<'gemini' | 'openrouter'>(
+    settings.provider || 'gemini'
+  );
+  const [geminiModel, setGeminiModel] = useState<string>(
+    settings.geminiModel || 'gemini-2.5-flash'
+  );
   const [openrouterApiKey, setOpenrouterApiKey] = useState(
-    settings.openrouterApiKey
+    settings.openrouterApiKey || ''
   );
   const [openrouterModel, setOpenrouterModel] = useState(
-    settings.openrouterModel
+    settings.openrouterModel || 'meta-llama/llama-3-8b-instruct:free'
   );
+
   const [models, setModels] = useState<OpenRouterModelInfo[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
   const [modelSearch, setModelSearch] = useState('');
   const [hasEnvKey, setHasEnvKey] = useState(false);
   const [error, setError] = useState('');
 
-  // Individual model ping state
+  // Ping test state per individual model
   const [testingModel, setTestingModel] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<Record<string, TestResult>>({});
 
-  // Interactive Live Message Tester State
+  // Live Interactive Testing Console
   const [testMessage, setTestMessage] = useState('Hello! Are you working properly?');
   const [isSendingMessage, setIsSendingMessage] = useState(false);
   const [liveResponse, setLiveResponse] = useState<{
@@ -77,9 +104,10 @@ export function SettingsModal({
 
   useEffect(() => {
     if (isOpen) {
-      setProvider(settings.provider);
-      setOpenrouterApiKey(settings.openrouterApiKey);
-      setOpenrouterModel(settings.openrouterModel);
+      setProvider(settings.provider || 'gemini');
+      setGeminiModel(settings.geminiModel || 'gemini-2.5-flash');
+      setOpenrouterApiKey(settings.openrouterApiKey || '');
+      setOpenrouterModel(settings.openrouterModel || 'meta-llama/llama-3-8b-instruct:free');
       setError('');
       setModelSearch('');
       setLiveResponse(null);
@@ -113,7 +141,7 @@ export function SettingsModal({
     }
   };
 
-  const handleTestModel = async (modelId: string) => {
+  const handleTestOpenRouterModel = async (modelId: string) => {
     setTestingModel(modelId);
     try {
       const res = await fetch('/api/models/test', {
@@ -156,7 +184,7 @@ export function SettingsModal({
     setIsSendingMessage(true);
     setLiveResponse(null);
 
-    const activeModel = provider === 'gemini' ? 'gemini-2.5-flash' : openrouterModel;
+    const activeModel = provider === 'gemini' ? geminiModel : openrouterModel;
 
     try {
       const res = await fetch('/api/models/test', {
@@ -175,7 +203,7 @@ export function SettingsModal({
         setLiveResponse({
           success: false,
           provider,
-          model: activeModel || 'Default Model',
+          model: activeModel || 'Selected Model',
           reply: '',
           elapsedMs: data.elapsedMs || 0,
           error: data.error || 'Request failed',
@@ -193,7 +221,7 @@ export function SettingsModal({
       setLiveResponse({
         success: false,
         provider,
-        model: activeModel || 'Default Model',
+        model: activeModel || 'Selected Model',
         reply: '',
         elapsedMs: 0,
         error: err.message || 'Network error connecting to API',
@@ -206,20 +234,17 @@ export function SettingsModal({
   const handleSave = () => {
     const newSettings: AISettings = {
       provider,
+      geminiModel: provider === 'gemini' ? geminiModel : settings.geminiModel,
       openrouterApiKey:
-        provider === 'openrouter'
-          ? openrouterApiKey
-          : settings.openrouterApiKey,
+        provider === 'openrouter' ? openrouterApiKey : settings.openrouterApiKey,
       openrouterModel:
-        provider === 'openrouter'
-          ? openrouterModel
-          : settings.openrouterModel,
+        provider === 'openrouter' ? openrouterModel : settings.openrouterModel,
     };
     onSave(newSettings);
     onClose();
   };
 
-  const filteredModels = models.filter((m) => {
+  const filteredOpenRouterModels = models.filter((m) => {
     if (
       modelSearch &&
       !m.name.toLowerCase().includes(modelSearch.toLowerCase()) &&
@@ -234,129 +259,192 @@ export function SettingsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-      <div className="relative w-full max-w-2xl bg-[#0e0e11] border border-white/[0.08] rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
+      <div className="relative w-full max-w-2xl bg-[#0e0e11] border border-zinc-800 rounded-2xl shadow-2xl flex flex-col max-h-[92vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-zinc-950/80">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-red-500/20 to-rose-600/20 border border-red-500/30 flex items-center justify-center">
-              <Settings className="w-4 h-4 text-rose-400" />
+            <div className="w-8 h-8 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center">
+              <Settings className="w-4 h-4 text-red-400" />
             </div>
             <div>
               <h2 className="text-base font-semibold text-white">
-                AI Provider &amp; Model Engine
+                AI Engine &amp; API Configuration
               </h2>
-              <p className="text-xs text-gray-500">
-                Select your LLM pipeline &amp; test live responses
+              <p className="text-xs text-zinc-400">
+                Choose provider, choose model, and test live responses
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-gray-500 hover:text-white rounded-lg hover:bg-white/[0.05] transition-colors"
+            className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Body */}
+        {/* Modal Scrollable Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Provider selection */}
+          {/* Provider Selection */}
           <div>
-            <label className="block text-sm font-medium text-gray-400 mb-3">
-              Preferred Primary Provider
+            <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2.5">
+              1. Select Primary AI Provider
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
+                type="button"
                 onClick={() => {
                   setProvider('gemini');
                   setLiveResponse(null);
                 }}
-                className={`p-4 rounded-xl border text-left transition-all duration-200 ${
+                className={`p-4 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
                   provider === 'gemini'
-                    ? 'border-red-500/50 bg-red-500/5 text-white glow-red'
-                    : 'border-white/[0.06] bg-white/[0.02] text-gray-400 hover:border-white/[0.1] hover:bg-white/[0.04]'
+                    ? 'border-red-500 bg-red-950/30 text-white shadow-lg shadow-red-950/20'
+                    : 'border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:border-zinc-700 hover:bg-zinc-900/80'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-sm">✦ Gemini</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Active</span>
+                  <span className="font-semibold text-sm text-white flex items-center gap-1.5">
+                    ✦ Google Gemini
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
+                    Primary
+                  </span>
                 </div>
-                <div className="text-xs mt-1.5 opacity-60">
-                  gemini-1.5-flash ➔ gemini-2.5-flash
+                <div className="text-xs mt-2 text-zinc-400">
+                  Native high-speed video understanding models
                 </div>
               </button>
+
               <button
+                type="button"
                 onClick={() => {
                   setProvider('openrouter');
                   setLiveResponse(null);
                 }}
-                className={`p-4 rounded-xl border text-left transition-all duration-200 ${
+                className={`p-4 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
                   provider === 'openrouter'
-                    ? 'border-red-500/50 bg-red-500/5 text-white glow-red'
-                    : 'border-white/[0.06] bg-white/[0.02] text-gray-400 hover:border-white/[0.1] hover:bg-white/[0.04]'
+                    ? 'border-red-500 bg-red-950/30 text-white shadow-lg shadow-red-950/20'
+                    : 'border-zinc-800 bg-zinc-900/40 text-zinc-400 hover:border-zinc-700 hover:bg-zinc-900/80'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-sm">🔀 OpenRouter</span>
-                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">Free Models</span>
+                  <span className="font-semibold text-sm text-white flex items-center gap-1.5">
+                    🔀 OpenRouter
+                  </span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20 font-bold">
+                    Open Ecosystem
+                  </span>
                 </div>
-                <div className="text-xs mt-1.5 opacity-60">
-                  Llama, Mistral &amp; Qwen free endpoints
+                <div className="text-xs mt-2 text-zinc-400">
+                  Llama 3, Mistral, Qwen &amp; DeepSeek models
                 </div>
               </button>
             </div>
           </div>
 
-          {/* Fallback Notice */}
-          <div className="p-3.5 bg-white/[0.02] border border-white/[0.06] rounded-xl flex items-center gap-2.5 text-xs text-gray-400">
-            <Sparkles className="w-4 h-4 text-rose-400 flex-shrink-0" />
-            <span>
-              <strong>Smart Auto-Switch:</strong> If your selected model hits rate limits or goes down, requests will automatically switch to alternative free models.
-            </span>
-          </div>
-
-          {/* Gemini info */}
+          {/* ------------------------------------------------------------- */}
+          {/* Provider Option A: Google Gemini Model Selector               */}
+          {/* ------------------------------------------------------------- */}
           {provider === 'gemini' && (
-            <div className="p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl text-sm text-gray-500 space-y-1">
-              <div className="text-white font-medium text-xs">Priority Chain:</div>
-              <div className="text-xs text-gray-400">1. gemini-1.5-flash (Fast, Primary)</div>
-              <div className="text-xs text-gray-400">2. gemini-2.5-flash (Automatic Fallback)</div>
-              <div className="text-xs text-gray-400">3. OpenRouter Free Models (Secondary Failover)</div>
+            <div className="space-y-3 p-4 rounded-xl border border-zinc-800 bg-zinc-950/60">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
+                  <Cpu className="w-3.5 h-3.5 text-red-400" />
+                  2. Choose Google Gemini Model
+                </label>
+                <span className="text-[11px] font-mono text-zinc-500">
+                  Active: <strong className="text-red-400">{geminiModel}</strong>
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                {GEMINI_MODELS.map((item) => {
+                  const isSelected = geminiModel === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        setGeminiModel(item.id);
+                        setLiveResponse(null);
+                      }}
+                      className={`w-full p-3 rounded-xl border text-left flex items-start justify-between gap-3 transition-all cursor-pointer ${
+                        isSelected
+                          ? 'border-red-500/80 bg-red-950/30 text-white shadow-sm'
+                          : 'border-zinc-800/80 bg-zinc-900/40 text-zinc-400 hover:border-zinc-700 hover:bg-zinc-900'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-zinc-200'}`}>
+                            {item.name}
+                          </span>
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">
+                            {item.id}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
+                          {item.desc}
+                        </p>
+                      </div>
+
+                      <span
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider flex-shrink-0 ${
+                          isSelected
+                            ? 'bg-red-500 text-white'
+                            : 'bg-zinc-800 text-zinc-400'
+                        }`}
+                      >
+                        {item.tag}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="pt-2 text-[11px] text-zinc-500 flex items-center justify-between border-t border-zinc-900">
+                <span>Server API Key: Configured in environment</span>
+                <span className="text-emerald-400 font-mono">● Ready</span>
+              </div>
             </div>
           )}
 
-          {/* OpenRouter config */}
+          {/* ------------------------------------------------------------- */}
+          {/* Provider Option B: OpenRouter Configuration                   */}
+          {/* ------------------------------------------------------------- */}
           {provider === 'openrouter' && (
-            <>
-              {/* API Key */}
+            <div className="space-y-4 p-4 rounded-xl border border-zinc-800 bg-zinc-950/60">
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-medium text-gray-400">
-                    OpenRouter API Key
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-zinc-300">
+                    2. OpenRouter API Key
                   </label>
                   {hasEnvKey && (
-                    <span className="text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-                      ✓ Configured in .env
+                    <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                      ✓ Present in .env
                     </span>
                   )}
                 </div>
+
                 <div className="flex gap-2">
                   <input
                     type="password"
                     value={openrouterApiKey}
                     onChange={(e) => setOpenrouterApiKey(e.target.value)}
                     placeholder={hasEnvKey ? 'Loaded from OPENROUTER_API_KEY (.env)' : 'sk-or-v1-...'}
-                    className="flex-1 px-4 py-2.5 bg-white/[0.04] border border-white/[0.06] rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-500/40 text-sm transition-all duration-200"
+                    className="flex-1 px-3.5 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 text-xs"
                   />
                   <button
+                    type="button"
                     onClick={() => fetchFreeModels(openrouterApiKey)}
                     disabled={loadingModels}
-                    className="px-4 py-2.5 bg-white/[0.06] border border-white/[0.06] hover:border-white/[0.1] hover:bg-white/[0.08] disabled:opacity-40 text-white rounded-xl text-sm transition-all duration-200 flex items-center gap-2 whitespace-nowrap"
+                    className="px-3.5 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 text-xs rounded-xl flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                   >
                     {loadingModels ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     ) : (
-                      'Fetch Free Models'
+                      'Load Models'
                     )}
                   </button>
                 </div>
@@ -364,35 +452,34 @@ export function SettingsModal({
                   href="https://openrouter.ai/keys"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 mt-2 text-xs text-gray-600 hover:text-red-400 transition-colors"
+                  className="inline-flex items-center gap-1 mt-1.5 text-[11px] text-zinc-500 hover:text-red-400 transition-colors"
                 >
-                  Get your free OpenRouter API key at openrouter.ai{' '}
-                  <ExternalLink className="w-3 h-3" />
+                  Get free OpenRouter API key at openrouter.ai <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
 
-              {/* Free Models List */}
+              {/* Models List */}
               {models.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                <div className="space-y-2 pt-2 border-t border-zinc-900">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-1.5">
                       <Zap className="w-3.5 h-3.5 text-yellow-500" />
-                      Select Model ({filteredModels.length} available)
+                      Choose OpenRouter Model ({filteredOpenRouterModels.length})
                     </label>
-                    <div className="relative w-48">
-                      <Search className="w-3 h-3 text-gray-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                    <div className="relative w-40">
+                      <Search className="w-3 h-3 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
                       <input
                         type="text"
                         value={modelSearch}
                         onChange={(e) => setModelSearch(e.target.value)}
                         placeholder="Search models..."
-                        className="w-full pl-7 pr-2 py-1 bg-white/[0.04] border border-white/[0.06] rounded-lg text-xs text-white placeholder-gray-600 focus:outline-none focus:border-red-500/40"
+                        className="w-full pl-7 pr-2 py-1 bg-zinc-900 border border-zinc-800 rounded-lg text-[11px] text-white placeholder-zinc-500 focus:outline-none focus:border-red-500"
                       />
                     </div>
                   </div>
 
-                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                    {filteredModels.map((model) => {
+                  <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                    {filteredOpenRouterModels.map((model) => {
                       const isSelected = openrouterModel === model.id;
                       const test = testResults[model.id];
                       const isTesting = testingModel === model.id;
@@ -400,67 +487,56 @@ export function SettingsModal({
                       return (
                         <div
                           key={model.id}
-                          className={`p-2.5 rounded-xl border flex items-center justify-between gap-3 transition-all duration-150 ${
+                          className={`p-2.5 rounded-xl border flex items-center justify-between gap-3 transition-all ${
                             isSelected
-                              ? 'border-red-500/50 bg-red-500/5 text-white'
-                              : 'border-white/[0.04] bg-white/[0.01] text-gray-400 hover:border-white/[0.08] hover:bg-white/[0.03]'
+                              ? 'border-red-500/80 bg-red-950/30 text-white'
+                              : 'border-zinc-800 bg-zinc-900/30 text-zinc-400 hover:border-zinc-700 hover:bg-zinc-900/60'
                           }`}
                         >
                           <button
+                            type="button"
                             onClick={() => {
                               setOpenrouterModel(model.id);
                               setLiveResponse(null);
                             }}
-                            className="flex-1 text-left min-w-0"
+                            className="flex-1 text-left min-w-0 cursor-pointer"
                           >
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-xs text-white truncate">
+                              <span className="font-semibold text-xs text-white truncate">
                                 {model.name}
                               </span>
-                              <span className="text-[10px] px-1 rounded bg-emerald-500/10 text-emerald-400 font-mono flex-shrink-0">
+                              <span className="text-[10px] px-1.5 rounded bg-emerald-500/10 text-emerald-400 font-mono">
                                 FREE
                               </span>
                             </div>
-                            <div className="text-[11px] text-gray-500 truncate font-mono mt-0.5">
+                            <div className="text-[10px] text-zinc-500 truncate font-mono mt-0.5">
                               {model.id}
                             </div>
                           </button>
 
-                          {/* Test Status & Trigger Button */}
                           <div className="flex items-center gap-2 flex-shrink-0">
                             {test && (
-                              <div
-                                className={`flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded ${
+                              <span
+                                className={`text-[10px] font-mono px-2 py-0.5 rounded flex items-center gap-1 ${
                                   test.success
                                     ? 'bg-emerald-500/10 text-emerald-400'
                                     : 'bg-red-500/10 text-red-400'
                                 }`}
-                                title={test.error || 'Model is working!'}
                               >
-                                {test.success ? (
-                                  <>
-                                    <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                                    <span>{test.elapsedMs}ms</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <XCircle className="w-3 h-3 text-red-400" />
-                                    <span>Failed</span>
-                                  </>
-                                )}
-                              </div>
+                                {test.success ? `${test.elapsedMs}ms` : 'Fail'}
+                              </span>
                             )}
-
                             <button
-                              onClick={() => handleTestModel(model.id)}
+                              type="button"
+                              onClick={() => handleTestOpenRouterModel(model.id)}
                               disabled={isTesting}
                               title="Ping test model response"
-                              className="px-2 py-1 bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.1] rounded-lg text-xs text-gray-300 hover:text-white transition-all flex items-center gap-1"
+                              className="px-2 py-1 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs rounded-lg flex items-center gap-1 cursor-pointer"
                             >
                               {isTesting ? (
                                 <Loader2 className="w-3 h-3 animate-spin text-red-400" />
                               ) : (
-                                <Play className="w-3 h-3 text-rose-400 fill-rose-400/20" />
+                                <Play className="w-3 h-3 text-red-400" />
                               )}
                               <span>Ping</span>
                             </button>
@@ -471,148 +547,151 @@ export function SettingsModal({
                   </div>
 
                   {openrouterModel && (
-                    <div className="mt-2 text-xs text-gray-500 flex items-center justify-between">
-                      <div>
-                        Selected:{' '}
-                        <span className="text-gray-300 font-medium">{openrouterModel}</span>
-                      </div>
-                      <span className="text-[11px] text-emerald-400/80">● 100% Free Endpoint</span>
+                    <div className="text-[11px] text-zinc-400 flex items-center justify-between pt-1">
+                      <span>Selected: <strong className="text-zinc-200">{openrouterModel}</strong></span>
+                      <span className="text-emerald-400">● 100% Free Endpoint</span>
                     </div>
                   )}
                 </div>
               )}
 
               {error && (
-                <div className="p-3 bg-red-500/5 border border-red-500/20 rounded-xl text-red-400 text-sm">
+                <div className="p-3 bg-red-950/40 border border-red-800 rounded-xl text-red-300 text-xs">
                   {error}
                 </div>
               )}
-            </>
+            </div>
           )}
 
-          {/* ======================================================== */}
-          {/* LIVE API PLAYGROUND / TEST MESSAGE CONSOLE                */}
-          {/* ======================================================== */}
-          <div className="pt-2 border-t border-white/[0.06]">
-            <div className="p-4 bg-zinc-950/80 border border-zinc-800 rounded-xl space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
-                    <MessageSquare className="w-3.5 h-3.5" />
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-                      Live API Connection Test
-                    </h3>
-                    <p className="text-[11px] text-zinc-400">
-                      Send a message to test <span className="text-zinc-200 font-semibold capitalize">{provider}</span> {provider === 'openrouter' && openrouterModel ? `(${openrouterModel.split('/').pop()})` : ''}
-                    </p>
-                  </div>
+          {/* ============================================================= */}
+          {/* 3. LIVE INTERACTIVE PROMPT TESTER CONSOLE                     */}
+          {/* ============================================================= */}
+          <div className="p-4 bg-zinc-950 border border-zinc-800 rounded-xl space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+                  <MessageSquare className="w-3.5 h-3.5" />
                 </div>
-
-                <span className="text-[10px] font-mono text-zinc-500 px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800">
-                  {provider === 'gemini' ? 'Gemini API' : 'OpenRouter API'}
-                </span>
+                <div>
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                    3. Live Prompt Response Test
+                  </h3>
+                  <p className="text-[11px] text-zinc-400">
+                    Testing with{' '}
+                    <span className="text-red-400 font-semibold uppercase">{provider}</span>:{' '}
+                    <code className="text-zinc-200 font-mono text-[11px]">
+                      {provider === 'gemini' ? geminiModel : openrouterModel}
+                    </code>
+                  </p>
+                </div>
               </div>
 
-              {/* Message Input Field */}
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={testMessage}
-                  onChange={(e) => setTestMessage(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !isSendingMessage) {
-                      e.preventDefault();
-                      handleSendLiveTest();
-                    }
-                  }}
-                  placeholder="Type a test prompt (e.g. Say hello in 5 words)..."
-                  className="flex-1 px-3.5 py-2 bg-zinc-900/90 border border-zinc-800 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-all"
-                />
-                <button
-                  type="button"
-                  onClick={handleSendLiveTest}
-                  disabled={isSendingMessage || !testMessage.trim()}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
-                >
-                  {isSendingMessage ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Testing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-3.5 h-3.5" />
-                      <span>Send</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* Live Response Box */}
-              {liveResponse && (
-                <div
-                  className={`p-3 rounded-xl border text-xs space-y-1.5 transition-all animate-fade-in ${
-                    liveResponse.success
-                      ? 'bg-emerald-950/20 border-emerald-800/40 text-emerald-300'
-                      : 'bg-red-950/20 border-red-800/40 text-red-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between text-[11px] font-mono">
-                    <div className="flex items-center gap-1.5">
-                      {liveResponse.success ? (
-                        <>
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                          <span className="font-semibold text-emerald-400">Response Received</span>
-                        </>
-                      ) : (
-                        <>
-                          <XCircle className="w-3.5 h-3.5 text-red-400" />
-                          <span className="font-semibold text-red-400">API Test Failed</span>
-                        </>
-                      )}
-                      <span className="text-zinc-500">·</span>
-                      <span className="text-zinc-400 truncate max-w-[200px]">{liveResponse.model}</span>
-                    </div>
-
-                    <div className="flex items-center gap-1 text-zinc-400">
-                      <Clock className="w-3 h-3" />
-                      <span>{liveResponse.elapsedMs}ms</span>
-                    </div>
-                  </div>
-
-                  {liveResponse.success ? (
-                    <div className="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100 font-sans text-xs leading-relaxed whitespace-pre-wrap">
-                      {liveResponse.reply}
-                    </div>
-                  ) : (
-                    <div className="p-2.5 rounded-lg bg-red-950/40 border border-red-900/40 text-red-200 text-xs font-mono">
-                      {liveResponse.error}
-                    </div>
-                  )}
-                </div>
-              )}
+              <span className="text-[10px] font-mono text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800">
+                Endpoint: /api/models/test
+              </span>
             </div>
+
+            {/* Input & Send Action */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={testMessage}
+                onChange={(e) => setTestMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !isSendingMessage) {
+                    e.preventDefault();
+                    handleSendLiveTest();
+                  }
+                }}
+                placeholder="Type a test message (e.g. Reply with OK in 2 words)..."
+                className="flex-1 px-3.5 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-red-500 transition-all"
+              />
+              <button
+                type="button"
+                onClick={handleSendLiveTest}
+                disabled={isSendingMessage || !testMessage.trim()}
+                className="px-4 py-2.5 bg-red-600 hover:bg-red-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-sm transition-all cursor-pointer whitespace-nowrap"
+              >
+                {isSendingMessage ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Testing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-3.5 h-3.5" />
+                    <span>Send Test</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Output Box */}
+            {liveResponse && (
+              <div
+                className={`p-3.5 rounded-xl border text-xs space-y-2 transition-all ${
+                  liveResponse.success
+                    ? 'bg-emerald-950/20 border-emerald-800/40'
+                    : 'bg-red-950/20 border-red-800/40'
+                }`}
+              >
+                <div className="flex items-center justify-between text-[11px] font-mono">
+                  <div className="flex items-center gap-1.5">
+                    {liveResponse.success ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="font-bold text-emerald-400">Response Received</span>
+                      </>
+                    ) : (
+                      <>
+                        <XCircle className="w-3.5 h-3.5 text-red-400" />
+                        <span className="font-bold text-red-400">Test Failed</span>
+                      </>
+                    )}
+                    <span className="text-zinc-600">·</span>
+                    <span className="text-zinc-300 truncate max-w-[220px]">
+                      {liveResponse.model}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1 text-zinc-400">
+                    <Clock className="w-3 h-3" />
+                    <span>{liveResponse.elapsedMs}ms</span>
+                  </div>
+                </div>
+
+                {liveResponse.success ? (
+                  <div className="p-3 rounded-lg bg-zinc-950 border border-zinc-800 text-zinc-100 font-sans text-xs leading-relaxed whitespace-pre-wrap">
+                    {liveResponse.reply}
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-lg bg-red-950/40 border border-red-900/40 text-red-200 text-xs font-mono">
+                    {liveResponse.error}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-white/[0.06] flex justify-end gap-3">
+        {/* Modal Footer */}
+        <div className="px-6 py-4 border-t border-zinc-800 bg-zinc-950/80 flex justify-end gap-3">
           <button
+            type="button"
             onClick={onClose}
-            className="px-4 py-2 text-gray-500 hover:text-white text-sm transition-colors cursor-pointer"
+            className="px-4 py-2 text-zinc-400 hover:text-white text-xs font-semibold rounded-xl hover:bg-zinc-900 transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
+            type="button"
             onClick={handleSave}
             disabled={
               provider === 'openrouter' &&
               !hasEnvKey &&
               (!openrouterApiKey.trim() || !openrouterModel)
             }
-            className="px-5 py-2 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 disabled:from-gray-800 disabled:to-gray-800 disabled:text-gray-600 disabled:cursor-not-allowed text-white text-sm font-medium rounded-xl transition-all duration-200 cursor-pointer"
+            className="px-5 py-2 bg-red-600 hover:bg-red-500 disabled:bg-zinc-800 disabled:text-zinc-600 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl shadow-md transition-all cursor-pointer"
           >
             Save Settings
           </button>

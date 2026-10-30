@@ -41,6 +41,7 @@ export interface ChatMessage {
 
 export interface AISettings {
   provider: 'gemini' | 'openrouter';
+  geminiModel?: string;
   openrouterApiKey: string;
   openrouterModel: string;
 }
