@@ -42,6 +42,18 @@
 - **URL**: https://www.mytranscript.pro/youtube-to-text-no-timestamps
 - **Description**: Extract continuous plain text dialogue without timecodes or line-breaks, formatted for ChatGPT, Claude, and note-taking.
 
+### YouTube Chapters Generator
+- **URL**: https://www.mytranscript.pro/chapters
+- **Description**: Automatically divide any YouTube video into clear, timestamped chapters for video descriptions and viewer retention.
+
+### YouTube Infographic Generator
+- **URL**: https://www.mytranscript.pro/infographic
+- **Description**: Transform video transcripts into high-impact visual infographic summary cards with key statistics, notable quotes, and takeaways.
+
+### YouTube AI Prompt Generator
+- **URL**: https://www.mytranscript.pro/prompt
+- **Description**: Generate visual image prompts and 4-panel comic strip scripts from video dialogue, engineered for Midjourney, FLUX, and DALL-E.
+
 ### YouTube Subtitle Downloader
 - **URL**: https://www.mytranscript.pro/youtube-subtitle-downloader
 - **Description**: Free online captions extractor to download subtitles in SRT, VTT, and plain text formats.

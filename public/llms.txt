@@ -19,6 +19,9 @@
 - [YouTube Transcript Without Timestamps](https://www.mytranscript.pro/youtube-transcript-without-timestamps): Clean text extraction without timecodes for pasting into notes or AI models.
 - [YouTube Transcript Not Working](https://www.mytranscript.pro/youtube-transcript-not-working): Troubleshoot and extract transcripts when YouTube player captions fail.
 - [YouTube to Infographic](https://www.mytranscript.pro/youtube-infographic): Transform video dialogue into visual stat cards and memorable quotes.
+- [YouTube Chapters Generator](https://www.mytranscript.pro/chapters): Automatically generate YouTube chapters with timestamps for video description boxes and navigation.
+- [Visual Infographic Generator](https://www.mytranscript.pro/infographic): Turn video transcripts into shareable visual infographic cards with key stats and quotes.
+- [YouTube AI Prompt Generator](https://www.mytranscript.pro/prompt): Generate high-fidelity visual image prompts and 4-panel comic scripts from video dialogue.
 - [Transcript AI Assistant](https://www.mytranscript.pro/transcript-ai): Interactive video Q&A and transcript comprehension assistant.
 - [Web App Interface](https://www.mytranscript.pro/app/): Full-screen workspace for transcription processing and AI analysis.
 

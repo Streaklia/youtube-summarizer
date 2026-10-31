@@ -2,9 +2,6 @@ import { redirect } from 'next/navigation';
 
 const TOOL_REDIRECTS: Record<string, string> = {
   'key-takeaways': '/?tab=takeaways',
-  'chapters': '/?tab=chapters',
-  'infographic': '/youtube-infographic',
-  'prompt': '/?tab=prompt',
   'podcast-transcript': '/podcast-transcript',
   'chatbot': '/youtube-transcript-chatbot',
 };

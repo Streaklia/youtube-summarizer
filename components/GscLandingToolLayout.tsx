@@ -44,7 +44,7 @@ export interface GscLandingToolLayoutProps {
   subheadline: string;
   inputPlaceholder: string;
   buttonLabel: string;
-  targetTab?: 'transcript' | 'summary' | 'infographic' | 'chat';
+  targetTab?: 'transcript' | 'summary' | 'infographic' | 'chat' | 'chapters' | 'prompt' | 'takeaways' | string;
   features: GscLandingFeature[];
   articleContent: React.ReactNode;
   faqs: GscFaqItem[];

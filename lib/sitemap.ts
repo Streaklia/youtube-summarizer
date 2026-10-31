@@ -30,11 +30,24 @@ export const SITEMAP_CHUNK_SIZE = 500;
  */
 export const ROOT_TOOL_ROUTES = new Set<string>([
   'youtube-transcript',
+  'download-youtube-transcript',
+  'youtube-to-srt',
   'youtube-summary',
+  'chapters',
+  'infographic',
+  'prompt',
+  'youtube-to-text-no-timestamps',
   'youtube-to-text',
   'podcast-transcript',
   'youtube-infographic',
   'transcript-ai',
+]);
+
+const CORE_TOOLS = new Set<string>([
+  'youtube-transcript',
+  'download-youtube-transcript',
+  'youtube-to-srt',
+  'youtube-summary',
 ]);
 
 /** Language codes whose pages canonicalise to the root English pages
@@ -76,25 +89,27 @@ export function buildCoreEntries(): SitemapEntry[] {
   const now = today();
   const out: SitemapEntry[] = [
     entry('/', now, 'daily', 1.0),
-    entry('/blog', now, 'weekly', 0.8),
+    entry('/articles/', now, 'daily', 0.8),
+    entry('/blog', now, 'daily', 0.8),
     entry('/faq', now, 'weekly', 0.8),
-    entry('/privacy', now, 'monthly', 0.5),
-    entry('/terms', now, 'monthly', 0.5),
+    entry('/privacy', now, 'monthly', 0.4),
+    entry('/terms', now, 'monthly', 0.4),
   ];
 
   for (const post of BLOG_POSTS) {
-    out.push(entry(`/blog/${post.slug}`, blogLastmod(post), 'weekly', 0.7));
+    out.push(entry(`/articles/${post.slug}`, post.isoDate || blogLastmod(post), 'monthly', 0.7));
   }
 
   for (const lang of ALL_SUPPORTED_LANGUAGES) {
     if (CANONICAL_TO_ROOT.has(lang)) continue;
     out.push(entry(`/${lang}`, now, 'daily', 0.9));
+    out.push(entry(`/${lang}/articles/`, now, 'daily', 0.8));
     out.push(entry(`/${lang}/blog`, now, 'weekly', 0.7));
     out.push(entry(`/${lang}/faq`, now, 'weekly', 0.7));
     out.push(entry(`/${lang}/privacy`, now, 'monthly', 0.4));
     out.push(entry(`/${lang}/terms`, now, 'monthly', 0.4));
     for (const post of BLOG_POSTS) {
-      out.push(entry(`/${lang}/blog/${post.slug}`, blogLastmod(post), 'weekly', 0.7));
+      out.push(entry(`/${lang}/articles/${post.slug}`, post.isoDate || blogLastmod(post), 'monthly', 0.7));
     }
   }
 
@@ -112,11 +127,11 @@ export function buildToolEntries(): SitemapEntry[] {
   const now = today();
   const out: SitemapEntry[] = [];
 
-  for (const tool of TOOL_SLUGS) {
-    if (ROOT_TOOL_ROUTES.has(tool)) {
-      out.push(entry(`/${tool}`, now, 'weekly', 0.9));
-    }
-  }
+  Array.from(ROOT_TOOL_ROUTES).forEach((tool) => {
+    const isCore = CORE_TOOLS.has(tool);
+    const priority = isCore ? 0.9 : 0.8;
+    out.push(entry(`/${tool}`, now, 'weekly', priority));
+  });
 
   for (const lang of ALL_SUPPORTED_LANGUAGES) {
     for (const tool of TOOL_SLUGS) {

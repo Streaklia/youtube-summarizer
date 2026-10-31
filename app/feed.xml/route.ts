@@ -34,6 +34,24 @@ export function GET() {
       desc: 'Extract clean YouTube transcripts without timestamps or timecodes. Convert video dialogue to continuous readable text for ChatGPT, Claude, notes, and articles.',
       category: 'Tools',
     },
+    {
+      title: 'YouTube Chapters Generator – Free AI Timestamps & Video Outlines',
+      url: `${BASE_URL}/chapters`,
+      desc: 'Automatically generate YouTube chapters with timestamps in seconds. Divide any video into clear, timestamped sections for video description boxes.',
+      category: 'Tools',
+    },
+    {
+      title: 'YouTube Infographic Generator – Free Visual Video Summaries & Stat Cards',
+      url: `${BASE_URL}/infographic`,
+      desc: 'Transform any YouTube video into visual infographic summary cards with key statistics, notable quotes, and executive takeaways.',
+      category: 'Tools',
+    },
+    {
+      title: 'YouTube AI Prompt Generator – Free Midjourney, DALL-E & Comic Scripts',
+      url: `${BASE_URL}/prompt`,
+      desc: 'Extract high-context visual image prompts and 4-panel comic strip scripts from any YouTube video dialogue. Engineered for Midjourney v6 and FLUX.',
+      category: 'Tools',
+    },
   ];
 
   const toolXmlItems = toolItems.map((item) => `    <item>
