@@ -664,7 +664,7 @@ export function SummaryClientView({
               <VideoPlayerColumn
                 videoId={videoId}
                 metadata={metadata}
-                onTimeUpdate={(t) => setCurrentTime(t)}
+                onTimeUpdate={setCurrentTime}
               />
             </div>
 
