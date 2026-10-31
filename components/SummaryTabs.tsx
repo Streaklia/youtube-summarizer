@@ -338,12 +338,15 @@ export function SummaryTabs({
     return currentTimeMs >= entry.offset && currentTimeMs < end;
   });
 
-  // Auto-scroll the subtitle list to keep current speaking segment in view
+  // Auto-scroll the subtitle list to keep current speaking segment in view (Container-only, no window jumping)
   useEffect(() => {
     if (autoScroll && activeTranscriptItemRef.current && transcriptScrollRef.current) {
-      activeTranscriptItemRef.current.scrollIntoView({
+      const container = transcriptScrollRef.current;
+      const element = activeTranscriptItemRef.current;
+      const targetScroll = element.offsetTop - container.clientHeight / 2 + element.clientHeight / 2;
+      container.scrollTo({
+        top: Math.max(0, targetScroll),
         behavior: 'smooth',
-        block: 'center',
       });
     }
   }, [activeTranscriptIndex, autoScroll]);
@@ -880,7 +883,7 @@ export function SummaryTabs({
                   {/* Timestamped Subtitle List with Live Playback Highlighting and Seek-on-Click */}
                   <div
                     ref={transcriptScrollRef}
-                    className="max-h-[580px] overflow-y-auto space-y-1.5 font-mono text-xs sm:text-sm pr-2 scroll-smooth"
+                    className="relative max-h-[580px] overflow-y-auto space-y-1.5 font-mono text-xs sm:text-sm pr-2 scroll-smooth"
                   >
                     {transcript.map((entry, i) => {
                       const isActive = i === activeTranscriptIndex;

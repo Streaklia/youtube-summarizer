@@ -22,10 +22,15 @@ export function ChatWithVideo({
   loading,
 }: ChatWithVideoProps) {
   const [input, setInput] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
   }, [messages]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -49,7 +54,7 @@ export function ChatWithVideo({
       </div>
 
       {/* Messages */}
-      <div className="h-80 overflow-y-auto p-4 space-y-4">
+      <div ref={messagesContainerRef} className="h-80 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center gap-4">
             <div className="p-3 rounded-2xl bg-white/[0.03]">
@@ -116,8 +121,6 @@ export function ChatWithVideo({
             </div>
           </div>
         )}
-
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}

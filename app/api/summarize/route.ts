@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateSummaryWithFallback } from '@/lib/aiFallback';
+import { regenerateSectionWithFallback } from '@/lib/aiFallback';
 
 export const maxDuration = 60; // Allow up to 60s for Vercel functions
 
@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
       openrouterModel,
       videoUrl,
       title,
+      section,
     } = await req.json();
 
     if (!transcript && !videoUrl) {
@@ -21,7 +22,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const summary = await generateSummaryWithFallback(
+    // Default to 'takeaways' only — never generate all 4 tabs simultaneously
+    const sectionToGen = section || 'takeaways';
+
+    const partial = await regenerateSectionWithFallback(
+      sectionToGen,
       transcript || '',
       videoUrl,
       title,
@@ -32,7 +37,13 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    return NextResponse.json(summary);
+    return NextResponse.json({
+      keyTakeaways: [],
+      chapterSummaries: [],
+      fullSummary: '',
+      infographic: null,
+      ...partial,
+    });
   } catch (error: any) {
     console.error('Summarization fallback chain error:', error);
     return NextResponse.json(

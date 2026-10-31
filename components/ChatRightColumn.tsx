@@ -24,10 +24,15 @@ export function ChatRightColumn({
   onQuickAction,
 }: ChatRightColumnProps) {
   const [input, setInput] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
   }, [messages]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -86,7 +91,7 @@ export function ChatRightColumn({
       </div>
 
       {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-3.5 space-y-3 scrollbar-thin">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-3.5 space-y-3 scrollbar-thin">
         {messages.length === 0 && (
           <div className="h-full flex flex-col items-center justify-center gap-3 py-10 text-center px-4">
             <div className="p-2.5 rounded-2xl bg-white/[0.03] border border-white/[0.06]">
@@ -144,8 +149,6 @@ export function ChatRightColumn({
             </div>
           </div>
         )}
-
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Bar */}

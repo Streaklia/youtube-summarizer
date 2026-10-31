@@ -98,15 +98,26 @@ export function Header({}: HeaderProps = {}) {
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Close dropdown on outside click
+  // Close dropdown on outside click or Escape key
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setToolsOpen(false);
       }
     }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setToolsOpen(false);
+        setMobileMenuOpen(false);
+      }
+    }
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, []);
 
   // Close menus on route change
@@ -199,27 +210,27 @@ export function Header({}: HeaderProps = {}) {
 
               {/* Clean Dark-Mode Dropdown Card */}
               <div
-                className={`absolute top-full right-0 lg:left-1/2 lg:-translate-x-1/2 pt-2.5 z-[100] transition-all duration-200 ease-out ${
+                className={`absolute top-full right-0 pt-2 z-[100] transition-all duration-200 ease-out ${
                   toolsOpen
                     ? 'opacity-100 translate-y-0 pointer-events-auto visible'
                     : 'opacity-0 translate-y-2 pointer-events-none invisible'
                 }`}
               >
-                <div className="w-[520px] rounded-2xl bg-gray-950 border border-gray-800 p-3.5 shadow-2xl shadow-black/80 backdrop-blur-2xl relative overflow-hidden">
+                <div className="w-80 sm:w-96 max-w-[calc(100vw-2rem)] rounded-2xl bg-gray-950 border border-gray-800 p-2.5 sm:p-3 shadow-2xl shadow-black/90 backdrop-blur-2xl relative overflow-hidden">
                   {/* Subtle ambient ruby glow */}
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-20 bg-[#FF2B4A]/10 blur-2xl rounded-full pointer-events-none" />
+                  <div className="absolute -top-10 right-10 w-48 h-20 bg-[#FF2B4A]/10 blur-2xl rounded-full pointer-events-none" />
 
                   {/* Header bar inside dropdown */}
-                  <div className="flex items-center justify-between px-2.5 pb-2.5 mb-1.5 border-b border-gray-800/80 text-[11px] text-gray-400 font-medium">
+                  <div className="flex items-center justify-between px-2 pb-2 mb-1 border-b border-gray-800/80 text-[11px] text-gray-400 font-medium">
                     <span className="flex items-center gap-1.5 text-gray-300">
                       <Sparkles className="w-3.5 h-3.5 text-[#FF2B4A]" />
-                      <span className="font-semibold text-white">Specialized AI & Extraction Tools</span>
+                      <span className="font-semibold text-white">Specialized Tools</span>
                     </span>
-                    <span className="text-[10px] text-gray-500 font-mono">8 utilities available</span>
+                    <span className="text-[10px] text-gray-500 font-mono">8 utilities</span>
                   </div>
 
-                  {/* 2-Column Grid of Tools */}
-                  <div className="grid grid-cols-2 gap-1.5">
+                  {/* Neatly bounded list of Tools */}
+                  <div className="space-y-1">
                     {TOOLS_MENU_ITEMS.map((item) => {
                       const isCurrent = pathname === item.href;
                       return (
@@ -227,10 +238,10 @@ export function Header({}: HeaderProps = {}) {
                           key={item.href}
                           href={item.href}
                           onClick={() => setToolsOpen(false)}
-                          className={`group flex items-start gap-2.5 p-2 rounded-xl transition-all duration-150 border ${
+                          className={`group flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl transition-all duration-150 border ${
                             isCurrent
                               ? 'bg-gray-900 border-[#FF2B4A]/40 text-white shadow-sm'
-                              : 'bg-transparent hover:bg-gray-900/80 border-transparent hover:border-gray-800 text-gray-300'
+                              : 'bg-transparent hover:bg-gray-900/80 border-transparent hover:border-gray-800/80 text-gray-300'
                           }`}
                         >
                           <div className="w-7 h-7 rounded-lg bg-gray-900 border border-gray-800 group-hover:border-[#FF2B4A]/30 flex items-center justify-center text-sm flex-shrink-0 group-hover:scale-105 transition-all shadow-inner">
@@ -248,24 +259,26 @@ export function Header({}: HeaderProps = {}) {
                                 </span>
                               )}
                             </div>
-                            <p className="text-[11px] text-gray-400 group-hover:text-gray-300 line-clamp-1 leading-snug pt-0.5">
+                            <p className="text-[11px] text-gray-400 group-hover:text-gray-300 truncate leading-snug">
                               {item.description}
                             </p>
                           </div>
+
+                          <ArrowRight className="w-3.5 h-3.5 text-gray-600 group-hover:text-[#FF2B4A] group-hover:translate-x-0.5 transition-all opacity-0 group-hover:opacity-100 flex-shrink-0" />
                         </Link>
                       );
                     })}
                   </div>
 
                   {/* Footer Bar inside Dropdown */}
-                  <div className="mt-2.5 pt-2.5 border-t border-gray-800/80 flex items-center justify-between px-2.5 text-[11px] text-gray-500">
+                  <div className="mt-2 pt-2 border-t border-gray-800/80 flex items-center justify-between px-2 text-[11px] text-gray-500">
                     <span>Zero signup required · 100% Free</span>
                     <Link
                       href="/"
                       onClick={() => setToolsOpen(false)}
                       className="inline-flex items-center gap-1 text-[#FF2B4A] hover:underline font-medium"
                     >
-                      <span>Explore all tools</span>
+                      <span>Explore all</span>
                       <ArrowRight className="w-3 h-3" />
                     </Link>
                   </div>

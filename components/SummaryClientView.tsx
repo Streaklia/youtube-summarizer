@@ -155,6 +155,7 @@ export function SummaryClientView({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settings, setSettings] = useState<AISettings>(DEFAULT_SETTINGS);
   const [regeneratingSection, setRegeneratingSection] = useState<string | null>(null);
+  const activeGenerationsRef = useRef<Set<string>>(new Set());
 
   // Immediate fast metadata fetch (< 200ms) to populate title, channel, duration, views & category
   useEffect(() => {
@@ -219,11 +220,16 @@ export function SummaryClientView({
   ) => {
     if (!isAITab(targetTabToGen)) return;
 
+    // 1. Check if section is already populated in React state
+    if (targetTabToGen === 'infographic' && summary?.infographic) return;
+    if (targetTabToGen === 'summary' && summary?.fullSummary) return;
+    if (targetTabToGen === 'takeaways' && summary?.keyTakeaways?.length) return;
+    if (targetTabToGen === 'chapters' && summary?.chapterSummaries?.length) return;
+
     const triggerKey = `${videoId}-${targetTabToGen}`;
     if (autoTriggeredRef.current[triggerKey]) return;
-    autoTriggeredRef.current[triggerKey] = true;
 
-    // Check if section is already cached in sessionStorage
+    // 2. Check if section is already cached in sessionStorage
     if (typeof window !== 'undefined') {
       try {
         const cached = sessionStorage.getItem(`yt-summary-${videoId}`);
@@ -237,7 +243,9 @@ export function SummaryClientView({
       } catch {}
     }
 
-    // Auto-generate immediately
+    autoTriggeredRef.current[triggerKey] = true;
+
+    // Auto-generate strictly requested tab on demand
     await handleGenerateSection(targetTabToGen, transcriptText, videoTitle);
   };
 
@@ -388,10 +396,11 @@ export function SummaryClientView({
     overrideTranscript?: string,
     overrideTitle?: string
   ) => {
-    if (regeneratingSection) return;
+    if (activeGenerationsRef.current.has(section)) return;
 
     if (section === 'transcript') {
       setRegeneratingSection('transcript');
+      activeGenerationsRef.current.add('transcript');
       try {
         const transcriptRes = await fetch('/api/transcript', {
           method: 'POST',
@@ -406,12 +415,14 @@ export function SummaryClientView({
       } catch (err: any) {
         console.error('Transcript re-fetch failed:', err);
       } finally {
-        setRegeneratingSection(null);
+        activeGenerationsRef.current.delete('transcript');
+        setRegeneratingSection((prev) => (prev === 'transcript' ? null : prev));
       }
       return;
     }
 
     setRegeneratingSection(section);
+    activeGenerationsRef.current.add(section);
     try {
       const transcriptToUse =
         overrideTranscript !== undefined ? overrideTranscript : formattedTranscript;
@@ -454,7 +465,8 @@ export function SummaryClientView({
     } catch (err: any) {
       console.error(`Generate section '${section}' error:`, err);
     } finally {
-      setRegeneratingSection(null);
+      activeGenerationsRef.current.delete(section);
+      setRegeneratingSection((prev) => (prev === section ? null : prev));
     }
   };
 

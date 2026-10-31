@@ -68,13 +68,6 @@ export default function Home() {
 
   const handleNavigate = (section: string) => {
     setActiveSection(section);
-    if (section === 'home') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (section === 'summary' && summaryRef.current) {
-      summaryRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else if (section === 'chat' && chatRef.current) {
-      chatRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   };
 
   /** Build the provider fields to include in API request bodies */

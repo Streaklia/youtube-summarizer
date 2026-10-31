@@ -143,12 +143,14 @@ export function LocalizedHomeClient({ langConfig }: LocalizedHomeClientProps) {
     if (!formattedTranscript) return;
     setRegeneratingSection(section);
     try {
-      const res = await fetch('/api/summarize', {
+      const res = await fetch('/api/regenerate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           transcript: formattedTranscript,
           section,
+          videoUrl: url,
+          title: metadata?.title || '',
           ...getProviderPayload(),
         }),
       });
