@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { PwaInstallBanner } from '@/components/PwaInstallBanner';
 
 export function NavigationShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -18,6 +19,7 @@ export function NavigationShell({ children }: { children: React.ReactNode }) {
       <Header />
       <div className="flex-1">{children}</div>
       <Footer />
+      <PwaInstallBanner />
     </div>
   );
 }

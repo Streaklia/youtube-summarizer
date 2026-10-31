@@ -39,6 +39,7 @@ export const metadata: Metadata = {
     ],
     shortcut: ['/icon.png'],
   },
+  manifest: '/manifest.webmanifest',
   robots: {
     index: true,
     follow: true,
