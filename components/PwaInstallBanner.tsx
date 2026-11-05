@@ -129,9 +129,9 @@ export function PwaInstallBanner() {
         aria-label="Install App"
         className="fixed bottom-4 left-3 right-3 sm:left-auto sm:right-5 sm:max-w-sm z-[99] transition-all duration-500 ease-out animate-fade-in-up"
       >
-        <div className="relative overflow-hidden rounded-2xl bg-gray-950/95 border border-gray-800 p-3 sm:p-3.5 shadow-2xl shadow-black/90 backdrop-blur-2xl flex items-center justify-between gap-3">
+        <div className="relative overflow-hidden rounded-2xl bg-[#040200]/95 border border-gray-800 p-3 sm:p-3.5 shadow-2xl shadow-black/90 backdrop-blur-2xl flex items-center justify-between gap-3">
           {/* Subtle ruby ambient accent */}
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#FF2B4A]/10 blur-2xl rounded-full pointer-events-none" />
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#E02440]/10 blur-2xl rounded-full pointer-events-none" />
 
           {/* Left: App Icon & Copy */}
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
@@ -150,7 +150,7 @@ export function PwaInstallBanner() {
                 <span className="text-xs font-bold text-white tracking-tight truncate">
                   MyTranscript
                 </span>
-                <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-extrabold uppercase tracking-wide bg-[#FF2B4A]/15 text-[#FF2B4A] border border-[#FF2B4A]/30">
+                <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-extrabold uppercase tracking-wide bg-[#E02440]/15 text-[#E02440] border border-[#E02440]/30">
                   Free App
                 </span>
               </div>
@@ -165,7 +165,7 @@ export function PwaInstallBanner() {
             <button
               type="button"
               onClick={handleInstallClick}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FF2B4A] hover:bg-[#e02440] text-white text-xs font-semibold shadow-md shadow-[#FF2B4A]/25 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#E02440] hover:bg-[#c81e36] text-white text-xs font-semibold shadow-md shadow-[#E02440]/25 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Get App</span>
@@ -193,7 +193,7 @@ export function PwaInstallBanner() {
           />
 
           {/* Modal Card */}
-          <div className="relative w-full max-w-sm rounded-2xl bg-gray-950 border border-gray-800 p-5 shadow-2xl shadow-black/90 z-10 space-y-4 animate-fade-in-up">
+          <div className="relative w-full max-w-sm rounded-2xl bg-[#040200] border border-gray-800 p-5 shadow-2xl shadow-black/90 z-10 space-y-4 animate-fade-in-up">
             <div className="flex items-center justify-between border-b border-gray-800 pb-3">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center">
@@ -225,7 +225,7 @@ export function PwaInstallBanner() {
               </div>
 
               <div className="flex items-start gap-3 p-2.5 rounded-xl bg-gray-900/60 border border-gray-800/80">
-                <div className="w-6 h-6 rounded-lg bg-[#FF2B4A]/15 border border-[#FF2B4A]/30 flex items-center justify-center text-[#FF2B4A] flex-shrink-0 mt-0.5">
+                <div className="w-6 h-6 rounded-lg bg-[#E02440]/15 border border-[#E02440]/30 flex items-center justify-center text-[#E02440] flex-shrink-0 mt-0.5">
                   <PlusSquare className="w-3.5 h-3.5" />
                 </div>
                 <div>

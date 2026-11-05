@@ -142,7 +142,7 @@ export function Header({}: HeaderProps = {}) {
   );
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-800/80 bg-gray-950/90 backdrop-blur-xl transition-colors">
+    <header className="sticky top-0 z-50 border-b border-gray-800/80 bg-[#040200]/90 backdrop-blur-xl transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 gap-4">
           {/* Website Brand Logo */}
@@ -158,13 +158,13 @@ export function Header({}: HeaderProps = {}) {
               />
             </div>
             <span className="font-bold text-white text-base tracking-tight">
-              My<span className="text-[#FF2B4A]">Transcript</span>
+              My<span className="text-[#E02440]">Transcript</span>
               <span className="text-gray-400 font-normal">.pro</span>
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center p-1 bg-gray-950/80 border border-gray-800 rounded-full shadow-inner gap-1">
+          <nav className="hidden md:flex items-center p-1 bg-[#040200]/80 border border-gray-800 rounded-full shadow-inner gap-1">
             {MAIN_NAV_LINKS.map((link) => {
               const isActive =
                 pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
@@ -196,14 +196,14 @@ export function Header({}: HeaderProps = {}) {
                 aria-expanded={toolsOpen}
                 className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all duration-150 whitespace-nowrap cursor-pointer ${
                   toolsOpen || isToolActive
-                    ? 'bg-gray-800 text-white shadow-sm border border-gray-700/80 font-semibold text-[#FF2B4A]'
+                    ? 'bg-gray-800 text-white shadow-sm border border-gray-700/80 font-semibold text-[#E02440]'
                     : 'text-gray-400 hover:text-white hover:bg-gray-900/60 border border-transparent'
                 }`}
               >
                 <span>Tools</span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                    toolsOpen ? 'rotate-180 text-[#FF2B4A]' : 'text-gray-500'
+                    toolsOpen ? 'rotate-180 text-[#E02440]' : 'text-gray-500'
                   }`}
                 />
               </button>
@@ -216,14 +216,14 @@ export function Header({}: HeaderProps = {}) {
                     : 'opacity-0 translate-y-2 pointer-events-none invisible'
                 }`}
               >
-                <div className="w-80 sm:w-96 max-w-[calc(100vw-2rem)] rounded-2xl bg-gray-950 border border-gray-800 p-2.5 sm:p-3 shadow-2xl shadow-black/90 backdrop-blur-2xl relative overflow-hidden">
+                <div className="w-80 sm:w-96 max-w-[calc(100vw-2rem)] rounded-2xl bg-[#040200] border border-gray-800 p-2.5 sm:p-3 shadow-2xl shadow-black/90 backdrop-blur-2xl relative overflow-hidden">
                   {/* Subtle ambient ruby glow */}
-                  <div className="absolute -top-10 right-10 w-48 h-20 bg-[#FF2B4A]/10 blur-2xl rounded-full pointer-events-none" />
+                  <div className="absolute -top-10 right-10 w-48 h-20 bg-[#E02440]/10 blur-2xl rounded-full pointer-events-none" />
 
                   {/* Header bar inside dropdown */}
                   <div className="flex items-center justify-between px-2 pb-2 mb-1 border-b border-gray-800/80 text-[11px] text-gray-400 font-medium">
                     <span className="flex items-center gap-1.5 text-gray-300">
-                      <Sparkles className="w-3.5 h-3.5 text-[#FF2B4A]" />
+                      <Sparkles className="w-3.5 h-3.5 text-[#E02440]" />
                       <span className="font-semibold text-white">Specialized Tools</span>
                     </span>
                     <span className="text-[10px] text-gray-500 font-mono">8 utilities</span>
@@ -240,21 +240,21 @@ export function Header({}: HeaderProps = {}) {
                           onClick={() => setToolsOpen(false)}
                           className={`group flex items-center gap-2.5 px-2.5 py-1.5 rounded-xl transition-all duration-150 border ${
                             isCurrent
-                              ? 'bg-gray-900 border-[#FF2B4A]/40 text-white shadow-sm'
+                              ? 'bg-gray-900 border-[#E02440]/40 text-white shadow-sm'
                               : 'bg-transparent hover:bg-gray-900/80 border-transparent hover:border-gray-800/80 text-gray-300'
                           }`}
                         >
-                          <div className="w-7 h-7 rounded-lg bg-gray-900 border border-gray-800 group-hover:border-[#FF2B4A]/30 flex items-center justify-center text-sm flex-shrink-0 group-hover:scale-105 transition-all shadow-inner">
+                          <div className="w-7 h-7 rounded-lg bg-gray-900 border border-gray-800 group-hover:border-[#E02440]/30 flex items-center justify-center text-sm flex-shrink-0 group-hover:scale-105 transition-all shadow-inner">
                             {item.emoji}
                           </div>
 
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1.5">
-                              <span className="text-xs font-semibold text-white group-hover:text-[#FF2B4A] transition-colors truncate">
+                              <span className="text-xs font-semibold text-white group-hover:text-[#E02440] transition-colors truncate">
                                 {item.title}
                               </span>
                               {item.badge && (
-                                <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-extrabold uppercase tracking-wide bg-[#FF2B4A] text-white shadow-sm shadow-[#FF2B4A]/30 animate-pulse">
+                                <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-extrabold uppercase tracking-wide bg-[#E02440] text-white shadow-sm shadow-[#E02440]/30 animate-pulse">
                                   {item.badge}
                                 </span>
                               )}
@@ -264,7 +264,7 @@ export function Header({}: HeaderProps = {}) {
                             </p>
                           </div>
 
-                          <ArrowRight className="w-3.5 h-3.5 text-gray-600 group-hover:text-[#FF2B4A] group-hover:translate-x-0.5 transition-all opacity-0 group-hover:opacity-100 flex-shrink-0" />
+                          <ArrowRight className="w-3.5 h-3.5 text-gray-600 group-hover:text-[#E02440] group-hover:translate-x-0.5 transition-all opacity-0 group-hover:opacity-100 flex-shrink-0" />
                         </Link>
                       );
                     })}
@@ -276,7 +276,7 @@ export function Header({}: HeaderProps = {}) {
                     <Link
                       href="/"
                       onClick={() => setToolsOpen(false)}
-                      className="inline-flex items-center gap-1 text-[#FF2B4A] hover:underline font-medium"
+                      className="inline-flex items-center gap-1 text-[#E02440] hover:underline font-medium"
                     >
                       <span>Explore all</span>
                       <ArrowRight className="w-3 h-3" />
@@ -291,7 +291,7 @@ export function Header({}: HeaderProps = {}) {
           <div className="flex items-center gap-2 flex-shrink-0">
             <Link
               href="/"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FF2B4A] hover:bg-[#e02440] text-white text-xs font-semibold shadow-md shadow-[#FF2B4A]/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#E02440] hover:bg-[#c81e36] text-white text-xs font-semibold shadow-md shadow-[#E02440]/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <span>Summarize Video</span>
             </Link>
@@ -320,7 +320,7 @@ export function Header({}: HeaderProps = {}) {
                 className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all ${
                   isActive
                     ? 'bg-gray-800 text-white border border-gray-700 font-semibold'
-                    : 'bg-gray-950 text-gray-400 hover:text-white border border-gray-800'
+                    : 'bg-[#040200] text-gray-400 hover:text-white border border-gray-800'
                 }`}
               >
                 <span>{link.label}</span>
@@ -334,13 +334,13 @@ export function Header({}: HeaderProps = {}) {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 transition-all ${
               mobileMenuOpen || isToolActive
-                ? 'bg-gray-800 text-[#FF2B4A] border border-[#FF2B4A]/40 font-semibold'
-                : 'bg-gray-950 text-gray-400 hover:text-white border border-gray-800'
+                ? 'bg-gray-800 text-[#E02440] border border-[#E02440]/40 font-semibold'
+                : 'bg-[#040200] text-gray-400 hover:text-white border border-gray-800'
             }`}
           >
             <span>Tools</span>
             <ChevronDown
-              className={`w-3 h-3 transition-transform ${mobileMenuOpen ? 'rotate-180 text-[#FF2B4A]' : ''}`}
+              className={`w-3 h-3 transition-transform ${mobileMenuOpen ? 'rotate-180 text-[#E02440]' : ''}`}
             />
           </button>
         </div>
@@ -348,10 +348,10 @@ export function Header({}: HeaderProps = {}) {
         {/* Mobile Expanded Drawer with All Tools */}
         {mobileMenuOpen && (
           <div className="md:hidden py-3 border-t border-gray-800/80 animate-fade-in-up">
-            <div className="p-3 rounded-2xl bg-gray-950 border border-gray-800 space-y-3">
+            <div className="p-3 rounded-2xl bg-[#040200] border border-gray-800 space-y-3">
               <div className="flex items-center justify-between border-b border-gray-800/80 pb-2 text-xs">
                 <span className="font-semibold text-white flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#FF2B4A]" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#E02440]" />
                   <span>All Specialized Tools</span>
                 </span>
                 <span className="text-[10px] text-gray-500">8 utilities</span>
@@ -367,14 +367,14 @@ export function Header({}: HeaderProps = {}) {
                       onClick={() => setMobileMenuOpen(false)}
                       className={`flex items-center gap-2.5 p-2 rounded-xl text-xs border transition-colors ${
                         isCurrent
-                          ? 'bg-gray-900 border-[#FF2B4A]/40 text-white'
+                          ? 'bg-gray-900 border-[#E02440]/40 text-white'
                           : 'bg-gray-900/40 border-gray-800/60 text-gray-300 hover:text-white hover:border-gray-700'
                       }`}
                     >
                       <span className="text-base flex-shrink-0">{item.emoji}</span>
                       <span className="font-medium truncate flex-1">{item.title}</span>
                       {item.badge && (
-                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#FF2B4A] text-white">
+                        <span className="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-[#E02440] text-white">
                           {item.badge}
                         </span>
                       )}

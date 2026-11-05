@@ -4,17 +4,20 @@
 
 @layer base {
   :root {
-    --accent: 239 68 68;        /* red-500 */
-    --accent-glow: 239 68 68;
+    --accent: 224 36 64;        /* #E02440 - Ruby Red */
+    --accent-glow: 224 36 64;
+    --brand-bg: 4 2 0;          /* #040200 - Dark Charcoal */
   }
 
   html {
     scroll-behavior: smooth;
+    background-color: #040200;
   }
 
   body {
-    @apply bg-black text-gray-100 antialiased;
+    @apply bg-[#040200] text-gray-100 antialiased;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    background-color: #040200;
   }
 
   /* Custom scrollbar — thin & minimal */
@@ -42,7 +45,8 @@
   }
 
   ::selection {
-    @apply bg-red-500/30 text-white;
+    background-color: rgba(224, 36, 64, 0.35);
+    color: #ffffff;
   }
 }
 
@@ -62,8 +66,8 @@
 
   /* Glow effect on focus/active */
   .glow-red {
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.15),
-                0 0 60px rgba(239, 68, 68, 0.05);
+    box-shadow: 0 0 20px rgba(224, 36, 64, 0.25),
+                0 0 60px rgba(224, 36, 64, 0.08);
   }
 
   /* Animated glowing gradient border */
@@ -73,10 +77,10 @@
     padding: 1px;
     background: linear-gradient(
       90deg,
-      rgba(239, 68, 68, 0.4),
+      rgba(224, 36, 64, 0.5),
       rgba(244, 63, 94, 0.6),
-      rgba(249, 115, 22, 0.4),
-      rgba(239, 68, 68, 0.4)
+      rgba(224, 36, 64, 0.3),
+      rgba(224, 36, 64, 0.5)
     );
     background-size: 300% 100%;
     animation: gradientBorderMove 6s linear infinite;
@@ -85,8 +89,8 @@
   /* Subtle pulsing glow around primary button */
   .button-glow {
     position: relative;
-    box-shadow: 0 0 15px rgba(239, 68, 68, 0.35),
-                0 0 30px rgba(244, 63, 94, 0.2);
+    box-shadow: 0 0 16px rgba(224, 36, 64, 0.4),
+                0 0 32px rgba(224, 36, 64, 0.2);
     animation: pulseButtonGlow 3s ease-in-out infinite alternate;
   }
 
@@ -116,7 +120,7 @@
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-red-400 via-rose-400 to-orange-400;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#E02440] via-rose-400 to-orange-400;
   }
 
   /* Completely remove scrollbars while preserving full scrollability */

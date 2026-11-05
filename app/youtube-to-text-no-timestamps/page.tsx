@@ -107,7 +107,7 @@ const SCHEMA_DATA = {
 
 const FEATURES = [
   {
-    icon: <Copy className="w-5 h-5 text-[#FF2B4A]" />,
+    icon: <Copy className="w-5 h-5 text-[#E02440]" />,
     title: 'Timecodes Stripped Automatically',
     desc: 'Filters out repetitive 00:01, 00:04, 00:08 time offsets so you get pure, clean sentences ready for reading.',
     highlight: 'Pure Prose',
@@ -161,7 +161,7 @@ export default function YoutubeToTextNoTimestampsPage() {
       {/* Step by step */}
       <section className="space-y-4">
         <h3 className="text-xl font-bold text-white flex items-center gap-2">
-          <span className="w-6 h-6 rounded-lg bg-[#FF2B4A]/20 text-[#FF2B4A] text-xs font-mono font-bold flex items-center justify-center">1</span>
+          <span className="w-6 h-6 rounded-lg bg-[#E02440]/20 text-[#E02440] text-xs font-mono font-bold flex items-center justify-center">1</span>
           3 Steps to Extract Clean Plain Text from YouTube
         </h3>
         <ol className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">

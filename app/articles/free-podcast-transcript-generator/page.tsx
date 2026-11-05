@@ -204,7 +204,7 @@ const SCHEMA_DATA = {
 
 export default function FreePodcastTranscriptGeneratorPage() {
   return (
-    <article className="min-h-screen bg-[#090D16] text-gray-100 antialiased selection:bg-[#FF2B4A]/30 selection:text-white">
+    <article className="min-h-screen bg-[#040200] text-gray-100 antialiased selection:bg-[#E02440]/30 selection:text-white">
       {/* Inject Structured Data (Article, HowTo, BreadcrumbList, FAQPage) */}
       <script
         type="application/ld+json"
@@ -213,9 +213,9 @@ export default function FreePodcastTranscriptGeneratorPage() {
 
       {/* Ambient background glows */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[720px] h-[400px] bg-gradient-to-b from-[#FF2B4A]/10 to-transparent blur-3xl opacity-75" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[720px] h-[400px] bg-gradient-to-b from-[#E02440]/10 to-transparent blur-3xl opacity-75" />
         <div className="absolute top-[40%] -right-40 w-[500px] h-[500px] bg-teal-500/5 blur-[120px] rounded-full" />
-        <div className="absolute top-[70%] -left-40 w-[450px] h-[450px] bg-[#FF2B4A]/5 blur-[120px] rounded-full" />
+        <div className="absolute top-[70%] -left-40 w-[450px] h-[450px] bg-[#E02440]/5 blur-[120px] rounded-full" />
       </div>
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
@@ -243,7 +243,7 @@ export default function FreePodcastTranscriptGeneratorPage() {
         {/* Header Hero Metadata */}
         <header className="space-y-4 mb-8">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-[#FF2B4A]/15 text-[#FF2B4A] border border-[#FF2B4A]/30">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-[#E02440]/15 text-[#E02440] border border-[#E02440]/30">
               <Sparkles className="w-3 h-3" />
               <span>Flagship Guide</span>
             </span>
@@ -269,7 +269,7 @@ export default function FreePodcastTranscriptGeneratorPage() {
             Looking for a reliable <strong className="text-white">free podcast transcript generator</strong>?
             Whether you host a show or listen to interviews, discover how our cutting-edge{' '}
             <strong className="text-white">podcast transcript AI</strong> converts 1-hour to 3-hour episodes
-            into verbatim text, timestamped <code className="text-[#FF2B4A] font-mono text-xs bg-[#FF2B4A]/10 px-1.5 py-0.5 rounded">.SRT</code> files, and automated bulleted takeaways in under 3 seconds.
+            into verbatim text, timestamped <code className="text-[#E02440] font-mono text-xs bg-[#E02440]/10 px-1.5 py-0.5 rounded">.SRT</code> files, and automated bulleted takeaways in under 3 seconds.
           </p>
         </header>
 
@@ -333,7 +333,7 @@ export default function FreePodcastTranscriptGeneratorPage() {
           {/* Section 1 */}
           <section className="space-y-4">
             <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight border-b border-gray-800/80 pb-3 flex items-center gap-2">
-              <Headphones className="w-6 h-6 text-[#FF2B4A]" />
+              <Headphones className="w-6 h-6 text-[#E02440]" />
               <span>Why Every Podcaster &amp; Listener Needs an AI Podcast Transcript Generator</span>
             </h2>
             <p>
@@ -349,19 +349,19 @@ export default function FreePodcastTranscriptGeneratorPage() {
             </p>
             <ul className="space-y-2 list-none pl-0">
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#FF2B4A] flex-shrink-0" />
+                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#E02440] flex-shrink-0" />
                 <span>
                   <strong className="text-white">10x Faster Content Consumption:</strong> Reading an average episode transcript takes 7 to 10 minutes, compared to listening at 1x speed for 60 to 90 minutes.
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#FF2B4A] flex-shrink-0" />
+                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#E02440] flex-shrink-0" />
                 <span>
                   <strong className="text-white">Explosive Search Engine Ranking (SEO):</strong> Search engine crawlers (Googlebot, Bing) cannot listen to audio. Publishing verbatim podcast transcripts provides thousands of indexable keywords for your website.
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#FF2B4A] flex-shrink-0" />
+                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#E02440] flex-shrink-0" />
                 <span>
                   <strong className="text-white">Instant Social Media Repurposing:</strong> Extract viral quotes, create TikTok &amp; Shorts subtitles, and draft Twitter/X threads and LinkedIn carousels directly from the speaker text.
                 </span>
@@ -372,7 +372,7 @@ export default function FreePodcastTranscriptGeneratorPage() {
           {/* Section 2: Step-by-Step Instructions */}
           <section id="step-by-step" className="space-y-6 pt-4">
             <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight border-b border-gray-800/80 pb-3 flex items-center gap-2">
-              <ListOrdered className="w-6 h-6 text-[#FF2B4A]" />
+              <ListOrdered className="w-6 h-6 text-[#E02440]" />
               <span>How to Generate a Free Podcast Transcript in 3 Simple Steps</span>
             </h2>
             <p>
@@ -383,7 +383,7 @@ export default function FreePodcastTranscriptGeneratorPage() {
             {/* Step 1 */}
             <div id="step-1" className="p-5 rounded-2xl bg-gray-950/80 border border-gray-800 space-y-3">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
-                <span className="w-6 h-6 rounded-full bg-[#FF2B4A] text-white flex items-center justify-center text-xs">
+                <span className="w-6 h-6 rounded-full bg-[#E02440] text-white flex items-center justify-center text-xs">
                   1
                 </span>
                 <span>Step 1: Copy Your Video Podcast or YouTube Audio Link</span>
@@ -399,14 +399,14 @@ export default function FreePodcastTranscriptGeneratorPage() {
             {/* Step 2 */}
             <div id="step-2" className="p-5 rounded-2xl bg-gray-950/80 border border-gray-800 space-y-3">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
-                <span className="w-6 h-6 rounded-full bg-[#FF2B4A] text-white flex items-center justify-center text-xs">
+                <span className="w-6 h-6 rounded-full bg-[#E02440] text-white flex items-center justify-center text-xs">
                   2
                 </span>
                 <span>Step 2: Paste into MyTranscript Podcast Generator</span>
               </div>
               <p className="text-sm text-gray-300">
                 Navigate to our{' '}
-                <Link href="/podcast-transcript" className="text-[#FF2B4A] hover:underline font-semibold">
+                <Link href="/podcast-transcript" className="text-[#E02440] hover:underline font-semibold">
                   Podcast Transcript Tool
                 </Link>{' '}
                 or paste the link into the hero field on our homepage. Our system resolves the audio stream and extracts the verbatim subtitles instantly in parallel with the video player.
@@ -416,7 +416,7 @@ export default function FreePodcastTranscriptGeneratorPage() {
             {/* Step 3 */}
             <div id="step-3" className="p-5 rounded-2xl bg-gray-950/80 border border-gray-800 space-y-3">
               <div className="flex items-center gap-2 text-sm font-bold text-white">
-                <span className="w-6 h-6 rounded-full bg-[#FF2B4A] text-white flex items-center justify-center text-xs">
+                <span className="w-6 h-6 rounded-full bg-[#E02440] text-white flex items-center justify-center text-xs">
                   3
                 </span>
                 <span>Step 3: Export Clean Transcripts, SubRip (.SRT) Subtitles &amp; AI Takeaways</span>
@@ -432,12 +432,12 @@ export default function FreePodcastTranscriptGeneratorPage() {
           {/* =========================================================================
               HIGH-CONVERTING MID-ARTICLE VISUAL CTA BOX
              ========================================================================= */}
-          <aside className="my-10 p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-gray-900/90 via-gray-950 to-black border-2 border-[#FF2B4A]/40 shadow-2xl shadow-[#FF2B4A]/10 text-center space-y-5 relative overflow-hidden not-prose">
+          <aside className="my-10 p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-gray-900/90 via-gray-950 to-black border-2 border-[#E02440]/40 shadow-2xl shadow-[#E02440]/10 text-center space-y-5 relative overflow-hidden not-prose">
             {/* Ambient ruby glow */}
-            <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-80 h-32 bg-[#FF2B4A]/20 blur-3xl rounded-full pointer-events-none" />
+            <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-80 h-32 bg-[#E02440]/20 blur-3xl rounded-full pointer-events-none" />
 
             <div className="relative z-10 space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#FF2B4A]/20 text-[#FF2B4A] border border-[#FF2B4A]/40">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#E02440]/20 text-[#E02440] border border-[#E02440]/40">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Try It Right Now · 100% Free</span>
               </div>
@@ -460,7 +460,7 @@ export default function FreePodcastTranscriptGeneratorPage() {
                 </div>
                 <Link
                   href="/podcast-transcript"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-6 py-3 rounded-xl bg-[#FF2B4A] hover:bg-[#e02440] text-white text-xs font-bold shadow-lg shadow-[#FF2B4A]/30 transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-6 py-3 rounded-xl bg-[#E02440] hover:bg-[#c81e36] text-white text-xs font-bold shadow-lg shadow-[#E02440]/30 transition-all hover:scale-[1.02] active:scale-[0.98] whitespace-nowrap"
                 >
                   <span>Transcribe Free</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -487,7 +487,7 @@ export default function FreePodcastTranscriptGeneratorPage() {
           {/* Section 3: Subtitles and SRT Export */}
           <section className="space-y-4 pt-2">
             <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight border-b border-gray-800/80 pb-3 flex items-center gap-2">
-              <FileCode className="w-6 h-6 text-[#FF2B4A]" />
+              <FileCode className="w-6 h-6 text-[#E02440]" />
               <span>Exporting SubRip (.SRT) Subtitles for Video Editors &amp; Social Clips</span>
             </h2>
             <p>
@@ -497,7 +497,7 @@ export default function FreePodcastTranscriptGeneratorPage() {
             </p>
             <p>
               Our <strong className="text-white">free podcast transcript generator</strong> formats your dialogue into
-              compliant SubRip (<code className="text-[#FF2B4A] font-mono text-xs bg-[#FF2B4A]/10 px-1.5 py-0.5 rounded">.srt</code>)
+              compliant SubRip (<code className="text-[#E02440] font-mono text-xs bg-[#E02440]/10 px-1.5 py-0.5 rounded">.srt</code>)
               files containing millisecond-accurate timestamps:
             </p>
           </section>
@@ -526,7 +526,7 @@ export default function FreePodcastTranscriptGeneratorPage() {
           {/* Section 4: AI Key Takeaways */}
           <section className="space-y-4 pt-2">
             <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight border-b border-gray-800/80 pb-3 flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-[#FF2B4A]" />
+              <Sparkles className="w-6 h-6 text-[#E02440]" />
               <span>AI-Powered Key Takeaways &amp; Chapter Breakdown for Podcasts</span>
             </h2>
             <p>
@@ -536,19 +536,19 @@ export default function FreePodcastTranscriptGeneratorPage() {
             </p>
             <ul className="space-y-2 list-none pl-0">
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#FF2B4A] flex-shrink-0" />
+                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#E02440] flex-shrink-0" />
                 <span>
                   <strong className="text-white">Bulleted Key Takeaways:</strong> Synthesizes core arguments, controversial viewpoints, and actionable steps into 5 to 10 executive bullet points.
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#FF2B4A] flex-shrink-0" />
+                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#E02440] flex-shrink-0" />
                 <span>
                   <strong className="text-white">Timestamped Chapters:</strong> Automatically groups topic changes into clear scene titles and time markers for description boxes and YouTube timeline scrubbers.
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
-                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#FF2B4A] flex-shrink-0" />
+                <span className="mt-1 w-1.5 h-1.5 rounded-full bg-[#E02440] flex-shrink-0" />
                 <span>
                   <strong className="text-white">Executive Summaries:</strong> Generates cohesive, multi-paragraph written summaries suitable for newsletter digests and blog posts.
                 </span>
@@ -580,7 +580,7 @@ export default function FreePodcastTranscriptGeneratorPage() {
           {/* Section 5: Comparison Table */}
           <section className="space-y-4 pt-2">
             <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight border-b border-gray-800/80 pb-3 flex items-center gap-2">
-              <Layers className="w-6 h-6 text-[#FF2B4A]" />
+              <Layers className="w-6 h-6 text-[#E02440]" />
               <span>Comparing Transcription Methods: Manual vs Paid Software vs MyTranscript</span>
             </h2>
             <p>
@@ -600,10 +600,10 @@ export default function FreePodcastTranscriptGeneratorPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-800/60 bg-gray-950/60 text-gray-300">
-                  <tr className="bg-[#FF2B4A]/5 font-medium text-white border-l-2 border-[#FF2B4A]">
+                  <tr className="bg-[#E02440]/5 font-medium text-white border-l-2 border-[#E02440]">
                     <td className="p-3 flex items-center gap-1.5 font-bold text-white">
                       <span>MyTranscript.pro</span>
-                      <span className="text-[10px] text-[#FF2B4A] bg-[#FF2B4A]/10 px-1.5 py-0.5 rounded">Free</span>
+                      <span className="text-[10px] text-[#E02440] bg-[#E02440]/10 px-1.5 py-0.5 rounded">Free</span>
                     </td>
                     <td className="p-3 text-emerald-400">1 to 3 seconds</td>
                     <td className="p-3 text-emerald-400 font-bold">$0 (100% Free)</td>
@@ -632,7 +632,7 @@ export default function FreePodcastTranscriptGeneratorPage() {
           {/* Section 6: FAQs */}
           <section className="space-y-6 pt-4 not-prose">
             <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight border-b border-gray-800/80 pb-3 flex items-center gap-2">
-              <HelpCircle className="w-6 h-6 text-[#FF2B4A]" />
+              <HelpCircle className="w-6 h-6 text-[#E02440]" />
               <span>Frequently Asked Questions About Free Podcast Transcription</span>
             </h2>
 
@@ -674,7 +674,7 @@ export default function FreePodcastTranscriptGeneratorPage() {
                 </summary>
                 <p className="mt-3 text-xs sm:text-sm text-gray-400 leading-relaxed">
                   Yes! You can use our dedicated{' '}
-                  <Link href="/youtube-to-text-no-timestamps" className="text-[#FF2B4A] hover:underline font-medium">
+                  <Link href="/youtube-to-text-no-timestamps" className="text-[#E02440] hover:underline font-medium">
                     YouTube to Text without Timestamps
                   </Link>{' '}
                   mode to get continuous, clean reading paragraphs with zero time markers, ideal for pasting directly into ChatGPT, Claude, or Word documents.
@@ -694,7 +694,7 @@ export default function FreePodcastTranscriptGeneratorPage() {
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <Link
                 href="/podcast-transcript"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#FF2B4A] hover:bg-[#e02440] text-white text-xs sm:text-sm font-bold shadow-lg shadow-[#FF2B4A]/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#E02440] hover:bg-[#c81e36] text-white text-xs sm:text-sm font-bold shadow-lg shadow-[#E02440]/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>Launch Podcast Transcriber</span>
                 <ArrowRight className="w-4 h-4" />

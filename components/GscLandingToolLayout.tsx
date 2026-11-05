@@ -94,7 +94,7 @@ export function GscLandingToolLayout({
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0c10] text-zinc-100 font-sans antialiased selection:bg-[#FF2B4A]/30 selection:text-white">
+    <div className="min-h-screen bg-[#040200] text-zinc-100 font-sans antialiased selection:bg-[#E02440]/30 selection:text-white">
       {/* Inject Structured Data (JSON-LD) for Search Engines & GEO (Generative Engine Optimization) */}
       <script
         type="application/ld+json"
@@ -103,16 +103,16 @@ export function GscLandingToolLayout({
 
       {/* Ambient Radial Gradient Background Elements */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[720px] h-[400px] bg-gradient-to-b from-[#FF2B4A]/12 to-transparent blur-3xl opacity-75" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[720px] h-[400px] bg-gradient-to-b from-[#E02440]/12 to-transparent blur-3xl opacity-75" />
         <div className="absolute top-[35%] -right-40 w-[500px] h-[500px] bg-teal-500/8 blur-[120px] rounded-full pointer-events-none" />
-        <div className="absolute top-[65%] -left-40 w-[450px] h-[450px] bg-[#FF2B4A]/8 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-[65%] -left-40 w-[450px] h-[450px] bg-[#E02440]/8 blur-[120px] rounded-full pointer-events-none" />
       </div>
 
       {/* Top Header Navigation */}
-      <header className="relative z-20 border-b border-zinc-800/80 bg-[#0a0c10]/80 backdrop-blur-md sticky top-0">
+      <header className="relative z-20 border-b border-zinc-800/80 bg-[#040200]/80 backdrop-blur-md sticky top-0">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-800 p-1 flex items-center justify-center group-hover:border-[#FF2B4A]/50 transition-colors shadow-sm">
+            <div className="relative w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-800 p-1 flex items-center justify-center group-hover:border-[#E02440]/50 transition-colors shadow-sm">
               <Image
                 src="/logo.png"
                 alt="MyTranscript Logo"
@@ -124,7 +124,7 @@ export function GscLandingToolLayout({
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-sm tracking-tight text-white flex items-center gap-1">
-                MyTranscript<span className="text-[#FF2B4A]">.pro</span>
+                MyTranscript<span className="text-[#E02440]">.pro</span>
               </span>
               <span className="text-[10px] text-zinc-400 font-mono -mt-1">Free AI Video Tools</span>
             </div>
@@ -157,7 +157,7 @@ export function GscLandingToolLayout({
             </Link>
             <Link
               href="/"
-              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#FF2B4A] to-rose-600 hover:from-rose-500 hover:to-red-600 text-white font-bold transition-all shadow-sm shadow-[#FF2B4A]/25"
+              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#E02440] to-rose-600 hover:from-rose-500 hover:to-red-600 text-white font-bold transition-all shadow-sm shadow-[#E02440]/25"
             >
               Open App
             </Link>
@@ -183,7 +183,7 @@ export function GscLandingToolLayout({
           {/* H1 Heading */}
           <h1 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-[1.15]">
             {h1Prefix}{' '}
-            <span className="bg-gradient-to-r from-[#FF2B4A] via-rose-400 to-teal-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#E02440] via-rose-400 to-teal-400 bg-clip-text text-transparent">
               {h1Highlight}
             </span>{' '}
             {h1Suffix}
@@ -197,7 +197,7 @@ export function GscLandingToolLayout({
           {/* Core Interactive Extraction Tool Box */}
           <div className="mt-8 max-w-2xl mx-auto">
             <form onSubmit={handleSubmit} className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-[#FF2B4A] via-rose-500 to-teal-500 rounded-2xl blur-sm opacity-50 group-hover:opacity-85 transition duration-300" />
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-[#E02440] via-rose-500 to-teal-500 rounded-2xl blur-sm opacity-50 group-hover:opacity-85 transition duration-300" />
               <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center gap-2 p-2 rounded-2xl bg-zinc-950 border border-zinc-800/80 shadow-2xl">
                 <div className="relative flex-1 flex items-center">
                   <Search className="w-5 h-5 text-zinc-500 absolute left-3.5 pointer-events-none" />
@@ -215,7 +215,7 @@ export function GscLandingToolLayout({
                 <button
                   type="submit"
                   disabled={loading || !url.trim()}
-                  className="px-6 py-3 bg-gradient-to-r from-[#FF2B4A] to-rose-600 hover:from-rose-500 hover:to-red-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-lg shadow-[#FF2B4A]/30 flex items-center justify-center gap-2 cursor-pointer flex-shrink-0"
+                  className="px-6 py-3 bg-gradient-to-r from-[#E02440] to-rose-600 hover:from-rose-500 hover:to-red-600 disabled:from-zinc-800 disabled:to-zinc-800 disabled:text-zinc-600 disabled:cursor-not-allowed text-white font-bold text-xs sm:text-sm rounded-xl transition-all shadow-lg shadow-[#E02440]/30 flex items-center justify-center gap-2 cursor-pointer flex-shrink-0"
                 >
                   {loading ? (
                     <>
@@ -251,7 +251,7 @@ export function GscLandingToolLayout({
                 <span>No Login or Software Required</span>
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#FF2B4A]" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#E02440]" />
                 <span>Auto-Captions &amp; CC Supported</span>
               </span>
             </div>
@@ -270,7 +270,7 @@ export function GscLandingToolLayout({
               <button
                 type="button"
                 onClick={() => handlePasteSample('https://www.youtube.com/watch?v=jNQXAC9IVRw')}
-                className="text-zinc-400 hover:text-[#FF2B4A] underline underline-offset-2 transition-colors cursor-pointer"
+                className="text-zinc-400 hover:text-[#E02440] underline underline-offset-2 transition-colors cursor-pointer"
               >
                 First YouTube Video
               </button>
@@ -288,7 +288,7 @@ export function GscLandingToolLayout({
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center text-xl shadow-inner group-hover:border-[#FF2B4A]/40 transition-colors">
+                    <div className="w-10 h-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center text-xl shadow-inner group-hover:border-[#E02440]/40 transition-colors">
                       {feat.icon}
                     </div>
                     {feat.highlight && (
@@ -346,7 +346,7 @@ export function GscLandingToolLayout({
                       </span>
                       <ChevronDown
                         className={`w-4 h-4 text-zinc-400 flex-shrink-0 transition-transform duration-200 ${
-                          isOpen ? 'rotate-180 text-[#FF2B4A]' : ''
+                          isOpen ? 'rotate-180 text-[#E02440]' : ''
                         }`}
                       />
                     </button>

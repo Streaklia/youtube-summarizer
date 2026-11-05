@@ -108,7 +108,7 @@ const SCHEMA_DATA = {
 
 const FEATURES = [
   {
-    icon: <FileCode className="w-5 h-5 text-[#FF2B4A]" />,
+    icon: <FileCode className="w-5 h-5 text-[#E02440]" />,
     title: 'Standard SubRip (.SRT) Format',
     desc: 'Generates standard subtitle blocks with sequential indexes, millisecond time offsets, and properly wrapped caption dialogue.',
     highlight: 'Standard .SRT',
@@ -162,7 +162,7 @@ export default function YoutubeToSrtPage() {
       {/* Step by step */}
       <section className="space-y-4">
         <h3 className="text-xl font-bold text-white flex items-center gap-2">
-          <span className="w-6 h-6 rounded-lg bg-[#FF2B4A]/20 text-[#FF2B4A] text-xs font-mono font-bold flex items-center justify-center">1</span>
+          <span className="w-6 h-6 rounded-lg bg-[#E02440]/20 text-[#E02440] text-xs font-mono font-bold flex items-center justify-center">1</span>
           3 Steps to Extract and Download an SRT File from YouTube
         </h3>
         <ol className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
@@ -200,11 +200,11 @@ export default function YoutubeToSrtPage() {
         </p>
         <div className="p-4 rounded-xl bg-zinc-950 border border-zinc-800 font-mono text-xs text-zinc-300 space-y-1">
           <div className="text-teal-400 font-bold">1</div>
-          <div className="text-[#FF2B4A]">00:00:01,250 --&gt; 00:00:04,800</div>
+          <div className="text-[#E02440]">00:00:01,250 --&gt; 00:00:04,800</div>
           <div className="text-white">Welcome back to another episode of our podcast!</div>
           <div className="text-zinc-600"> </div>
           <div className="text-teal-400 font-bold">2</div>
-          <div className="text-[#FF2B4A]">00:00:05,000 --&gt; 00:00:09,120</div>
+          <div className="text-[#E02440]">00:00:05,000 --&gt; 00:00:09,120</div>
           <div className="text-white">Today we are discussing AI video transcription and SEO.</div>
         </div>
         <p className="text-xs text-zinc-400 leading-relaxed">
@@ -229,7 +229,7 @@ export default function YoutubeToSrtPage() {
           </div>
           <div className="p-4 rounded-xl bg-zinc-900/40 border border-zinc-800 space-y-2">
             <h4 className="font-bold text-white text-sm flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#FF2B4A]" />
+              <span className="w-2 h-2 rounded-full bg-[#E02440]" />
               DaVinci Resolve
             </h4>
             <p className="text-zinc-400 leading-relaxed">
