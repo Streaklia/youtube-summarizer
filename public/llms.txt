@@ -27,6 +27,7 @@
 
 ## Key Articles & Guides
 
+- [Free Podcast Transcript Generator](https://www.mytranscript.pro/articles/free-podcast-transcript-generator): Flagship tutorial on converting video podcasts into text, exporting SRT subtitles, and distilling AI takeaways for free.
 - [Articles Knowledge Base](https://www.mytranscript.pro/articles/): Practical guides and tutorials on video transcription and AI summarization.
 - [How to Get a YouTube Transcript](https://www.mytranscript.pro/articles/how-to-get-youtube-transcript): Step-by-step tutorial for desktop and mobile devices.
 - [Why YouTube Transcript Is Not Showing & Fixes](https://www.mytranscript.pro/articles/why-youtube-transcript-not-showing-fix): Troubleshooting missing captions on YouTube.

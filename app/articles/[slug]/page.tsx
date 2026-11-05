@@ -11,7 +11,7 @@ interface Props {
 const SITE_URL = 'https://www.mytranscript.pro';
 
 export async function generateStaticParams() {
-  return BLOG_POSTS.map((post) => ({ slug: post.slug }));
+  return BLOG_POSTS.filter((post) => post.slug !== 'free-podcast-transcript-generator').map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

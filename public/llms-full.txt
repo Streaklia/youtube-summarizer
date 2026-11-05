@@ -86,6 +86,10 @@
 
 ## 2. Articles & Educational Guides
 
+### Free Podcast Transcript Generator: Convert Audio & Video to Text
+- **URL**: https://www.mytranscript.pro/articles/free-podcast-transcript-generator
+- **Summary**: Comprehensive guide and walkthrough on converting video podcasts and audio into verbatim text transcripts, generating AI key takeaways, and downloading timecoded .SRT subtitle files for free without registration.
+
 ### How to Get a YouTube Transcript on Desktop and Mobile
 - **URL**: https://www.mytranscript.pro/articles/how-to-get-youtube-transcript
 - **Summary**: Comprehensive step-by-step guide for extracting YouTube video transcripts on desktop browsers, iPhone, and Android devices using native YouTube features and online tools.

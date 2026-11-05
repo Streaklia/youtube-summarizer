@@ -28,6 +28,34 @@ export interface FaqItem {
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    slug: 'free-podcast-transcript-generator',
+    title: 'Free Podcast Transcript Generator: Convert Audio & Video to Text',
+    excerpt: 'Convert video podcasts into accurate timestamped transcripts, export SRT captions, and distill key takeaways with free AI speech recognition.',
+    readTime: '6 min read',
+    date: 'Nov 5, 2026',
+    isoDate: '2026-11-05T00:00:00Z',
+    category: 'Flagship Guide',
+    targetKeywords: [
+      'podcast transcript generator free',
+      'podcast transcript ai',
+      'free podcast transcript generator',
+      'convert podcast audio to text',
+      'podcast to srt converter',
+    ],
+    cta: {
+      primaryHref: '/podcast-transcript',
+      primaryLabel: 'Open Free Podcast Transcript Generator',
+      secondaryHref: '/youtube-to-srt',
+      secondaryLabel: 'Download Podcast SRT Subtitles',
+      description: 'Extract verbatim timestamps, generate AI summaries, and download clean SRT subtitles from any podcast episode for free.',
+    },
+    content: [
+      'Whether you are an avid podcast listener trying to reference a key conversation, an editor preparing show notes, or a creator looking to supercharge your SEO, having a full written transcript of your podcast episodes is essential. Podcasts hold hours of valuable wisdom, but audio is notoriously difficult to search, index, and quote.',
+      'That is where a modern **free podcast transcript generator** powered by AI comes into play. Instead of paying pricey hourly transcription services or manually typing out hours of conversation, you can now convert any video podcast or audio episode into formatted text and synchronized SubRip (.SRT) files in under three seconds.',
+      'In this comprehensive tutorial, we cover everything you need to know about using AI for podcast transcription, extracting timestamped quotes, exporting SRT subtitles for video clips, and turning spoken dialogues into actionable key takeaways.',
+    ],
+  },
+  {
     slug: 'how-to-get-youtube-transcript',
     title: 'How to Get a YouTube Transcript on Desktop and Mobile (Step-by-Step)',
     excerpt: 'Learn how to easily get and extract YouTube transcripts on any device. Step-by-step guide with free tools for fast video-to-text conversion.',
