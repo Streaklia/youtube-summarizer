@@ -112,21 +112,22 @@ export function GscLandingToolLayout({
       <header className="relative z-20 border-b border-zinc-800/80 bg-[#040200]/80 backdrop-blur-md sticky top-0">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative w-8 h-8 rounded-xl bg-zinc-900 border border-zinc-800 p-1 flex items-center justify-center group-hover:border-[#E02440]/50 transition-colors shadow-sm">
+            <div className="relative w-8 h-8 flex-shrink-0 transition-transform group-hover:scale-105 duration-200">
               <Image
                 src="/logo.png"
                 alt="MyTranscript Logo"
-                width={26}
-                height={26}
+                width={32}
+                height={32}
                 priority
                 className="w-full h-full object-contain"
               />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-sm tracking-tight text-white flex items-center gap-1">
-                MyTranscript<span className="text-[#E02440]">.pro</span>
+              <span className="font-bold text-sm tracking-tight text-white flex items-center">
+                My<span className="text-[#E02440]">Transcript</span>
+                <span className="text-zinc-400 font-normal">.pro</span>
               </span>
-              <span className="text-[10px] text-zinc-400 font-mono -mt-1">Free AI Video Tools</span>
+              <span className="text-[10px] text-zinc-400 font-mono -mt-0.5">Free AI Video Tools</span>
             </div>
           </Link>
 

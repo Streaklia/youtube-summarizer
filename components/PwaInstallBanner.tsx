@@ -135,12 +135,12 @@ export function PwaInstallBanner() {
 
           {/* Left: App Icon & Copy */}
           <div className="flex items-center gap-2.5 min-w-0 flex-1">
-            <div className="relative w-10 h-10 rounded-xl bg-gray-900 border border-gray-800 p-1 flex items-center justify-center flex-shrink-0 shadow-md">
+            <div className="relative w-9 h-9 flex-shrink-0">
               <Image
                 src="/logo.png"
                 alt="MyTranscript App"
-                width={32}
-                height={32}
+                width={36}
+                height={36}
                 className="w-full h-full object-contain"
               />
             </div>
@@ -196,8 +196,8 @@ export function PwaInstallBanner() {
           <div className="relative w-full max-w-sm rounded-2xl bg-[#040200] border border-gray-800 p-5 shadow-2xl shadow-black/90 z-10 space-y-4 animate-fade-in-up">
             <div className="flex items-center justify-between border-b border-gray-800 pb-3">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-gray-900 border border-gray-800 flex items-center justify-center">
-                  <Image src="/logo.png" alt="MyTranscript" width={20} height={20} />
+                <div className="relative w-6 h-6 flex-shrink-0">
+                  <Image src="/logo.png" alt="MyTranscript" width={24} height={24} className="w-full h-full object-contain" />
                 </div>
                 <h3 className="text-sm font-bold text-white">Install on iPhone / iPad</h3>
               </div>
