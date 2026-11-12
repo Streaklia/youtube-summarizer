@@ -1,11 +1,42 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { SummaryClientView } from '@/components/SummaryClientView';
+import { resolveTabFromToolOrPath } from '@/lib/localizedUrl';
 
 interface PageProps {
   params: {
     videoId: string;
   };
+  searchParams?: {
+    tab?: string | string[];
+    tool?: string | string[];
+  };
+}
+
+const VALID_TABS = new Set([
+  'takeaways',
+  'transcript',
+  'chapters',
+  'summary',
+  'infographic',
+  'prompt',
+]);
+
+function resolveInitialTab(searchParams?: PageProps['searchParams']): string | undefined {
+  const rawTab = typeof searchParams?.tab === 'string' ? searchParams.tab.toLowerCase() : null;
+  if (rawTab && VALID_TABS.has(rawTab)) {
+    return rawTab;
+  }
+
+  const rawTool = typeof searchParams?.tool === 'string' ? searchParams.tool : null;
+  if (rawTool) {
+    const mapped = resolveTabFromToolOrPath(rawTool);
+    if (mapped && VALID_TABS.has(mapped)) {
+      return mapped;
+    }
+  }
+
+  return undefined;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -59,12 +90,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default function SummaryPage({ params }: PageProps) {
+export default function SummaryPage({ params, searchParams }: PageProps) {
   const { videoId } = params;
 
   if (!videoId || !/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
     notFound();
   }
 
-  return <SummaryClientView videoId={videoId} />;
+  const initialTab = resolveInitialTab(searchParams);
+
+  return <SummaryClientView videoId={videoId} initialTab={initialTab} />;
 }

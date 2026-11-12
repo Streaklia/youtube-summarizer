@@ -7,13 +7,18 @@ export const metadata: Metadata = {
   description:
     'Explore tutorials, AI benchmarks, and productivity guides on YouTube video summarization, transcript extraction, and AI-powered analysis.',
   alternates: {
-    canonical: 'https://www.mytranscript.pro/articles/',
+    canonical: 'https://www.mytranscript.pro/articles',
+    languages: {
+      en: 'https://www.mytranscript.pro/articles',
+      ar: 'https://www.mytranscript.pro/ar/articles',
+      'x-default': 'https://www.mytranscript.pro/articles',
+    },
   },
   openGraph: {
     title: 'Articles & Guides — MyTranscript',
     description:
       'Tutorials and AI benchmarks on YouTube summarization and transcript extraction.',
-    url: 'https://www.mytranscript.pro/articles/',
+    url: 'https://www.mytranscript.pro/articles',
     type: 'website',
   },
 };

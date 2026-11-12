@@ -104,7 +104,7 @@ export default function ArticleDetailPage({ params }: Props) {
         '@type': 'ListItem',
         position: 2,
         name: 'Articles',
-        item: `${SITE_URL}/articles/`,
+        item: `${SITE_URL}/articles`,
       },
       {
         '@type': 'ListItem',
@@ -132,7 +132,7 @@ export default function ArticleDetailPage({ params }: Props) {
         <nav aria-label="Breadcrumb" className="mb-8 flex items-center gap-2 text-xs text-zinc-500">
           <Link href="/" className="hover:text-zinc-300 transition-colors">Home</Link>
           <span>/</span>
-          <Link href="/articles/" className="hover:text-zinc-300 transition-colors">Articles</Link>
+          <Link href="/articles" className="hover:text-zinc-300 transition-colors">Articles</Link>
           <span>/</span>
           <span className="text-zinc-400 truncate max-w-[200px] sm:max-w-xs">{post.title}</span>
         </nav>

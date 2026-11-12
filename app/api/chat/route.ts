@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
       openrouterApiKey,
       openrouterModel,
       videoUrl,
+      language,
     } = await req.json();
 
     if (!messages || !Array.isArray(messages)) {
@@ -29,6 +30,7 @@ export async function POST(req: NextRequest) {
         preferredProvider: provider,
         openrouterApiKey,
         openrouterModel,
+        language,
       }
     );
 

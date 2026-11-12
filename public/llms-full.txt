@@ -78,10 +78,6 @@
 - **URL**: https://www.mytranscript.pro/transcript-ai
 - **Description**: In-depth conversational AI assistant for questioning, clarifying, and analyzing video transcripts.
 
-### Web App Interface
-- **URL**: https://www.mytranscript.pro/app/
-- **Description**: Full-screen distraction-free workspace for transcription processing and AI analysis.
-
 ---
 
 ## 2. Articles & Educational Guides
@@ -112,7 +108,22 @@
 
 ---
 
-## 3. Technical Architecture & Privacy
+## 3. Arabic Localization & RTL Tools (النسخة العربية)
+
+- **Arabic Homepage**: https://www.mytranscript.pro/ar — تفريغ وتلخيص فيديوهات يوتيوب بالذكاء الاصطناعي مجاناً وبدعم كامل للغة العربية (RTL).
+- **Arabic YouTube Transcript**: https://www.mytranscript.pro/ar/youtube-transcript — استخراج النص الكامل لفيديوهات يوتيوب مع التوقيتات الزمنية ونسخ النص بضغطة واحدة.
+- **Arabic YouTube Summary**: https://www.mytranscript.pro/ar/youtube-summary — تلخيص فيديوهات يوتيوب واستخراج أهم النقاط والفصول الزمنية بالذكاء الاصطناعي.
+- **Arabic YouTube to SRT**: https://www.mytranscript.pro/ar/youtube-to-srt — تحويل فيديوهات يوتيوب إلى ملفات ترجمة SRT قياسية لبرامج المونتاج.
+- **Arabic Podcast Transcript**: https://www.mytranscript.pro/ar/podcast-transcript — تفريغ حلقات البودكاست المرئية والصوتية إلى نص مكتوب.
+- **Arabic YouTube Transcript Chatbot**: https://www.mytranscript.pro/ar/youtube-transcript-chatbot — الدردشة بالذكاء الاصطناعي مع نص فيديو يوتيوب وطرح أسئلة فورية.
+- **Arabic Articles Index**: https://www.mytranscript.pro/ar/articles — مكتبة الشروحات والمقالات العربية.
+- **Article 1**: https://www.mytranscript.pro/ar/articles/tafrigh-video-youtube-ila-nas — كيفية تفريغ فيديو يوتيوب إلى نص مكتوب بدقة مع التوقيتات.
+- **Article 2**: https://www.mytranscript.pro/ar/articles/talkhis-video-youtube-bil-thaka-alistinai — دليل تلخيص فيديوهات يوتيوب الطويلة بالذكاء الاصطناعي.
+- **Article 3**: https://www.mytranscript.pro/ar/articles/tahmil-tarjamat-youtube-srt — شرح استخراج وتحميل ملفات الترجمة SRT من يوتيوب للمونتاج.
+
+---
+
+## 4. Technical Architecture & Privacy
 
 - **Next.js App Router**: Built on modern Next.js 14 serverless architecture.
 - **AI Processing Pipeline**: Google Gemini 2.5 Flash and OpenRouter LLM infrastructure for low-latency video comprehension.
@@ -120,7 +131,7 @@
 
 ---
 
-## 4. Legal & Corporate Policies
+## 5. Legal & Corporate Policies
 
 - **About Us**: https://www.mytranscript.pro/about-us
 - **Contact Us**: https://www.mytranscript.pro/contact-us
@@ -131,7 +142,7 @@
 
 ---
 
-## 5. Machine-Readable Feeds & Indices
+## 6. Machine-Readable Feeds & Indices
 
 - **Sitemap Index**: https://www.mytranscript.pro/sitemap.xml
 - **RSS Feed (2.0)**: https://www.mytranscript.pro/feed.xml

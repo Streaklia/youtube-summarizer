@@ -31,6 +31,7 @@ interface SummaryTabsProps {
   onGenerateSection?: (section: string) => Promise<void>;
   regeneratingSection?: string | null;
   initialTab?: string;
+  outputLang?: 'en' | 'ar';
   onTabChange?: (tab: string) => void;
   currentTime?: number;
   onSeek?: (seconds: number) => void;
@@ -300,6 +301,19 @@ function formatTimestamp(offsetMs: number): string {
     .padStart(2, '0')}`;
 }
 
+function formatSrtTimestamp(offsetMs: number): string {
+  const safeMs = Math.max(0, Math.round(offsetMs));
+  const hours = Math.floor(safeMs / 3600000);
+  const minutes = Math.floor((safeMs % 3600000) / 60000);
+  const seconds = Math.floor((safeMs % 60000) / 1000);
+  const millis = safeMs % 1000;
+  return `${hours.toString().padStart(2, '0')}:${minutes
+    .toString()
+    .padStart(2, '0')}:${seconds.toString().padStart(2, '0')},${millis
+    .toString()
+    .padStart(3, '0')}`;
+}
+
 export function SummaryTabs({
   summary,
   transcript,
@@ -309,10 +323,12 @@ export function SummaryTabs({
   onGenerateSection,
   regeneratingSection,
   initialTab,
+  outputLang = 'en',
   onTabChange,
   currentTime,
   onSeek,
 }: SummaryTabsProps) {
+  const isArabicOutput = outputLang === 'ar';
   const [activeTab, setActiveTab] = useState<string>(
     initialTab || 'takeaways'
   );
@@ -649,6 +665,45 @@ export function SummaryTabs({
     window.print();
   };
 
+  const handleDownloadSRT = () => {
+    if (transcript.length === 0) return;
+    const title = metadata?.title || 'youtube-subtitles';
+    const srtContent = transcript
+      .map((entry, idx) => {
+        const startMs = entry.offset;
+        const nextEntry = transcript[idx + 1];
+        const fallbackDur = entry.duration && entry.duration > 0 ? entry.duration : 3000;
+        const endMs = nextEntry
+          ? Math.min(nextEntry.offset, startMs + Math.max(fallbackDur, 1500))
+          : startMs + fallbackDur;
+        return `${idx + 1}\n${formatSrtTimestamp(startMs)} --> ${formatSrtTimestamp(
+          Math.max(endMs, startMs + 500)
+        )}\n${entry.text}`;
+      })
+      .join('\n\n');
+
+    const blob = new Blob([srtContent], { type: 'application/x-subrip;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/[^a-z0-9\u0600-\u06FF]/gi, '_').toLowerCase()}.srt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadTXT = () => {
+    if (transcript.length === 0) return;
+    const title = metadata?.title || 'youtube-transcript';
+    const txtContent = transcript.map((e) => e.text).join('\n');
+    const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/[^a-z0-9\u0600-\u06FF]/gi, '_').toLowerCase()}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="animate-fade-in-up">
       {/* Tab buttons */}
@@ -825,7 +880,7 @@ export function SummaryTabs({
                   }}
                 />
               ) : hasTakeaways ? (
-                <ul className="space-y-3">
+                <ul dir={isArabicOutput ? 'rtl' : 'ltr'} className="space-y-3">
                   {summary!.keyTakeaways.map((takeaway, i) => (
                     <li key={i} className="flex gap-3 items-start group">
                       <span className="mt-2 w-1.5 h-1.5 bg-red-500 rounded-full flex-shrink-0 group-hover:shadow-lg group-hover:shadow-red-500/50 transition-all" />
@@ -863,7 +918,25 @@ export function SummaryTabs({
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleDownloadSRT}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-[#E02440]/15 text-rose-300 hover:bg-[#E02440]/25 border border-[#E02440]/30 transition-all cursor-pointer"
+                        title="Download SubRip (.srt) subtitle file"
+                      >
+                        <FileDown className="w-3 h-3" />
+                        <span>.SRT</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleDownloadTXT}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-white/[0.04] text-gray-300 hover:text-white hover:bg-white/[0.08] border border-white/[0.06] transition-all cursor-pointer"
+                        title="Download plain text (.txt)"
+                      >
+                        <FileDown className="w-3 h-3" />
+                        <span>.TXT</span>
+                      </button>
                       <button
                         type="button"
                         onClick={() => setAutoScroll((prev) => !prev)}
@@ -961,7 +1034,7 @@ export function SummaryTabs({
               {isCurrentSectionRegenerating ? (
                 <FriendlyAILoadingState section="chapters" />
               ) : hasChapters ? (
-                <div className="space-y-3">
+                <div dir={isArabicOutput ? 'rtl' : 'ltr'} className="space-y-3">
                   {summary!.chapterSummaries.map((chapter, i) => (
                     <div key={i} className="flex gap-4 items-start p-3 rounded-xl hover:bg-white/[0.02] transition-all duration-200 -mx-3">
                       <span className="px-2.5 py-1 bg-white/[0.06] text-red-400 text-xs font-mono rounded-lg flex-shrink-0 border border-white/[0.04]">
@@ -997,7 +1070,7 @@ export function SummaryTabs({
               {isCurrentSectionRegenerating ? (
                 <FriendlyAILoadingState section="summary" />
               ) : hasSummary ? (
-                <div className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-gray-400 prose-strong:text-gray-200 prose-a:text-red-400 prose-li:text-gray-400">
+                <div dir={isArabicOutput ? 'rtl' : 'ltr'} className="prose prose-invert prose-sm max-w-none prose-headings:text-white prose-p:text-gray-400 prose-strong:text-gray-200 prose-a:text-red-400 prose-li:text-gray-400">
                   <ReactMarkdown>{summary!.fullSummary}</ReactMarkdown>
                 </div>
               ) : (
@@ -1019,7 +1092,7 @@ export function SummaryTabs({
               {isCurrentSectionRegenerating ? (
                 <FriendlyAILoadingState section="infographic" />
               ) : hasInfographic ? (
-                <div className="space-y-6">
+                <div dir={isArabicOutput ? 'rtl' : 'ltr'} className="space-y-6">
                   <div className="text-center">
                     <h3 className="text-xl font-bold text-white">
                       {summary!.infographic!.title}
@@ -1131,8 +1204,17 @@ export function SummaryTabs({
           {/* ─── Prompt Tab ─── */}
           {activeTab === 'prompt' && (
             <>
-              {isCurrentSectionRegenerating ? (
-                <FriendlyAILoadingState section="prompt" />
+              {isCurrentSectionRegenerating || (loading && !hasPromptReady && regeneratingSection !== 'transcript') ? (
+                <FriendlyAILoadingState
+                  section="prompt"
+                  transcript={transcript}
+                  currentTime={currentTime}
+                  onSeek={handleSeekToOffset}
+                  onSwitchTab={(tab) => {
+                    setActiveTab(tab);
+                    if (onTabChange) onTabChange(tab);
+                  }}
+                />
               ) : (
                 <div className="space-y-4">
                   <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white/[0.02] border border-white/[0.06] rounded-xl">

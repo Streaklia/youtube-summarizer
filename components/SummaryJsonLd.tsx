@@ -120,7 +120,7 @@ export function SummaryJsonLd({
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://www.mytranscript.pro',
+        item: 'https://www.mytranscript.pro/',
       },
       {
         '@type': 'ListItem',

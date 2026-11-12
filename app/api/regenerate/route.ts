@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
       openrouterModel,
       videoUrl,
       title,
+      language,
     } = await req.json();
 
     const validSections = ['takeaways', 'chapters', 'summary', 'infographic'];
@@ -39,6 +40,7 @@ export async function POST(req: NextRequest) {
         preferredProvider: provider,
         openrouterApiKey,
         openrouterModel,
+        language,
       }
     );
 

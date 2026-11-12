@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
       videoUrl,
       title,
       section,
+      language,
     } = await req.json();
 
     if (!transcript && !videoUrl) {
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest) {
         preferredProvider: provider,
         openrouterApiKey,
         openrouterModel,
+        language,
       }
     );
 

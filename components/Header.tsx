@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, Sparkles, Menu, X, ArrowRight } from 'lucide-react';
+import { ChevronDown, Sparkles, Menu, X, ArrowRight, Globe } from 'lucide-react';
+import { persistLanguage } from '@/lib/localizedUrl';
 
 interface HeaderProps {
   onOpenSettings?: () => void;
@@ -23,6 +24,34 @@ const MAIN_NAV_LINKS = [
   { href: '/download-youtube-transcript', label: 'Download' },
   { href: '/articles', label: 'Articles' },
 ];
+
+const AR_MAIN_NAV_LINKS = [
+  { href: '/ar', label: 'الرئيسية' },
+  { href: '/ar/youtube-transcript', label: 'تفريغ النص' },
+  { href: '/ar/youtube-summary', label: 'تلخيص AI' },
+  { href: '/ar/youtube-to-srt', label: 'تحميل SRT' },
+  { href: '/ar/articles', label: 'المقالات' },
+];
+
+const EN_TO_AR_MAP: Record<string, string> = {
+  '/': '/ar',
+  '/youtube-transcript': '/ar/youtube-transcript',
+  '/youtube-summary': '/ar/youtube-summary',
+  '/youtube-to-srt': '/ar/youtube-to-srt',
+  '/podcast-transcript': '/ar/podcast-transcript',
+  '/youtube-transcript-chatbot': '/ar/youtube-transcript-chatbot',
+  '/articles': '/ar/articles',
+};
+
+const AR_TO_EN_MAP: Record<string, string> = {
+  '/ar': '/',
+  '/ar/youtube-transcript': '/youtube-transcript',
+  '/ar/youtube-summary': '/youtube-summary',
+  '/ar/youtube-to-srt': '/youtube-to-srt',
+  '/ar/podcast-transcript': '/podcast-transcript',
+  '/ar/youtube-transcript-chatbot': '/youtube-transcript-chatbot',
+  '/ar/articles': '/articles',
+};
 
 interface ToolMenuItem {
   href: string;
@@ -93,6 +122,13 @@ const TOOLS_MENU_ITEMS: ToolMenuItem[] = [
 
 export function Header({}: HeaderProps = {}) {
   const pathname = usePathname() || '/';
+  const isArabic = pathname === '/ar' || pathname.startsWith('/ar/');
+  const navLinks = isArabic ? AR_MAIN_NAV_LINKS : MAIN_NAV_LINKS;
+
+  const languageSwitchHref = isArabic
+    ? AR_TO_EN_MAP[pathname] || (pathname.startsWith('/ar/articles/') ? '/articles' : '/')
+    : EN_TO_AR_MAP[pathname] || (pathname.startsWith('/articles/') ? '/ar/articles' : '/ar');
+
   const [toolsOpen, setToolsOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -142,11 +178,14 @@ export function Header({}: HeaderProps = {}) {
   );
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-800/80 bg-[#040200]/90 backdrop-blur-xl transition-colors">
+    <header
+      dir={isArabic ? 'rtl' : 'ltr'}
+      className="sticky top-0 z-50 border-b border-gray-800/80 bg-[#040200]/90 backdrop-blur-xl transition-colors"
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-14 gap-4">
           {/* Website Brand Logo */}
-          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 group">
+          <Link href={isArabic ? '/ar' : '/'} className="flex items-center gap-2.5 flex-shrink-0 group">
             <div className="relative w-7 h-7 sm:w-8 sm:h-8 flex-shrink-0 transition-transform group-hover:scale-105 duration-200">
               <Image
                 src="/logo.png"
@@ -157,7 +196,7 @@ export function Header({}: HeaderProps = {}) {
                 className="w-full h-full object-contain"
               />
             </div>
-            <span className="font-bold text-white text-base tracking-tight">
+            <span dir="ltr" className="font-bold text-white text-base tracking-tight">
               My<span className="text-[#E02440]">Transcript</span>
               <span className="text-gray-400 font-normal">.pro</span>
             </span>
@@ -165,9 +204,10 @@ export function Header({}: HeaderProps = {}) {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center p-1 bg-[#040200]/80 border border-gray-800 rounded-full shadow-inner gap-1">
-            {MAIN_NAV_LINKS.map((link) => {
+            {navLinks.map((link) => {
+              const isRootHome = link.href === '/' || link.href === '/ar';
               const isActive =
-                pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+                pathname === link.href || (!isRootHome && pathname.startsWith(link.href));
               return (
                 <Link
                   key={link.href}
@@ -200,7 +240,7 @@ export function Header({}: HeaderProps = {}) {
                     : 'text-gray-400 hover:text-white hover:bg-gray-900/60 border border-transparent'
                 }`}
               >
-                <span>Tools</span>
+                <span>{isArabic ? 'الأدوات' : 'Tools'}</span>
                 <ChevronDown
                   className={`w-3.5 h-3.5 transition-transform duration-200 ${
                     toolsOpen ? 'rotate-180 text-[#E02440]' : 'text-gray-500'
@@ -210,7 +250,7 @@ export function Header({}: HeaderProps = {}) {
 
               {/* Clean Dark-Mode Dropdown Card */}
               <div
-                className={`absolute top-full right-0 pt-2 z-[100] transition-all duration-200 ease-out ${
+                className={`absolute top-full ${isArabic ? 'left-0' : 'right-0'} pt-2 z-[100] transition-all duration-200 ease-out ${
                   toolsOpen
                     ? 'opacity-100 translate-y-0 pointer-events-auto visible'
                     : 'opacity-0 translate-y-2 pointer-events-none invisible'
@@ -287,13 +327,23 @@ export function Header({}: HeaderProps = {}) {
             </div>
           </nav>
 
-          {/* Primary CTA Button & Mobile Menu Toggle */}
+          {/* Primary CTA Button, Language Switcher & Mobile Menu Toggle */}
           <div className="flex items-center gap-2 flex-shrink-0">
             <Link
-              href="/"
+              href={languageSwitchHref}
+              onClick={() => persistLanguage(isArabic ? 'en' : 'ar')}
+              className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full bg-[#040200] hover:bg-gray-900 border border-gray-800 hover:border-[#E02440]/50 text-xs font-semibold text-gray-200 hover:text-white transition-all whitespace-nowrap"
+              title={isArabic ? 'Switch to English' : 'التبديل إلى العربية'}
+            >
+              <Globe className="w-3.5 h-3.5 text-[#E02440]" />
+              <span>{isArabic ? 'English' : 'العربية'}</span>
+            </Link>
+
+            <Link
+              href={isArabic ? '/ar' : '/'}
               className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#E02440] hover:bg-[#c81e36] text-white text-xs font-semibold shadow-md shadow-[#E02440]/25 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
-              <span>Summarize Video</span>
+              <span>{isArabic ? 'تلخيص الفيديو' : 'Summarize Video'}</span>
             </Link>
 
             {/* Mobile Menu Button */}
@@ -310,9 +360,10 @@ export function Header({}: HeaderProps = {}) {
 
         {/* Mobile Horizontal Pill Scroll (Primary) */}
         <div className="flex md:hidden items-center gap-1.5 pt-2 pb-2 overflow-x-auto no-scrollbar border-t border-gray-800/60 -mx-4 px-4 mt-1">
-          {MAIN_NAV_LINKS.map((link) => {
+          {navLinks.map((link) => {
+            const isRootHome = link.href === '/' || link.href === '/ar';
             const isActive =
-              pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+              pathname === link.href || (!isRootHome && pathname.startsWith(link.href));
             return (
               <Link
                 key={link.href}
@@ -338,7 +389,7 @@ export function Header({}: HeaderProps = {}) {
                 : 'bg-[#040200] text-gray-400 hover:text-white border border-gray-800'
             }`}
           >
-            <span>Tools</span>
+            <span>{isArabic ? 'الأدوات' : 'Tools'}</span>
             <ChevronDown
               className={`w-3 h-3 transition-transform ${mobileMenuOpen ? 'rotate-180 text-[#E02440]' : ''}`}
             />

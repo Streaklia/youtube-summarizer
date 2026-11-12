@@ -23,12 +23,28 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const config = getSlugConfig(slug);
   const canonicalUrl = `https://www.mytranscript.pro/${slug}`;
+  const ARABIC_COUNTERPARTS = new Set([
+    'youtube-transcript',
+    'youtube-summary',
+    'podcast-transcript',
+    'youtube-transcript-chatbot',
+  ]);
+  const hasArabicCounterpart = ARABIC_COUNTERPARTS.has(slug);
 
   return {
     title: config.title,
     description: config.metaDescription,
     alternates: {
       canonical: canonicalUrl,
+      ...(hasArabicCounterpart
+        ? {
+            languages: {
+              en: canonicalUrl,
+              ar: `https://www.mytranscript.pro/ar/${slug}`,
+              'x-default': canonicalUrl,
+            },
+          }
+        : {}),
     },
     openGraph: {
       title: config.title,

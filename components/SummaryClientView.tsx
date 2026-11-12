@@ -24,10 +24,11 @@ import {
   AISettings,
 } from '@/lib/types';
 import { extractVideoId } from '@/lib/youtube';
-import { PlusCircle, Search, AlertCircle, Sparkles, ArrowLeft } from 'lucide-react';
+import { PlusCircle, Search, AlertCircle, Sparkles, ArrowLeft, Globe } from 'lucide-react';
 
 interface SummaryClientViewProps {
   videoId: string;
+  initialTab?: string;
   /** All initial* props are optional — when omitted, data is fetched client-side on mount */
   initialMetadata?: VideoMetadata;
   initialTranscript?: TranscriptEntry[];
@@ -70,6 +71,7 @@ function loadSettings(): AISettings {
 
 export function SummaryClientView({
   videoId,
+  initialTab,
   initialMetadata,
   initialTranscript,
   initialFormattedTranscript,
@@ -81,12 +83,24 @@ export function SummaryClientView({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const urlLang = searchParams?.get('lang');
-  const activeLang: SupportedLanguage =
-    (urlLang && isSupportedLanguage(urlLang) ? (urlLang as SupportedLanguage) : null) ||
-    extractLangFromPath(pathname) ||
-    (typeof window !== 'undefined' ? getSavedLanguage() : 'en');
+  const initialOutputLang: 'en' | 'ar' =
+    urlLang === 'ar' ||
+    pathname?.startsWith('/ar') ||
+    (!urlLang && typeof window !== 'undefined' && getSavedLanguage() === 'ar')
+      ? 'ar'
+      : 'en';
+  const [outputLang, setOutputLang] = useState<'en' | 'ar'>(initialOutputLang);
+  const outputLangRef = useRef<'en' | 'ar'>(initialOutputLang);
+  const activeLang: SupportedLanguage = outputLang;
 
-  // Resolve requested tab from query parameters (?tab=infographic or ?tool=youtube-infographic)
+  useEffect(() => {
+    if (urlLang === 'ar' || urlLang === 'en') {
+      setOutputLang(urlLang);
+      outputLangRef.current = urlLang;
+    }
+  }, [urlLang]);
+
+  // Resolve requested tab from query parameters (?tab=infographic or ?tool=youtube-infographic) or server initialTab
   const requestedTab = (() => {
     const tabParam = searchParams?.get('tab');
     if (tabParam && VALID_TABS.includes(tabParam.toLowerCase())) {
@@ -98,6 +112,9 @@ export function SummaryClientView({
       if (fromTool && VALID_TABS.includes(fromTool)) {
         return fromTool;
       }
+    }
+    if (initialTab && VALID_TABS.includes(initialTab.toLowerCase())) {
+      return initialTab.toLowerCase();
     }
     return null;
   })();
@@ -189,56 +206,87 @@ export function SummaryClientView({
     }
   }, [urlLang]);
 
-  // Hydrate cached sections from sessionStorage on mount / videoId change
+  // Hydrate cached sections from sessionStorage on mount / videoId / outputLang change
   useEffect(() => {
     if (typeof window === 'undefined') return;
     try {
-      const cached = sessionStorage.getItem(`yt-summary-${videoId}`);
+      const langKey = `yt-summary-${videoId}-${outputLang}`;
+      const legacyKey = outputLang === 'en' ? `yt-summary-${videoId}` : null;
+      const cached = sessionStorage.getItem(langKey) || (legacyKey ? sessionStorage.getItem(legacyKey) : null);
       if (cached) {
         const parsed = JSON.parse(cached);
-        setSummary((prev) => ({
-          keyTakeaways: parsed.keyTakeaways || prev?.keyTakeaways || [],
-          chapterSummaries: parsed.chapterSummaries || prev?.chapterSummaries || [],
-          fullSummary: parsed.fullSummary || prev?.fullSummary || '',
-          infographic: parsed.infographic || prev?.infographic || null,
-        }));
+        setSummary({
+          keyTakeaways: parsed.keyTakeaways || [],
+          chapterSummaries: parsed.chapterSummaries || [],
+          fullSummary: parsed.fullSummary || '',
+          infographic: parsed.infographic || null,
+        });
       }
     } catch {}
-  }, [videoId]);
+  }, [videoId, outputLang]);
 
   const isAITab = (tab: string | null) =>
-    tab === 'infographic' || tab === 'summary' || tab === 'takeaways' || tab === 'chapters';
+    tab === 'infographic' ||
+    tab === 'summary' ||
+    tab === 'takeaways' ||
+    tab === 'chapters' ||
+    tab === 'prompt';
 
   /**
-   * Automatically triggers AI generation for landed tool intent (e.g. ?tab=infographic or ?tab=summary)
+   * Automatically triggers AI generation for landed tool intent (e.g. ?tab=infographic, ?tab=prompt, or ?tab=summary)
    * if the section is not already present in state or sessionStorage cache.
    */
   const triggerAutoGeneration = async (
     targetTabToGen: string,
     transcriptText: string,
-    videoTitle: string
+    videoTitle: string,
+    langOverride?: 'en' | 'ar'
   ) => {
     if (!isAITab(targetTabToGen)) return;
 
-    // 1. Check if section is already populated in React state
-    if (targetTabToGen === 'infographic' && summary?.infographic) return;
-    if (targetTabToGen === 'summary' && summary?.fullSummary) return;
-    if (targetTabToGen === 'takeaways' && summary?.keyTakeaways?.length) return;
-    if (targetTabToGen === 'chapters' && summary?.chapterSummaries?.length) return;
+    const targetLang = langOverride || outputLangRef.current;
 
-    const triggerKey = `${videoId}-${targetTabToGen}`;
+    // 1. Check if section is already populated in React state (skip check when explicitly switching language)
+    if (!langOverride) {
+      if (targetTabToGen === 'infographic' && summary?.infographic) return;
+      if (targetTabToGen === 'summary' && summary?.fullSummary) return;
+      if (targetTabToGen === 'takeaways' && summary?.keyTakeaways?.length) return;
+      if (targetTabToGen === 'chapters' && summary?.chapterSummaries?.length) return;
+      if (
+        targetTabToGen === 'prompt' &&
+        (summary?.keyTakeaways?.length ||
+          summary?.chapterSummaries?.length ||
+          summary?.fullSummary ||
+          summary?.infographic)
+      ) {
+        return;
+      }
+    }
+
+    const triggerKey = `${videoId}-${targetLang}-${targetTabToGen}`;
     if (autoTriggeredRef.current[triggerKey]) return;
 
-    // 2. Check if section is already cached in sessionStorage
+    // 2. Check if section is already cached in sessionStorage for this language
     if (typeof window !== 'undefined') {
       try {
-        const cached = sessionStorage.getItem(`yt-summary-${videoId}`);
+        const langKey = `yt-summary-${videoId}-${targetLang}`;
+        const legacyKey = targetLang === 'en' ? `yt-summary-${videoId}` : null;
+        const cached = sessionStorage.getItem(langKey) || (legacyKey ? sessionStorage.getItem(legacyKey) : null);
         if (cached) {
           const parsed = JSON.parse(cached);
           if (targetTabToGen === 'infographic' && parsed.infographic) return;
           if (targetTabToGen === 'summary' && parsed.fullSummary) return;
           if (targetTabToGen === 'takeaways' && parsed.keyTakeaways?.length) return;
           if (targetTabToGen === 'chapters' && parsed.chapterSummaries?.length) return;
+          if (
+            targetTabToGen === 'prompt' &&
+            (parsed.keyTakeaways?.length ||
+              parsed.chapterSummaries?.length ||
+              parsed.fullSummary ||
+              parsed.infographic)
+          ) {
+            return;
+          }
         }
       } catch {}
     }
@@ -246,7 +294,7 @@ export function SummaryClientView({
     autoTriggeredRef.current[triggerKey] = true;
 
     // Auto-generate strictly requested tab on demand
-    await handleGenerateSection(targetTabToGen, transcriptText, videoTitle);
+    await handleGenerateSection(targetTabToGen, transcriptText, videoTitle, targetLang);
   };
 
   /**
@@ -394,9 +442,17 @@ export function SummaryClientView({
   const handleGenerateSection = async (
     section: string,
     overrideTranscript?: string,
-    overrideTitle?: string
+    overrideTitle?: string,
+    overrideLanguage?: 'en' | 'ar'
   ) => {
-    if (activeGenerationsRef.current.has(section)) return;
+    const targetLang = overrideLanguage || outputLangRef.current;
+    const apiSection = section === 'prompt' ? 'takeaways' : section;
+    if (
+      activeGenerationsRef.current.has(section) ||
+      activeGenerationsRef.current.has(apiSection)
+    ) {
+      return;
+    }
 
     if (section === 'transcript') {
       setRegeneratingSection('transcript');
@@ -423,6 +479,7 @@ export function SummaryClientView({
 
     setRegeneratingSection(section);
     activeGenerationsRef.current.add(section);
+    if (apiSection !== section) activeGenerationsRef.current.add(apiSection);
     try {
       const transcriptToUse =
         overrideTranscript !== undefined ? overrideTranscript : formattedTranscript;
@@ -433,10 +490,11 @@ export function SummaryClientView({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          section,
+          section: apiSection,
           transcript: transcriptToUse,
           videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
           title: titleToUse,
+          language: targetLang,
           ...getProviderPayload(),
         }),
       });
@@ -455,9 +513,9 @@ export function SummaryClientView({
           ...updatedPart,
         };
 
-        // Cache in sessionStorage so switching tabs never triggers unnecessary re-fetch
+        // Cache per video + language so switching tabs never triggers unnecessary re-fetch
         try {
-          sessionStorage.setItem(`yt-summary-${videoId}`, JSON.stringify(updated));
+          sessionStorage.setItem(`yt-summary-${videoId}-${targetLang}`, JSON.stringify(updated));
         } catch {}
 
         return updated;
@@ -466,7 +524,59 @@ export function SummaryClientView({
       console.error(`Generate section '${section}' error:`, err);
     } finally {
       activeGenerationsRef.current.delete(section);
+      if (apiSection !== section) activeGenerationsRef.current.delete(apiSection);
       setRegeneratingSection((prev) => (prev === section ? null : prev));
+    }
+  };
+
+  const handleOutputLanguageSwitch = async (nextLang: 'en' | 'ar') => {
+    if (nextLang === outputLang) return;
+    setOutputLang(nextLang);
+    outputLangRef.current = nextLang;
+    persistLanguage(nextLang);
+
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('lang', nextLang);
+      window.history.replaceState(null, '', url.toString());
+    }
+
+    // Load cached summary for nextLang if available, otherwise reset so AI tab regenerates cleanly
+    let cachedForLang: SummaryResult | null = null;
+    if (typeof window !== 'undefined') {
+      try {
+        const raw =
+          sessionStorage.getItem(`yt-summary-${videoId}-${nextLang}`) ||
+          (nextLang === 'en' ? sessionStorage.getItem(`yt-summary-${videoId}`) : null);
+        if (raw) {
+          cachedForLang = JSON.parse(raw);
+        }
+      } catch {}
+    }
+
+    setSummary(cachedForLang);
+
+    const targetTabToGen = isAITab(activeTab) ? activeTab : 'takeaways';
+    const hasCachedSection =
+      (targetTabToGen === 'takeaways' && Boolean(cachedForLang?.keyTakeaways?.length)) ||
+      (targetTabToGen === 'chapters' && Boolean(cachedForLang?.chapterSummaries?.length)) ||
+      (targetTabToGen === 'summary' && Boolean(cachedForLang?.fullSummary)) ||
+      (targetTabToGen === 'infographic' && Boolean(cachedForLang?.infographic)) ||
+      (targetTabToGen === 'prompt' &&
+        Boolean(
+          cachedForLang?.keyTakeaways?.length ||
+            cachedForLang?.chapterSummaries?.length ||
+            cachedForLang?.fullSummary ||
+            cachedForLang?.infographic
+        ));
+
+    if (!hasCachedSection) {
+      await handleGenerateSection(
+        targetTabToGen,
+        formattedTranscript,
+        metadata?.title,
+        nextLang
+      );
     }
   };
 
@@ -486,6 +596,7 @@ export function SummaryClientView({
           transcript: formattedTranscript,
           messages: newMessages,
           videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
+          language: outputLangRef.current,
           ...getProviderPayload(),
         }),
       });
@@ -562,12 +673,45 @@ export function SummaryClientView({
             </div>
 
             <div className="flex items-center gap-2">
+              {/* AI Output Language Switcher */}
+              <div
+                className="inline-flex items-center p-0.5 rounded-xl bg-white/[0.04] border border-white/[0.08]"
+                role="group"
+                aria-label="AI output language"
+              >
+                <span className="hidden sm:inline-flex items-center gap-1 px-2 text-[11px] text-gray-400">
+                  <Globe className="w-3 h-3 text-[#E02440]" />
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleOutputLanguageSwitch('en')}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                    outputLang === 'en'
+                      ? 'bg-[#E02440] text-white shadow-sm'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  EN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOutputLanguageSwitch('ar')}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all cursor-pointer ${
+                    outputLang === 'ar'
+                      ? 'bg-[#E02440] text-white shadow-sm'
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  العربية
+                </button>
+              </div>
+
               <button
                 onClick={() => setShowLoadModal(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.1] text-xs font-medium text-gray-200 hover:text-white transition-all shadow-sm"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.1] text-xs font-medium text-gray-200 hover:text-white transition-all shadow-sm cursor-pointer"
               >
                 <PlusCircle className="w-3.5 h-3.5 text-rose-400" />
-                <span>Load a different video</span>
+                <span>{outputLang === 'ar' ? 'فيديو آخر' : 'Load a different video'}</span>
               </button>
             </div>
           </div>
@@ -658,9 +802,9 @@ export function SummaryClientView({
         <div className="flex-1 max-w-[1720px] w-full mx-auto px-4 sm:px-6 py-4 sm:py-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
             {/* -------------------------------------------------------------
-                LEFT COLUMN (3.5 cols on desktop): Video Player & Rich Metadata
+                LEFT COLUMN (4 cols on desktop): Video Player & Rich Metadata
                ------------------------------------------------------------- */}
-            <div className="lg:col-span-4 xl:col-span-3.5 space-y-4">
+            <div className="lg:col-span-4 space-y-4">
               <VideoPlayerColumn
                 videoId={videoId}
                 metadata={metadata}
@@ -669,9 +813,9 @@ export function SummaryClientView({
             </div>
 
             {/* -------------------------------------------------------------
-                MIDDLE COLUMN (5.5 cols on desktop): Interactive Tabs & Content
+                MIDDLE COLUMN (5 cols on desktop): Interactive Tabs & Content
                ------------------------------------------------------------- */}
-            <div className="lg:col-span-5 xl:col-span-5.5 min-w-0">
+            <div className="lg:col-span-5 min-w-0">
               <SummaryTabs
                 summary={summary}
                 transcript={transcript}
@@ -681,6 +825,7 @@ export function SummaryClientView({
                 onGenerateSection={handleGenerateSection}
                 regeneratingSection={regeneratingSection}
                 initialTab={activeTab}
+                outputLang={outputLang}
                 onTabChange={handleTabChange}
                 currentTime={currentTime}
                 onSeek={(seconds) => {
@@ -701,6 +846,7 @@ export function SummaryClientView({
                 messages={chatMessages}
                 onSendMessage={handleChat}
                 loading={chatLoading}
+                outputLang={outputLang}
                 onQuickAction={(prompt) => handleChat(prompt)}
               />
             </div>

@@ -1,20 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   Search,
   Sparkles,
   Loader2,
   CheckCircle2,
-  Download,
-  FileText,
-  Clock,
-  ArrowRight,
-  ShieldCheck,
-  Zap,
   HelpCircle,
   ChevronDown,
 } from 'lucide-react';
@@ -107,64 +99,6 @@ export function GscLandingToolLayout({
         <div className="absolute top-[35%] -right-40 w-[500px] h-[500px] bg-teal-500/8 blur-[120px] rounded-full pointer-events-none" />
         <div className="absolute top-[65%] -left-40 w-[450px] h-[450px] bg-[#E02440]/8 blur-[120px] rounded-full pointer-events-none" />
       </div>
-
-      {/* Top Header Navigation */}
-      <header className="relative z-20 border-b border-zinc-800/80 bg-[#040200]/80 backdrop-blur-md sticky top-0">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative w-8 h-8 flex-shrink-0 transition-transform group-hover:scale-105 duration-200">
-              <Image
-                src="/logo.png"
-                alt="MyTranscript Logo"
-                width={32}
-                height={32}
-                priority
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-bold text-sm tracking-tight text-white flex items-center">
-                My<span className="text-[#E02440]">Transcript</span>
-                <span className="text-zinc-400 font-normal">.pro</span>
-              </span>
-              <span className="text-[10px] text-zinc-400 font-mono -mt-0.5">Free AI Video Tools</span>
-            </div>
-          </Link>
-
-          <nav className="flex items-center gap-2 sm:gap-3 text-xs font-semibold">
-            <Link
-              href="/youtube-transcript"
-              className="hidden sm:inline-block px-3 py-1.5 rounded-lg text-zinc-300 hover:text-white hover:bg-zinc-900 transition-colors"
-            >
-              Transcript Generator
-            </Link>
-            <Link
-              href="/youtube-summary"
-              className="hidden md:inline-block px-3 py-1.5 rounded-lg text-zinc-300 hover:text-white hover:bg-zinc-900 transition-colors"
-            >
-              AI Summarizer
-            </Link>
-            <Link
-              href="/youtube-to-text"
-              className="hidden sm:inline-block px-3 py-1.5 rounded-lg text-zinc-300 hover:text-white hover:bg-zinc-900 transition-colors"
-            >
-              YouTube to Text
-            </Link>
-            <Link
-              href="/articles"
-              className="px-3 py-1.5 rounded-lg text-zinc-300 hover:text-white hover:bg-zinc-900 transition-colors"
-            >
-              Guides
-            </Link>
-            <Link
-              href="/"
-              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#E02440] to-rose-600 hover:from-rose-500 hover:to-red-600 text-white font-bold transition-all shadow-sm shadow-[#E02440]/25"
-            >
-              Open App
-            </Link>
-          </nav>
-        </div>
-      </header>
 
       {/* Main Container */}
       <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-20">
@@ -366,25 +300,6 @@ export function GscLandingToolLayout({
         {/* Internal Linking Related Tools Section */}
         <RelatedTools currentSlug={slug} />
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-zinc-900 bg-zinc-950 py-10 text-xs text-zinc-500">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-white">MyTranscript.pro</span>
-            <span>— Free YouTube Video Transcripts &amp; Subtitle Downloads</span>
-          </div>
-          <div className="flex flex-wrap items-center gap-4 text-zinc-400">
-            <Link href="/about-us" className="hover:text-white transition-colors">About</Link>
-            <Link href="/contact-us" className="hover:text-white transition-colors">Contact</Link>
-            <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy</Link>
-            <Link href="/terms-of-service" className="hover:text-white transition-colors">Terms</Link>
-            <Link href="/sitemap.xml" className="hover:text-white transition-colors">Sitemap</Link>
-            <Link href="/feed.xml" className="hover:text-white transition-colors">RSS</Link>
-            <Link href="/llms.txt" className="hover:text-white transition-colors">LLMs.txt</Link>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

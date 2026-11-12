@@ -9,12 +9,24 @@ function getClient() {
   return new GoogleGenAI({ apiKey });
 }
 
-export function getSummaryPrompt(content: string, videoUrl?: string, title?: string): string {
+function buildLanguageDirective(language?: string): string {
+  if (language === 'ar') {
+    return `\n\nIMPORTANT LANGUAGE REQUIREMENT: Write ALL generated values (bullet points, titles, summaries, section headings, quotes, stat labels, and conclusions) strictly in clear, natural Modern Standard Arabic (العربية الفصحى). Keep the JSON keys themselves strictly in English.`;
+  }
+  return '';
+}
+
+export function getSummaryPrompt(
+  content: string,
+  videoUrl?: string,
+  title?: string,
+  language?: string
+): string {
   const sourceBlock = content && content.trim().length > 0
     ? `VIDEO TRANSCRIPT:\n${content}`
     : `YOUTUBE VIDEO URL: ${videoUrl || ''}\nTITLE: ${title || 'YouTube Video'}\n(Analyze the video content directly from the URL and title)`;
 
-  return `You are an expert content analyst. Analyze the following YouTube video and provide a comprehensive summary.
+  return `You are an expert content analyst. Analyze the following YouTube video and provide a comprehensive summary.${buildLanguageDirective(language)}
 
 ${sourceBlock}
 
@@ -55,7 +67,8 @@ export function getSectionPrompt(
   section: string,
   content: string,
   videoUrl?: string,
-  title?: string
+  title?: string,
+  language?: string
 ): string {
   const sourceBlock = content && content.trim().length > 0
     ? `VIDEO TRANSCRIPT:\n${content}`
@@ -101,7 +114,7 @@ Extract 3-6 key stats, 3-5 main points, 1-3 quotes, and a punchy conclusion. Be 
     throw new Error(`Unknown section: ${section}`);
   }
 
-  return `You are an expert content analyst. Analyze the following YouTube video and generate the requested section with high quality and accuracy.
+  return `You are an expert content analyst. Analyze the following YouTube video and generate the requested section with high quality and accuracy.${buildLanguageDirective(language)}
 
 ${sourceBlock}
 

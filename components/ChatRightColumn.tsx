@@ -9,12 +9,19 @@ interface ChatRightColumnProps {
   onSendMessage: (message: string) => void;
   loading: boolean;
   onQuickAction?: (actionPrompt: string) => void;
+  outputLang?: 'en' | 'ar';
 }
 
-const QUICK_ACTIONS = [
+const QUICK_ACTIONS_EN = [
   { label: 'Key Quotes', prompt: 'What are the top 3 most important quotes in this video with timestamps?' },
   { label: 'Action Items', prompt: 'List all actionable advice or steps mentioned in this video.' },
   { label: 'Fact Check', prompt: 'Summarize the primary thesis and identify any claims that require verification.' },
+];
+
+const QUICK_ACTIONS_AR = [
+  { label: 'أهم الاقتباسات', prompt: 'ما هي أهم 3 اقتباسات وردت في هذا الفيديو مع التوقيت الزمني؟' },
+  { label: 'خطوات عملية', prompt: 'لخّص أهم النصائح والخطوات العملية المذكورة في الفيديو.' },
+  { label: 'الفكرة الرئيسية', prompt: 'ما هي الفكرة المحورية للفيديو وما أبرز الأدلة أو الحجج المذكورة؟' },
 ];
 
 export function ChatRightColumn({
@@ -22,7 +29,10 @@ export function ChatRightColumn({
   onSendMessage,
   loading,
   onQuickAction,
+  outputLang = 'en',
 }: ChatRightColumnProps) {
+  const isArabic = outputLang === 'ar';
+  const quickActions = isArabic ? QUICK_ACTIONS_AR : QUICK_ACTIONS_EN;
   const [input, setInput] = useState('');
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -52,7 +62,7 @@ export function ChatRightColumn({
   };
 
   return (
-    <div className="glass flex flex-col h-full min-h-[560px] max-h-[820px] overflow-hidden">
+    <div dir={isArabic ? 'rtl' : 'ltr'} className="glass flex flex-col h-full min-h-[560px] max-h-[820px] overflow-hidden">
       {/* Header */}
       <div className="p-3.5 border-b border-white/[0.06] flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -60,13 +70,17 @@ export function ChatRightColumn({
             <MessageSquare className="w-4 h-4 text-red-400" />
           </div>
           <div>
-            <h3 className="font-semibold text-white text-xs sm:text-sm">Chat & Quick Actions</h3>
-            <p className="text-[10px] text-gray-500">Ask questions about this video</p>
+            <h3 className="font-semibold text-white text-xs sm:text-sm">
+              {isArabic ? 'الدردشة مع الفيديو' : 'Chat & Quick Actions'}
+            </h3>
+            <p className="text-[10px] text-gray-500">
+              {isArabic ? 'اسأل أي سؤال حول محتوى الفيديو' : 'Ask questions about this video'}
+            </p>
           </div>
         </div>
 
         <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
-          Live AI
+          {isArabic ? 'ذكاء اصطناعي' : 'Live AI'}
         </span>
       </div>
 
@@ -74,15 +88,17 @@ export function ChatRightColumn({
       <div className="p-2.5 border-b border-white/[0.04] bg-white/[0.01]">
         <div className="flex items-center gap-1.5 mb-1.5 text-[11px] text-gray-400">
           <Zap className="w-3 h-3 text-orange-400" />
-          <span className="font-medium text-gray-300">Quick Prompts</span>
+          <span className="font-medium text-gray-300">
+            {isArabic ? 'أسئلة سريعة' : 'Quick Prompts'}
+          </span>
         </div>
         <div className="flex flex-wrap gap-1.5">
-          {QUICK_ACTIONS.map((action, i) => (
+          {quickActions.map((action, i) => (
             <button
               key={i}
               onClick={() => handleActionClick(action.prompt)}
               disabled={loading}
-              className="px-2.5 py-1 text-[11px] text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.1] rounded-lg transition-all whitespace-nowrap disabled:opacity-40"
+              className="px-2.5 py-1 text-[11px] text-gray-300 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.1] rounded-lg transition-all whitespace-nowrap disabled:opacity-40 cursor-pointer"
             >
               {action.label}
             </button>
@@ -98,9 +114,13 @@ export function ChatRightColumn({
               <Sparkles className="w-6 h-6 text-red-400/80" />
             </div>
             <div>
-              <p className="text-gray-300 text-xs font-medium">Ready to discuss this video</p>
-              <p className="text-gray-500 text-[11px] mt-1 max-w-[200px]">
-                Click a quick prompt above or type any specific question below.
+              <p className="text-gray-300 text-xs font-medium">
+                {isArabic ? 'جاهز لمناقشة محتوى الفيديو' : 'Ready to discuss this video'}
+              </p>
+              <p className="text-gray-500 text-[11px] mt-1 max-w-[220px]">
+                {isArabic
+                  ? 'اختر سؤالاً سريعاً أعلاه أو اكتب سؤالك مباشرة بالأسفل.'
+                  : 'Click a quick prompt above or type any specific question below.'}
               </p>
             </div>
           </div>
@@ -158,7 +178,7 @@ export function ChatRightColumn({
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask about the video..."
+            placeholder={isArabic ? 'اكتب سؤالك عن الفيديو...' : 'Ask about the video...'}
             className="flex-1 px-3 py-2 bg-white/[0.04] border border-white/[0.06] rounded-xl text-white placeholder-gray-600 focus:outline-none focus:border-red-500/40 text-xs transition-all"
             disabled={loading}
           />

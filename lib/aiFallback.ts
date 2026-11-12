@@ -19,6 +19,7 @@ export interface FallbackOptions {
   geminiModel?: string;
   openrouterApiKey?: string;
   openrouterModel?: string;
+  language?: string;
 }
 
 /**
@@ -224,7 +225,7 @@ export async function generateSummaryWithFallback(
   options?: FallbackOptions
 ): Promise<SummaryResult> {
   const targets = getFallbackTargets(options);
-  const prompt = getSummaryPrompt(transcript, videoUrl, title);
+  const prompt = getSummaryPrompt(transcript, videoUrl, title, options?.language);
 
   return runWithFallbackChain(targets, 'Generate Summary', async (target) => {
     let text = '';
@@ -250,7 +251,7 @@ export async function regenerateSectionWithFallback(
   options?: FallbackOptions
 ): Promise<Partial<SummaryResult>> {
   const targets = getFallbackTargets(options);
-  const prompt = getSectionPrompt(section, transcript, videoUrl, title);
+  const prompt = getSectionPrompt(section, transcript, videoUrl, title, options?.language);
 
   return runWithFallbackChain(targets, `Regenerate Section [${section}]`, async (target) => {
     let text = '';
@@ -279,7 +280,12 @@ export async function chatWithTranscriptWithFallback(
     ? `VIDEO TRANSCRIPT:\n${transcript}`
     : `YOUTUBE VIDEO: ${videoUrl || ''}\n(Answer questions using your knowledge of this video)`;
 
-  const systemPrompt = `You are a helpful AI assistant that answers questions about a YouTube video. Be concise, accurate, and reference specific parts of the video with timestamps when relevant.\n\n${contextIntro}`;
+  const languageInstruction =
+    options?.language === 'ar'
+      ? '\nIMPORTANT: Respond strictly in natural, clear Modern Standard Arabic (العربية الفصحى), including when referencing timestamps or quoting concepts.'
+      : '';
+
+  const systemPrompt = `You are a helpful AI assistant that answers questions about a YouTube video. Be concise, accurate, and reference specific parts of the video with timestamps when relevant.${languageInstruction}\n\n${contextIntro}`;
 
   return runWithFallbackChain(targets, 'Chat with Video', async (target) => {
     if (target.provider === 'gemini') {

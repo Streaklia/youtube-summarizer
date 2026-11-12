@@ -18,6 +18,11 @@ export const metadata: Metadata = {
   ],
   alternates: {
     canonical: 'https://www.mytranscript.pro/youtube-to-srt',
+    languages: {
+      en: 'https://www.mytranscript.pro/youtube-to-srt',
+      ar: 'https://www.mytranscript.pro/ar/youtube-to-srt',
+      'x-default': 'https://www.mytranscript.pro/youtube-to-srt',
+    },
   },
   openGraph: {
     title: 'YouTube to SRT Converter – Free Online Subtitle Extractor (.srt)',

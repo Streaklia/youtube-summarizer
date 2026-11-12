@@ -81,7 +81,7 @@ export function GET() {
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>MyTranscript.pro Articles &amp; Tools</title>
-    <link>${BASE_URL}</link>
+    <link>${BASE_URL}/</link>
     <description>Practical guides, tools, and benchmarks on automated YouTube transcription, plain-text extraction, subtitle downloads, and AI video summarization.</description>
     <language>en-US</language>
     <lastBuildDate>${buildDate}</lastBuildDate>

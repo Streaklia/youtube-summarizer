@@ -23,12 +23,11 @@
 - [Visual Infographic Generator](https://www.mytranscript.pro/infographic): Turn video transcripts into shareable visual infographic cards with key stats and quotes.
 - [YouTube AI Prompt Generator](https://www.mytranscript.pro/prompt): Generate high-fidelity visual image prompts and 4-panel comic scripts from video dialogue.
 - [Transcript AI Assistant](https://www.mytranscript.pro/transcript-ai): Interactive video Q&A and transcript comprehension assistant.
-- [Web App Interface](https://www.mytranscript.pro/app/): Full-screen workspace for transcription processing and AI analysis.
 
 ## Key Articles & Guides
 
 - [Free Podcast Transcript Generator](https://www.mytranscript.pro/articles/free-podcast-transcript-generator): Flagship tutorial on converting video podcasts into text, exporting SRT subtitles, and distilling AI takeaways for free.
-- [Articles Knowledge Base](https://www.mytranscript.pro/articles/): Practical guides and tutorials on video transcription and AI summarization.
+- [Articles Knowledge Base](https://www.mytranscript.pro/articles): Practical guides and tutorials on video transcription and AI summarization.
 - [How to Get a YouTube Transcript](https://www.mytranscript.pro/articles/how-to-get-youtube-transcript): Step-by-step tutorial for desktop and mobile devices.
 - [Why YouTube Transcript Is Not Showing & Fixes](https://www.mytranscript.pro/articles/why-youtube-transcript-not-showing-fix): Troubleshooting missing captions on YouTube.
 - [How to Summarize Long YouTube Videos](https://www.mytranscript.pro/articles/how-to-summarize-youtube-videos-ai): Guide to extracting key takeaways with AI.
@@ -38,6 +37,19 @@
 - [YouTube Transcript to Text Best Practices](https://www.mytranscript.pro/articles/youtube-transcript-to-text-best-practices): Professional workflows for repurposing video dialogue into blog posts and documentation.
 - [Gemini vs OpenRouter for Video Analysis](https://www.mytranscript.pro/articles/gemini-vs-openrouter-for-video-analysis): Benchmarks comparing AI models on long-context video comprehension.
 - [YouTube Caption Accuracy Study (2026)](https://www.mytranscript.pro/articles/youtube-caption-accuracy-study-2026): In-depth research on automatic speech recognition (ASR) accuracy.
+
+## Arabic Version (النسخة العربية — RTL)
+
+- [Arabic Homepage](https://www.mytranscript.pro/ar): تفريغ وتلخيص فيديوهات يوتيوب بالذكاء الاصطناعي مجاناً وبدعم كامل للغة العربية (RTL).
+- [Arabic YouTube Transcript Generator](https://www.mytranscript.pro/ar/youtube-transcript): استخراج النص الكامل لفيديوهات يوتيوب مع التوقيتات الزمنية ونسخ النص بضغطة واحدة.
+- [Arabic AI YouTube Video Summarizer](https://www.mytranscript.pro/ar/youtube-summary): تلخيص فيديوهات يوتيوب الطويلة واستخراج أهم النقاط والفصول الزمنية بالذكاء الاصطناعي.
+- [Arabic YouTube to SRT Converter](https://www.mytranscript.pro/ar/youtube-to-srt): تحويل ترجمات يوتيوب إلى ملفات SRT قياسية لبرامج المونتاج (Premiere Pro وDaVinci Resolve وCapCut).
+- [Arabic Podcast Transcript Generator](https://www.mytranscript.pro/ar/podcast-transcript): تفريغ حلقات البودكاست الصوتية والمرئية من يوتيوب إلى نص عربي منسق مجاناً.
+- [Arabic YouTube Transcript Chatbot](https://www.mytranscript.pro/ar/youtube-transcript-chatbot): الدردشة التفاعلية بالذكاء الاصطناعي مع أي فيديو يوتيوب وطرح أسئلة مباشرة على المحتوى.
+- [Arabic Articles & Guides](https://www.mytranscript.pro/ar/articles): شروحات ودلائل عربية حول تفريغ الفيديوهات، تلخيص يوتيوب بالذكاء الاصطناعي، وتحميل ملفات الترجمة SRT.
+- [تحويل فيديو يوتيوب إلى نص مكتوب بدقة](https://www.mytranscript.pro/ar/articles/tafrigh-video-youtube-ila-nas): دليل عملي لاستخراج النصوص من الفيديوهات الطويلة والبودكاست مع التوقيتات الزمنية.
+- [تلخيص فيديوهات يوتيوب بالذكاء الاصطناعي](https://www.mytranscript.pro/ar/articles/talkhis-video-youtube-bil-thaka-alistinai): استراتيجيات استخلاص أهم النقاط والفصول الزمنية من المحاضرات والمقابلات بالذكاء الاصطناعي.
+- [تحميل وتصدير ترجمة يوتيوب بصيغة SRT](https://www.mytranscript.pro/ar/articles/tahmil-tarjamat-youtube-srt): شرح استخراج ملفات الترجمة SRT بدقة الملي ثانية لبرامج المونتاج.
 
 ## Technical Architecture & Privacy
 

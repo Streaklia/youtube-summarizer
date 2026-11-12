@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { BLOG_POSTS } from '@/lib/contentData';
+import { ARABIC_BLOG_POSTS } from '@/lib/arabicContentData';
 import { TOOL_SLUGS } from '@/lib/toolTranslations';
 
 const BASE_URL = 'https://www.mytranscript.pro';
@@ -82,7 +83,7 @@ export function GET() {
   });
 
   // 4. Articles & Guides Index (Priority 0.8 | Changefreq: daily)
-  addEntry(`${BASE_URL}/articles/`, today, 'daily', '0.8');
+  addEntry(`${BASE_URL}/articles`, today, 'daily', '0.8');
 
   // 5. Individual Articles & Blog Posts (Priority 0.7 | Changefreq: monthly)
   BLOG_POSTS.forEach((post) => {
@@ -90,10 +91,34 @@ export function GET() {
     addEntry(`${BASE_URL}/articles/${post.slug}`, postDate, 'monthly', '0.7');
   });
 
-  // Web App UI route
-  addEntry(`${BASE_URL}/app/`, today, 'weekly', '0.7');
+  // 6. Arabic Localization Section (/ar/*)
+  addEntry(`${BASE_URL}/ar`, today, 'daily', '0.9');
 
-  // Legal & Corporate Pages (Priority 0.4 | Changefreq: monthly)
+  const ARABIC_CORE_TOOL_PATHS = [
+    'youtube-transcript',
+    'youtube-summary',
+    'youtube-to-srt',
+  ];
+  ARABIC_CORE_TOOL_PATHS.forEach((slug) => {
+    addEntry(`${BASE_URL}/ar/${slug}`, today, 'weekly', '0.9');
+  });
+
+  const ARABIC_SECONDARY_TOOL_PATHS = [
+    'podcast-transcript',
+    'youtube-transcript-chatbot',
+  ];
+  ARABIC_SECONDARY_TOOL_PATHS.forEach((slug) => {
+    addEntry(`${BASE_URL}/ar/${slug}`, today, 'weekly', '0.8');
+  });
+
+  addEntry(`${BASE_URL}/ar/articles`, today, 'daily', '0.8');
+
+  ARABIC_BLOG_POSTS.forEach((post) => {
+    const postDate = post.isoDate || today;
+    addEntry(`${BASE_URL}/ar/articles/${post.slug}`, postDate, 'monthly', '0.7');
+  });
+
+  // 7. Legal & Corporate Pages (Priority 0.4 | Changefreq: monthly)
   const LEGAL_PAGES = [
     'about-us',
     'contact-us',
